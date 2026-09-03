@@ -844,3 +844,43 @@ surfaces share a radius unless they are the same kind of thing.
   Gate green.
 - **Not verifiable headlessly:** whether the stamp reads as a rubber stamp landing. The
   transform samples prove scale and rotation ran, not the feel.
+
+## Phase 4b: the redesign
+
+The Phase 4 interface was judged competent and forgettable, which the brief calls a
+failure. The bar is that a person opens the live URL and reacts before reading a word.
+Four things are fixed: motion safety, no AI-default tells, 390px and keyboard, and the
+API and behaviour. Everything else is open, enamelware included.
+
+### Step 1: three art directions
+
+**1. Signwriter.** World: a bukka off Ubah Street at dusk, its plywood signboard freshly
+painted, the day's menu chalked on slate under one bulb. Material: painted plywood and
+chalk on slate. Type: Alfa Slab One for everything painted or chalked, the fat slab sign
+painters cut by hand, set with a hard offset shade in a second colour; Karla for the
+small print. Palette: board blue-green `#0E4D64`, sign yellow `#F5C33B`, sign red
+`#C4321C`, plywood cream `#EFE3C6`, slate `#1F2A26`, chalk `#F3EFE4`. Unlike any other
+restaurant app because the menu is not laid out, it is lettered: every name and price is
+painted or chalked, wobble included, and the wait is chalk tally marks wiped away.
+
+**2. The Pass.** World: the pass of a hotel kitchen on Berger at nine at night, a brass
+rail, heat lamps, thermal tickets curling in the heat. Material: brushed steel, brass,
+thermal paper, heat. Type: Fraunces, the variable serif with its soft and wonk axes, for
+the name and the big numbers; IBM Plex Mono for everything a printer would print.
+Palette: steel `#3A3D40`, brass `#B08A3E`, heat amber `#F2A93B`, thermal cream
+`#F4EEDD`, char red `#C9362A`, print soot `#1B1A18`. Unlike any other restaurant app
+because the customer stands on the kitchen side of the pass: their order is a ticket
+under a heat lamp, and the lamp is the clock, its light warming toward red as the order
+runs late.
+
+**3. Cast Enamel.** World: the shelf above a Lagos kitchen stove, enamel bowls and trays
+stacked, chipped at the rims from years of use. Material: enamel over pressed steel,
+with the chips showing the metal. Type: Bricolage Grotesque on its width axis, as an
+element; Instrument Sans for the rest. Palette: the seven tokens plus chip metal
+`#3A3F44` and rust `#8A4B2A`. Unlike any other restaurant app because the dishes are
+bowls, drawn, set down on one tray at the angles a hand leaves them, and time is a pot
+on the stove that boils over.
+
+They are three worlds: a sign painter's board, a kitchen pass, a shelf of enamel. Each
+gets the menu screen built for real on the seeded data, with its own entrance and its
+own add-to-order motion, before any of them is chosen.
