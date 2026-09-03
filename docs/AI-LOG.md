@@ -620,3 +620,40 @@ surfaces share a radius unless they are the same kind of thing.
   reveals the waiter content. Going to Customer and back does not prompt again; a reload
   does. Both storages are empty afterwards. The one console error is the 401 the wrong
   PIN produced. Gate green.
+
+### Commit 16: `feat: add menu browsing with entrance sequence`
+
+- **Asked for:** the menu grid with the single orchestrated load sequence: `createDrawable`
+  rims, `splitText` on the restaurant name, `stagger` from centre. Nothing else animates
+  unprompted.
+- **Accepted:** `lib/menu.ts` holds `getMenu()`, and the home page is a server component
+  that reads it straight from the database and hands real plates to the client board,
+  so the first paint has something to draw. Each plate is a chalk, speckled, bowl-radius
+  surface whose rim is an SVG rect drawn in with `svg.createDrawable`; the name is split
+  into characters with `splitText`; a `createTimeline` runs rims, then name, then the
+  section heads, then the plates settling with `stagger(45, { from: "center" })`. All of
+  it lives in one `createScope` with `mediaQueries: { reduceMotion }`, reverted on
+  unmount so strict mode's double mount leaves nothing behind. With reduced motion on,
+  every part is a single 200ms opacity change and the name is never split.
+- **Decision, flagged:** `app/api/menu/route.ts` still carries its own copy of the menu
+  query rather than calling `getMenu()`. Moving it is a change of more than ten lines to
+  an existing file, which the editing rule reserves for the human to approve. The two
+  copies are identical today; approve the refactor and the route becomes one line.
+- **Rejected:** a CSS rule zeroing all transitions under reduced motion, because the
+  scope already carries the branch and the rule would also flatten the deliberate
+  opacity fallback. Hover transitions on plates and a per-section fade, because the brief
+  allows exactly one unprompted sequence.
+- **Corrected by hand:** two defects the browser check exposed. The settled screenshot
+  showed plates with no rim: the rim SVG came before the plate body in the DOM, so the
+  opaque chalk body painted over it; the SVG now sits above the body. The reduced-motion
+  read showed the rect's `draw` attribute at `0 0`, meaning invisible: `createDrawable`
+  initialises every rim to nothing drawn, and it was being created before the
+  reduced-motion branch returned; it is now created only on the animated path. A third,
+  smaller one: `calc()` inside an SVG `width` attribute is not reliable, so the rect is
+  sized through CSS geometry properties instead.
+- **Verified:** in Chromium at 0.35 seconds the rims are part-drawn (`draw` around
+  `0 0.003`) and four characters of the name are in; at 3.5 seconds all 14 plates and
+  rims are at opacity 1 with `draw` at `0 1` and all 17 characters visible. With reduced
+  motion emulated, 0.45 seconds in, all 14 plates and rims are visible, no plate carries
+  a transform, and the name has zero split spans. No horizontal overflow at 390px. No
+  console errors. Screenshots reviewed. Gate green.
