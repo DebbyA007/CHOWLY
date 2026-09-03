@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+sed -i '' -E '/^(Co-Authored-By: Claude|Claude-Session:|.* Generated with \[Claude Code\])/d' "$1"
