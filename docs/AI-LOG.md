@@ -177,3 +177,40 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   preview URLs; production is unaffected.
 - **Deploy gate:** branch pushed after this commit. Connecting the repo to Vercel, setting
   the install command to `npm ci --ignore-scripts` and confirming the URL are manual steps.
+
+### Commit: `chore: override postcss and deepmerge-ts above their advisories`
+
+- **Asked for:** audit the five vulnerabilities `npm ci --ignore-scripts` reported on the
+  fresh scaffold, classify each by severity, directness and reach, say whether a fix
+  exists without a breaking major, and stop for a ruling. No `npm audit fix --force`.
+- **Finding:** five npm entries, two real advisory chains. One: `deepmerge-ts` 7.1.5
+  (high, stack exhaustion on recursive object graphs) reached through `prisma` and
+  `@prisma/config`. Two: `postcss` 8.4.31 (two high, two moderate: arbitrary `.map` file
+  reads through `sourceMappingURL` comments and a `</style>` escape in stringified
+  output), pinned by Next 15.5.25 as a nested dependency. The `next`, `prisma` and
+  `@prisma/config` entries only inherit from those two.
+- **Reach, and how it was proven:** neither chain reaches the production runtime.
+  Requiring `@prisma/client` loads only `runtime/library.js`, and neither `deepmerge-ts`
+  nor `@prisma/config` appears in Node's module cache afterwards; the word deepmerge does
+  not occur in either runtime file, and the lock only marked `prisma` as non-dev because
+  `@prisma/client` names the CLI as an optional peer. For postcss, Next requires it from
+  `dist/build/` files only and nothing under `dist/server/` does, so `next start` never
+  loads it. Both chains run on the build machine: the Prisma CLI during `prisma generate`
+  and migrations, postcss during CSS compilation. Their inputs are authored in this repo.
+- **Rejected:** npm's own fixes, because both are semver-major: `next` 16.3.4, or
+  `prisma` 6.12.0, which is a downgrade to before `@prisma/config` adopted deepmerge-ts.
+  No Prisma release, including the 8.0.0 release candidate, had moved off the
+  vulnerable range.
+- **Accepted (the ruling):** npm `overrides` pinning `postcss` to `^8.5.26` and
+  `deepmerge-ts` to `^8.0.0`. Tested first in a scratch copy: audit clean, Prisma
+  validate and generate clean, Next build clean. Next 16 itself ships postcss 8.5.23, so
+  the 8.5 line is proven inside Next's CSS pipeline. deepmerge-ts 8 is ESM like 7 and only
+  raises the Node floor to 16.9.
+- **Corrected by hand:** nothing.
+- **Verified:** after `rm -rf node_modules && npm ci --ignore-scripts`, the exact Vercel
+  install command, the output line is `found 0 vulnerabilities`. Resolved on disk:
+  postcss 8.5.28 with no nested copy under `next/`, deepmerge-ts 8.0.2. Gate green.
+- **Maintenance note:** overrides pin transitive versions and go stale silently. Nothing
+  warns when `next` or `prisma` moves to a version that no longer needs them, or that
+  needs a different one. Both overrides get re-checked whenever either parent is bumped,
+  and removed the moment the parent's own pin is clean.
