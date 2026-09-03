@@ -365,3 +365,19 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   it. The seven test customers were deleted from Neon afterwards. Gate green. `secure`
   is set only in production, which is the one attribute curl against localhost cannot
   show; check it on the live URL.
+
+### Commit 8: `feat: add menu api`
+
+- **Asked for:** `GET /api/menu`, grouped by menu type, unavailable items excluded.
+- **Accepted:** one query with the restaurant, its menus ordered by type (so the kitchen
+  comes before the bar) and only `available: true` items. Each item carries `priceKobo`
+  for arithmetic and `price` already formatted, so the client never formats money. No
+  session is needed to read the menu and nothing is written, so it stays outside the
+  customer lookup.
+- **Rejected:** nothing.
+- **Corrected by hand:** nothing.
+- **Verified:** against the dev server the response carries The Golden Gate, 8 kitchen
+  items and 6 bar items with formatted prices and prep times. Setting Puff puff to
+  unavailable in Neon dropped the count to 13 with the item absent; restoring it brought
+  back 14. The security headers from Commit 2 are present on the JSON response. Gate
+  green.
