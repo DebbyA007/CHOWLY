@@ -2,19 +2,15 @@
 
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import type { PresentedOrder } from "@/lib/orders";
-import { CountdownRing } from "./countdown-ring";
+import type { SerializedOrder as Order } from "@/lib/orders";
+import { ComplaintForm } from "./complaint-form";
+import { CountdownRing, ringState } from "./countdown-ring";
+import { RatingControl } from "./rating-control";
+import { useNow } from "./use-now";
 
 // The customer's own order. Polls every three seconds so the ring settles to leaf the
 // moment the waiter marks it served, without a refresh. The initial order comes from
 // the server render, so there is never an empty first paint.
-type Order = Omit<PresentedOrder, "placedAt" | "dueAt" | "servedAt" | "paidAt"> & {
-  placedAt: string;
-  dueAt: string;
-  servedAt: string | null;
-  paidAt: string | null;
-};
-
 async function fetcher(url: string): Promise<Order> {
   const response = await fetch(url);
   if (!response.ok) {
@@ -30,7 +26,7 @@ function at(iso: string | null): string {
 }
 
 export function OrderView({ initial }: { initial: Order }) {
-  const { data, error } = useSWR<Order>(`/api/orders/${initial.id}`, fetcher, {
+  const { data, error, mutate } = useSWR<Order>(`/api/orders/${initial.id}`, fetcher, {
     refreshInterval: 3000,
     fallbackData: initial,
   });
@@ -41,6 +37,15 @@ export function OrderView({ initial }: { initial: Order }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const when = (iso: string | null) => (mounted && iso ? ` at ${at(iso)}` : "");
+
+  // The complaint entry point appears only once the ring has crossed: still waiting past
+  // the promised time, or served after it. Same rule as the server.
+  const now = useNow();
+  const dueMs = new Date(order.dueAt).getTime();
+  const servedLate = order.servedAt !== null && new Date(order.servedAt).getTime() > dueMs;
+  const late = now !== null && (ringState(order.status, order.placedAt, order.waitMinutes, now) === "late" || servedLate);
+  const lateBySeconds = now === null ? 0 : Math.max(0, Math.floor(((order.servedAt ? new Date(order.servedAt).getTime() : now) - dueMs) / 1000));
+  const lateBy = `${Math.floor(lateBySeconds / 60)} min ${lateBySeconds % 60} s`;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -85,6 +90,17 @@ export function OrderView({ initial }: { initial: Order }) {
           <span>Total</span>
           <span className="tabular">{order.total}</span>
         </p>
+
+        {late ? (
+          <ComplaintForm
+            orderId={order.id}
+            waitMinutes={order.waitMinutes}
+            lateBy={lateBy}
+            complaints={order.complaints}
+            onSent={() => void mutate()}
+          />
+        ) : null}
+        <RatingControl key={order.rating?.score ?? "none"} orderId={order.id} current={order.rating} onSaved={() => void mutate()} />
       </section>
     </div>
   );

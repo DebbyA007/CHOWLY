@@ -780,3 +780,35 @@ surfaces share a radius unless they are the same kind of thing.
   Gate green.
 - **Not verifiable headlessly:** the spring feel on release and the grab cursor. The
   transform readings prove the return, not how it looks.
+
+### Commit 20: `feat: add complaint and rating flow`
+
+- **Asked for:** the complaint entry point appears only once the ring has crossed into
+  delay. The rating is a one to five control that submits with the complaint or on its
+  own.
+- **Accepted:** the order view derives lateness from the same rule as the server:
+  still waiting past the promised time, or served after it. Only then does the "Running
+  late" section render, in pepper, saying how far past the promise the order is and
+  that the manager sees the complaint on the rail. Sending posts the complaint, then
+  the score as its own request if one was picked, so the two endpoints stay
+  independent and the database keeps one rating per order. "How was it?" renders on
+  every order with five numbered stamps; the selected run takes pepper up to 2, enamel
+  at 3 and leaf from 4, so the colour says what the number means. Rating again reads
+  "Change rating" and upserts. Complaints already sent are listed above the form, and
+  the rail shows a complaint count on the ticket.
+- **Rejected:** star icons, in favour of numbered stamps in the enamel palette. Hiding
+  the rating until the order is served, because the assignment lets it stand on its
+  own.
+- **Corrected by hand:** a type error the gate caught after the browser run had passed:
+  the presenter's complaint dates are `Date` objects and the client receives strings.
+  A single `SerializedOrder` type in `lib/orders.ts` now describes the JSON shape, and
+  both client views use it instead of their own partial versions.
+- **Verified:** in Chromium: an on-time order shows no complaint section and the rating
+  section reads "Rate the order, on its own or with a complaint." Rating without a score
+  says "Pick a score from 1 to 5 first." A 4 with a comment saved as one row and the
+  intro changed to "You rated this 4 of 5"; changing to 5 kept one row with score 5 and
+  the stamps in leaf. With `placedAt` backdated 20 minutes against a 12 minute promise,
+  the section appeared reading "8 min 4 s past it"; an empty send said what to write; a
+  complaint with a score of 2 produced "Complaint sent", one listed complaint, one row in
+  Neon, the rating changed to 2 with the stamps in pepper, and the rail response carried
+  the complaint on the ticket. No console errors. Screenshot reviewed. Gate green.

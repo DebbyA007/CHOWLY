@@ -62,3 +62,14 @@ export function presentOrder(order: OrderWithRelations, now: Date = new Date()) 
 }
 
 export type PresentedOrder = ReturnType<typeof presentOrder>;
+
+// The same shape after a JSON round trip, which is what every client component
+// receives: every Date is an ISO string.
+export type SerializedOrder = Omit<PresentedOrder, "placedAt" | "dueAt" | "servedAt" | "paidAt" | "complaints" | "payment"> & {
+  placedAt: string;
+  dueAt: string;
+  servedAt: string | null;
+  paidAt: string | null;
+  complaints: { id: string; description: string; createdAt: string }[];
+  payment: (Omit<NonNullable<PresentedOrder["payment"]>, "paidAt"> & { paidAt: string }) | null;
+};

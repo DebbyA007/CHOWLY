@@ -1,13 +1,8 @@
 "use client";
 
-import type { PresentedOrder } from "@/lib/orders";
+import type { SerializedOrder } from "@/lib/orders";
 
-export type RailOrder = Omit<PresentedOrder, "placedAt" | "dueAt" | "servedAt" | "paidAt"> & {
-  placedAt: string;
-  dueAt: string;
-  servedAt: string | null;
-  paidAt: string | null;
-};
+export type RailOrder = SerializedOrder;
 
 type Props = {
   order: RailOrder;
