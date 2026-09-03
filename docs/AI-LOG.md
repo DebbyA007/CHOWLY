@@ -214,3 +214,34 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   warns when `next` or `prisma` moves to a version that no longer needs them, or that
   needs a different one. Both overrides get re-checked whenever either parent is bumped,
   and removed the moment the parent's own pin is clean.
+
+### Commit 3: `feat: connect prisma to neon with the first migration`
+
+- **Asked for:** `.env` with `DATABASE_URL` (Neon pooled), `DIRECT_URL` (Neon direct),
+  `SESSION_SECRET` and `STAFF_PIN`; a committed `.env.example` with every key present and
+  every value blank; confirmation that `.env` is ignored; the first migration, with the
+  generated SQL for Order and Payment reported.
+- **Accepted:** `.env.example` committed with the four keys blank and a one-line comment
+  each. `.env` is ignored by the `.env` rule and `.env.example` is un-ignored by the
+  `!.env.example` negation, both confirmed with `git check-ignore`. The human wired the
+  real values; the AI checked them for presence and shape only (character counts, the
+  `-pooler` host segment on the pooled string and its absence on the direct one) and
+  never printed them. Migration `20260903160256_init` was created and applied with
+  `prisma migrate dev` over `DIRECT_URL`.
+- **Deltas realised by this migration:** 1, `MenuItem.prepTimeMinutes INTEGER NOT NULL`.
+  2, `Order.waitMinutes INTEGER NOT NULL`. 3, `waiterId`, `chefId` and `bartenderId` as
+  nullable `TEXT` with `ON DELETE SET NULL`. 4, `OrderStatus` enum of exactly PLACED,
+  SERVED and PAID, so a delayed state has nowhere to be stored. 5, `placedAt`, `servedAt`
+  and `paidAt` as `TIMESTAMP(3)`. 6, `OrderItem.unitPriceKobo`, `subtotalKobo` and
+  `prepTimeMinutes` as snapshot columns. 7, every money column `INTEGER`. 8, the unique
+  index `Payment_orderId_key`. 9, `isPretend BOOLEAN NOT NULL DEFAULT true`. 11, the
+  unique index `Customer_sessionToken_key`. Delta 10's `CHECK` is the next commit, since
+  Prisma cannot express it.
+- **Rejected:** the build plan's message `feat: add prisma schema and connect neon`,
+  because the schema was already committed in `5775a14` and this commit does not touch
+  it. A message claiming otherwise would misdescribe the history the assignment grades.
+  No schema stub was ever needed for the same reason.
+- **Corrected by hand:** nothing.
+- **Verified:** `prisma migrate status` reports the database in sync. A Prisma client
+  query over the pooled `DATABASE_URL`, the path the app will use, returned PostgreSQL
+  18.6, the thirteen tables, and the applied migration row. Gate green.
