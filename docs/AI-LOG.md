@@ -522,3 +522,325 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   deepmerge, no server trace anywhere mentions either, and no compiled file under
   `.next/server` contains the string postcss. The conclusion holds: both chains are
   build-time only, and after the overrides they are patched versions anyway.
+
+## Phase 4: the interface
+
+### Design plan, reviewed before building
+
+The brief fixes the direction, so the plan is about executing it as a decision rather than
+a default.
+
+- **Palette:** the seven tokens from `CLAUDE.md`, unchanged. Two derived values only:
+  `--ink` is the rim colour used as text on chalk, so edges and type are one material,
+  and `--ink-soft` for secondary text on chalk. Flame is spent on time and nothing else.
+- **Type:** Bricolage Grotesque with the `opsz` and `wdth` axes loaded, used wide (wdth
+  112) for the restaurant name and the countdown and tighter (wdth 92) for section
+  heads. Instrument Sans for everything else. Tabular figures on the countdown.
+- **Layout concept:** the customer screen is a table seen from above. The deep speckled
+  ground is the tabletop, the dishes are chalk plates with the rim hairline, and the cart
+  is a tray along the bottom edge. The order page is one plate in the centre with the
+  countdown ring as the dish. The waiter side is a rail of paper tickets.
+
+```
+  CHOWLY                         [ Customer | Waiter ]
+  The Golden Gate
+  13 Ubah Street, Berger, Lagos
+  Kitchen
+  ( plate ) ( plate ) ( plate )
+  ( plate ) ( plate ) ( plate )
+  Bar
+  ( plate ) ( plate ) ( plate )
+  ================ tray: 3 items, ₦12,500, Place order ================
+```
+
+- **Radii mean something:** plate 28px (a bowl), tray 14px, button 8px (a stamp), ticket
+  4px (paper). No single radius on everything.
+- **Separation:** the rim hairline only. No shadows, no left-edge bars, no glass.
+- **Copy:** sentence case, a button names what happens ("Place order", then "Placed").
+
+Reviewed against the generic defaults: not cream with terracotta and a serif, not
+near-black with an acid accent, not a card kit with one radius and a grey shadow, no
+eyebrow labels, no middle dots, no arrows. Every choice above traces to enamelware or to
+the data on the plate. One thing to watch: the plates grid could drift toward a SaaS
+card grid, so plates get the large bowl radius, the rim and the speckle, and no two
+surfaces share a radius unless they are the same kind of thing.
+
+### Commit 14: `feat: add enamel design tokens and typography`
+
+- **Asked for:** the token block into `app/globals.css`, Bricolage Grotesque and
+  Instrument Sans via `next/font/google`, the enamel rim and speckle as reusable
+  utilities.
+- **Accepted:** the seven tokens on `:root` under the brief's own names, mapped into
+  Tailwind's colour namespace so `bg-chalk` and `text-flame` exist. Utilities that say
+  what a thing is: `enamel` (chalk, ink, rim), `rim`, `speckle-deep` and `speckle-chalk`
+  (inline SVG flecks, so they need no request and stay within `img-src 'self' data:`),
+  `plate`, `tray`, `stamp` and `ticket` for the four radii, `display-wide` and
+  `display-tight` for the two width settings, `tabular` for the countdown. Both fonts
+  loaded with `next/font/google`, Bricolage with its `opsz` and `wdth` axes as the
+  installed declaration allows. `app/icon.svg`, a chalk plate with the rim on the deep
+  ground, replaces the 404 the probe had been logging. A visible focus ring in flame on
+  the ground and enamel-mid on chalk.
+- **Rejected:** Tailwind theme tokens for the fonts and radii. The first draft declared
+  them in `@theme inline` under the same names as the raw `:root` tokens, which reads as
+  a self-reference and would have inlined the variables away; the raw tokens stay on
+  `:root` and the shapes are named utilities instead. A CSS `prefers-reduced-motion`
+  blanket rule that zeroes every transition, because the anime.js scopes carry their own
+  reduced-motion branch and the blanket rule would also kill the deliberate opacity
+  fallback.
+- **Corrected by hand:** nothing.
+- **Verified:** Chromium reports the heading in Bricolage Grotesque with
+  `"opsz" 96, "wdth" 112` at weight 600, the body in Instrument Sans, the speckle SVG as
+  the body background image over the deep ground, `icon.svg` served as `image/svg+xml`
+  and linked from the head, and no console messages at all. Screenshot reviewed. Gate
+  green.
+
+### Commit 15: `feat: add role switch`
+
+- **Asked for:** a persistent customer and waiter switch, honest about being UI
+  convenience and not auth. The waiter side prompts for the PIN once per session.
+- **Accepted:** the role is the route. `/` is the customer and `/waiter` is the waiter,
+  and the switch in the site header is a pair of links styled as one enamel two-segment
+  control with the active segment filled, so the state survives refresh through the URL
+  and nothing pretends to be a login. The caption under it says so in one sentence. The
+  PIN lives in React state in a provider at the root layout: switching roles and back
+  keeps it, a reload asks again. The gate on `/waiter` checks the PIN against the rail
+  endpoint, which compares in constant time server-side, and only renders the waiter
+  view after a 200.
+- **Rejected:** `localStorage` and `sessionStorage` for the PIN, because both are readable
+  by any script on the page. Storing the role in a cookie or storage, because the URL
+  already holds it and is shareable. A 403 body message that reveals whether the PIN was
+  close, in favour of one message for missing and wrong alike.
+- **Corrected by hand:** the browser check, not the code. The first script waited on any
+  `role="alert"` and matched a region Next injects, so it read an empty string while the
+  request was still in flight; re-checking against the form's own error id read the
+  message.
+- **Verified:** in Chromium the home page marks Customer current and `/waiter` marks
+  Waiter current. A wrong PIN shows "That PIN was not accepted. Check it with the manager
+  and try again." with `aria-invalid` on the field and the gate still up. The right PIN
+  reveals the waiter content. Going to Customer and back does not prompt again; a reload
+  does. Both storages are empty afterwards. The one console error is the 401 the wrong
+  PIN produced. Gate green.
+
+### Commit 16: `feat: add menu browsing with entrance sequence`
+
+- **Asked for:** the menu grid with the single orchestrated load sequence: `createDrawable`
+  rims, `splitText` on the restaurant name, `stagger` from centre. Nothing else animates
+  unprompted.
+- **Accepted:** `lib/menu.ts` holds `getMenu()`, and the home page is a server component
+  that reads it straight from the database and hands real plates to the client board,
+  so the first paint has something to draw. Each plate is a chalk, speckled, bowl-radius
+  surface whose rim is an SVG rect drawn in with `svg.createDrawable`; the name is split
+  into characters with `splitText`; a `createTimeline` runs rims, then name, then the
+  section heads, then the plates settling with `stagger(45, { from: "center" })`. All of
+  it lives in one `createScope` with `mediaQueries: { reduceMotion }`, reverted on
+  unmount so strict mode's double mount leaves nothing behind. With reduced motion on,
+  every part is a single 200ms opacity change and the name is never split.
+- **Decision, flagged:** `app/api/menu/route.ts` still carries its own copy of the menu
+  query rather than calling `getMenu()`. Moving it is a change of more than ten lines to
+  an existing file, which the editing rule reserves for the human to approve. The two
+  copies are identical today; approve the refactor and the route becomes one line.
+- **Rejected:** a CSS rule zeroing all transitions under reduced motion, because the
+  scope already carries the branch and the rule would also flatten the deliberate
+  opacity fallback. Hover transitions on plates and a per-section fade, because the brief
+  allows exactly one unprompted sequence.
+- **Corrected by hand:** two defects the browser check exposed. The settled screenshot
+  showed plates with no rim: the rim SVG came before the plate body in the DOM, so the
+  opaque chalk body painted over it; the SVG now sits above the body. The reduced-motion
+  read showed the rect's `draw` attribute at `0 0`, meaning invisible: `createDrawable`
+  initialises every rim to nothing drawn, and it was being created before the
+  reduced-motion branch returned; it is now created only on the animated path. A third,
+  smaller one: `calc()` inside an SVG `width` attribute is not reliable, so the rect is
+  sized through CSS geometry properties instead.
+- **Verified:** in Chromium at 0.35 seconds the rims are part-drawn (`draw` around
+  `0 0.003`) and four characters of the name are in; at 3.5 seconds all 14 plates and
+  rims are at opacity 1 with `draw` at `0 1` and all 17 characters visible. With reduced
+  motion emulated, 0.45 seconds in, all 14 plates and rims are visible, no plate carries
+  a transform, and the name has zero split spans. No horizontal overflow at 390px. No
+  console errors. Screenshots reviewed. Gate green.
+
+### Commit: `style: draw the rims in chalk before the plates settle`
+
+- **Asked for:** nothing; a refinement from reviewing the mid-sequence screenshot.
+- **Why:** the rims drew in ink over the deep ground, dark on dark, so the opener of the
+  one orchestrated sequence was nearly invisible. Enamel is seen chalk-first, so the
+  rims now draw in chalk and take their ink colour as the plates settle under them.
+- **Rejected:** widening the stroke or adding a glow to make the ink read on the ground;
+  a glow is on the banned list and a wider rim stops being a hairline.
+- **Verified:** Chromium reads the rim stroke as chalk (`rgb(242, 239, 230)`) at 0.6
+  seconds and as ink (`rgb(10, 31, 51)`) once settled. Gate green.
+
+### Commit 17: `feat: add cart and order submission`
+
+- **Asked for:** a motion path arc on add, a `createSpring` badge, and a timeline that
+  folds the cart into a printed ticket on submit.
+- **Accepted:** `lib/cart.ts` holds the cart shape and its sums, display only. The tray
+  sits along the bottom edge, always shows the badge so an added item has somewhere to
+  land, and says what to do when empty. On add, a chalk disc is created at the button,
+  flown along a quadratic SVG path built from the button and badge rectangles with
+  `svg.createMotionPath`, removed on arrival, and the badge lands with
+  `createSpring({ stiffness: 320, damping: 13 })`. Plates that are on the tray show a
+  stepper in place of the button. On submit the body posts item ids, quantities and the
+  table number only, and on 201 a `createTimeline` folds the tray to nothing, unfolds a
+  paper ticket carrying the reference, the promised minutes and the total, and slides it
+  away before the order page opens. Under reduced motion the disc is never created, the
+  badge blinks, and the ticket step is skipped for an immediate navigation. Everything
+  runs inside one `createScope` with the reduced-motion query and is reverted on
+  unmount.
+- **Rejected:** a client-side wait time preview on the tray, because the wait is
+  computed in exactly one server-side place and a preview would be a second one.
+  Letting the browser's native "fill out this field" tooltip handle an empty table
+  number, because it does not say where the number is; the form is `noValidate` and
+  the message is "Enter the number printed on your table."
+- **Corrected by hand:** nothing in the code beyond the validation copy above.
+- **Verified:** in Chromium the empty tray reads "Nothing on the tray yet. Add a dish to
+  start an order." Adding steak created one flyer, caught mid-flight at a point between
+  plate and tray, removed after landing with the badge mid-spring (transform 1.0037 and
+  settling); badge 1, total ₦8,500. Plus and minus moved the badge and total to 2 and
+  ₦17,000 and back. Steak plus mojito read ₦12,500. Placing the order produced the
+  ticket "Order CHW-0001. Placed. The kitchen promised 25 minutes. ₦12,500" over a
+  folded tray, then navigated to `/order/<id>`, which is a 404 until the next commit.
+  Under reduced motion no flyer was created and submit navigated straight away. Test
+  rows were deleted from Neon afterwards. Gate green.
+- **Not verifiable headlessly:** the feel of the arc and the spring. The numbers say the
+  disc travelled and the badge overshot, not whether it reads as an item landing on a
+  tray.
+
+### Commit 18: `feat: add live countdown ring`
+
+- **Asked for:** the hero. SVG `stroke-dashoffset` from real elapsed time against
+  `waitMinutes`, computed from `placedAt` so it survives a refresh. Flame on time, pepper
+  past the wait, leaf when served.
+- **Accepted:** `/order/[id]` renders on the server for the browser that placed the
+  order, with the same combined ownership query the API uses, and 404s for anyone else.
+  A styled not-found page replaces Next's generic one, since a link to another table's
+  order lands there. The client view polls `/api/orders/[id]` through SWR every three
+  seconds with the server render as fallback, so the ring settles to leaf the moment the
+  waiter marks the order served, without a refresh. The ring itself ticks once a second
+  from `Date.now()` against `placedAt`: it drains through the promised wait in flame,
+  holds full in pepper with a `+mm:ss` overrun once elapsed passes the wait, and holds
+  full in leaf reading "Served" or "Paid". Digits are Bricolage wide with tabular
+  figures. The ring does not know the client clock on the server, so it renders `--:--`
+  until mounted and fills within a frame.
+- **Rejected:** a timer started on mount, because a refresh would restart it; the ring
+  reads the clock against `placedAt` every tick. A stored delay flag, again, because
+  `ringState` derives it exactly as the server does.
+- **Corrected by hand:** a hydration mismatch found by the browser check. The status
+  line formatted the placed time with `toLocaleTimeString`, and the server produced
+  "10:38" while the browser produced "10:38 AM", so React discarded the server tree.
+  Clock times now render only after mount, and the sentence reads without them until
+  then. A second read of the served ring caught the stroke mid-fade; sampling after the
+  600ms transition confirmed leaf.
+- **Verified:** in Chromium, with the order placed from the page's own session: the ring
+  read 24:53 in flame with the offset growing over two seconds; after a reload it
+  continued from 24:45 rather than restarting; with `placedAt` backdated 30 minutes it
+  read +05:05 in pepper with "past the 25 minutes promised"; after the waiter assignment
+  went in through the API it turned to "Served" in leaf through the poll alone, with the
+  waiter, chef and bartender named. A second browser opening the order address got the
+  styled 404, and so did a malformed id. No console errors after the fix. Screenshots
+  reviewed. Test rows deleted. Gate green.
+
+### Commit 19: `feat: add waiter ticket rail`
+
+- **Asked for:** SWR at 3 seconds, `createDraggable` tickets from Placed to Served, with
+  keyboard and button equivalents for the same action. The assignment dialog records
+  chef and bartender.
+- **Accepted:** the rail polls `/api/waiter/orders` with the PIN header every three
+  seconds and re-prompts for the PIN if the server stops accepting it. Tickets are paper:
+  small radius, a perforated top edge, the reference and table, the lines, elapsed
+  against promised, a pepper "Late" tag from the derived delay, and a complaint count.
+  Three paths reach one dialog: a "Mark served" button on every placed ticket, Enter or
+  Space on a focused ticket, and a drag. The drag is `createDraggable` on the x axis
+  inside the Placed column with container friction, so a ticket can be pulled toward
+  the Served column and springs back on release through the release spring; releasing
+  past forty-five percent of the column width opens the dialog. The draggables live in
+  a `createScope` with the reduced-motion query and are not created at all when it
+  matches, leaving the button and keyboard paths. The dialog is a native `<dialog>`, so
+  focus trapping and Escape come free, with three labelled selects filled from the rail
+  response. Paid orders are not on the rail.
+- **Rejected:** a drop that marks served without the dialog, because requirement 3 is
+  that the waiter records who cooked and who mixed, so a drop opens the dialog and
+  never skips it. A custom modal, in favour of the native element. Storing the PIN
+  anywhere but memory.
+- **Corrected by hand:** a nesting mistake caught on review before the gate: the drag
+  wrapper and the ticket inside it shared a class, so the draggable query would have
+  created draggables inside draggables; the wrapper has its own class now. And an
+  improvement the browser check prompted: the served ticket first waited for the next
+  poll to move, which on a slow connection left it sitting in Placed after the toast
+  said served, so the dialog now hands the PATCH response to the rail and the ticket
+  moves at once, with the poll confirming.
+- **Verified:** in Chromium: an empty rail shows "No tickets on the rail. Orders placed
+  from the menu appear here within a few seconds." Three orders placed from a customer
+  session appeared through the poll. Enter on the focused first ticket opened "Serve
+  CHW-0001", and after choosing the three names it moved to Served as soon as the PATCH
+  answered. The button opened the dialog, Cancel closed it, and serving through it moved
+  the second ticket. A short drag opened nothing and the ticket sprang back to a
+  transform of zero; a long drag opened the dialog for the third ticket and the ticket
+  sprang back; Escape closed it. With reduced motion emulated the ticket did not move
+  under the pointer and the button remained. No console errors. Screenshots reviewed.
+  Gate green.
+- **Not verifiable headlessly:** the spring feel on release and the grab cursor. The
+  transform readings prove the return, not how it looks.
+
+### Commit 20: `feat: add complaint and rating flow`
+
+- **Asked for:** the complaint entry point appears only once the ring has crossed into
+  delay. The rating is a one to five control that submits with the complaint or on its
+  own.
+- **Accepted:** the order view derives lateness from the same rule as the server:
+  still waiting past the promised time, or served after it. Only then does the "Running
+  late" section render, in pepper, saying how far past the promise the order is and
+  that the manager sees the complaint on the rail. Sending posts the complaint, then
+  the score as its own request if one was picked, so the two endpoints stay
+  independent and the database keeps one rating per order. "How was it?" renders on
+  every order with five numbered stamps; the selected run takes pepper up to 2, enamel
+  at 3 and leaf from 4, so the colour says what the number means. Rating again reads
+  "Change rating" and upserts. Complaints already sent are listed above the form, and
+  the rail shows a complaint count on the ticket.
+- **Rejected:** star icons, in favour of numbered stamps in the enamel palette. Hiding
+  the rating until the order is served, because the assignment lets it stand on its
+  own.
+- **Corrected by hand:** a type error the gate caught after the browser run had passed:
+  the presenter's complaint dates are `Date` objects and the client receives strings.
+  A single `SerializedOrder` type in `lib/orders.ts` now describes the JSON shape, and
+  both client views use it instead of their own partial versions.
+- **Verified:** in Chromium: an on-time order shows no complaint section and the rating
+  section reads "Rate the order, on its own or with a complaint." Rating without a score
+  says "Pick a score from 1 to 5 first." A 4 with a comment saved as one row and the
+  intro changed to "You rated this 4 of 5"; changing to 5 kept one row with score 5 and
+  the stamps in leaf. With `placedAt` backdated 20 minutes against a 12 minute promise,
+  the section appeared reading "8 min 4 s past it"; an empty send said what to write; a
+  complaint with a score of 2 produced "Complaint sent", one listed complaint, one row in
+  Neon, the rating changed to 2 with the stamps in pepper, and the rail response carried
+  the complaint on the ticket. No console errors. Screenshot reviewed. Gate green.
+
+### Commit 21: `feat: add payment and receipt`
+
+- **Asked for:** the pay button, the stamp animation, the receipt. Pretend legible on the
+  button, on the receipt and in the record. The ring goes quiet.
+- **Accepted:** the payment panel renders only once the order is served, headed with the
+  stored total and a sentence that says no money moves. Three method stamps, then
+  "Pay now (pretend)". The request carries the method and nothing else. On success the
+  PATCH-style response replaces the SWR data at once, the panel gives way to the
+  receipt, and the ring settles on leaf reading "Paid". The receipt is paper with both
+  edges perforated: the lines, the total from the payment row, "Paid by mobile money",
+  and "Pretend payment. No money moved, and the record is marked pretend." driven by the
+  row's `isPretend`. The PAID stamp lands once, on the payment that just happened, with
+  `animate` inside a `createScope` carrying the reduced-motion query: a scale and a
+  slight rotate settle with `outBack`, or a plain opacity change when the query
+  matches. On a later visit the stamp is simply there.
+- **Rejected:** any treatment that could pass for a real checkout: no card fields, no
+  processing spinner theatre, no success confetti. A stamp with letter spacing, since
+  a tracked-out label is on the banned list; the stamp is the word in caps and nothing
+  more.
+- **Corrected by hand:** nothing.
+- **Verified:** in Chromium: the panel was absent on a placed order and appeared through
+  the poll once the waiter served it, reading "Pay ₦11,500" with the pretend sentence.
+  Paying by mobile money produced the stamp mid-landing with its scale in progress, then
+  the ring on "Paid", the panel gone and the receipt reading the two lines, the total,
+  the method and the pretend sentence. Neon holds one payment with `isPretend: true`
+  and the stored total of 1,150,000 kobo, and the order is PAID. After a reload the
+  stamp is static and the status line reads "Paid at 10:53." Under reduced motion the
+  stamp carried rotation only and faded in. No console errors. Screenshots reviewed.
+  Gate green.
+- **Not verifiable headlessly:** whether the stamp reads as a rubber stamp landing. The
+  transform samples prove scale and rotation ran, not the feel.
