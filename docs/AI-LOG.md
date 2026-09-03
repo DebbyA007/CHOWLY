@@ -295,3 +295,33 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   returned every item with its kobo price and prep time, and a GROUP BY on item names
   found no duplicates. `tsc --listFilesOnly` includes the seed and `eslint` lints it
   without warnings. Gate green.
+
+## Phase 2: the data layer
+
+### Commit 6: `feat: add zod schemas and money helpers`
+
+- **Asked for:** a Zod schema for every request shape, rejecting unknown keys.
+  `formatNaira(kobo)`. The wait time in one server-side place, unit tested:
+  `max(prepTime) + 3 * (itemCount - 1)`.
+- **Accepted:** `lib/schemas.ts` with strict objects for order creation, staff assignment,
+  complaint, rating and payment, plus a cuid check for order ids and a `parseWith` helper
+  that turns the first issue into a sentence a person can act on. An unrecognised key
+  gets its own wording, since a posted price is the case that matters. `lib/money.ts`
+  formats integer kobo as naira with grouped thousands and shows kobo only when there
+  are any. `lib/wait-time.ts` holds `calculateWaitMinutes`, capped at 90, and the derived
+  delay check (`isOrderDelayed`, `dueAt`) so delta 4 has exactly one implementation.
+  Tests run on Node's built-in runner (`node --test`), and the test files are `.mts`
+  importing `.ts` sources, which needed `allowImportingTsExtensions` in tsconfig.
+- **Interpretation, flagged:** `itemCount` is units, not lines, so two steaks and three
+  zobo count as five. Each extra unit is kitchen load whether or not it is a new dish.
+- **Rejected:** a test framework dependency (vitest or jest), because the runner in Node
+  24 covers assertion, grouping and TypeScript without a package. `Intl.NumberFormat`
+  for naira, because ICU output differs between Node builds and browsers and a money
+  string should not depend on which one formatted it.
+- **Corrected by hand:** the cap test. The AI wrote it as twenty steaks expecting the cap,
+  but 22 + 3 * 19 is 79, under the cap, so the test asserted the wrong number and failed
+  on first run. It now uses forty units (139 before the cap) and also pins the 79 case
+  just below it. The function was right; the test was not.
+- **Verified:** 16 tests pass, including a client posting `priceKobo` on a line and
+  `totalKobo` plus `waitMinutes` at the top level, both rejected with the field named.
+  Gate green.
