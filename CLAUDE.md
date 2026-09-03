@@ -51,10 +51,17 @@ Security review is part of every change, not a phase at the end.
 - **Ownership checks.** A customer may only read, complain about, rate or pay an order
   whose `customerId` matches their session. Verify server-side on every one of those
   routes. Never take the customer ID from the request body.
-- **The role switch is not a security boundary.** It is UI convenience, since the
-  assignment forbids logins. Waiter mutations are therefore additionally gated by a staff
-  PIN held in `STAFF_PIN` and compared with `crypto.timingSafeEqual`. State this honestly
-  in the document rather than pretending the switch is auth.
+- **There is no authentication, by design.** The assignment forbids logins and requires
+  the live link to be usable by anyone, so the role switch is a view switch and the
+  waiter routes are open: every screen is one click from the URL with no gate, no PIN
+  prompt and nothing stored. State this honestly in the document rather than pretending
+  a PIN was security.
+- **The server-side authorization seam stays.** `lib/staff-pin.ts` compares an
+  `x-staff-pin` header against `STAFF_PIN` with `crypto.timingSafeEqual`, behind
+  `STAFF_PIN_REQUIRED`. The seam is explicit, never implicit: it is off only when the
+  flag is exactly `false`, and absent, empty or malformed keeps it on, because an absent
+  variable meaning allow-everything is fail-open. The demo sets it to `false` in `.env`,
+  `.env.example` and Vercel. Its tests stay so the compare stays proven.
 - Payment is idempotent: a unique constraint on `Payment.orderId`, plus the insert and the
   status update inside one `prisma.$transaction`. A double-clicked button records once.
 - Rate limit order creation, complaints and ratings per session.
