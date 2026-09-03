@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { calculateWaitMinutes, dueAt, isOrderDelayed, WAIT_CAP_MINUTES } from "./wait-time.ts";
+import { calculateWaitMinutes, dueAt, isOrderDelayed, isOrderLate, WAIT_CAP_MINUTES } from "./wait-time.ts";
 
 test("one item waits its own prep time", () => {
   assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 22, quantity: 1 }]), 22);
@@ -52,4 +52,16 @@ test("delay is derived from placedAt and waitMinutes, and only while PLACED", ()
   assert.equal(isOrderDelayed(order, new Date("2026-09-03T12:25:01Z")), true);
   assert.equal(isOrderDelayed({ ...order, status: "SERVED" }, new Date("2026-09-03T13:00:00Z")), false);
   assert.equal(isOrderDelayed({ ...order, status: "PAID" }, new Date("2026-09-03T13:00:00Z")), false);
+});
+
+test("late means past the wait while placed, or served after the wait", () => {
+  const placedAt = new Date("2026-09-03T12:00:00Z");
+  const base = { placedAt, waitMinutes: 25, servedAt: null };
+  assert.equal(isOrderLate({ ...base, status: "PLACED" }, new Date("2026-09-03T12:20:00Z")), false);
+  assert.equal(isOrderLate({ ...base, status: "PLACED" }, new Date("2026-09-03T12:30:00Z")), true);
+  const servedOnTime = new Date("2026-09-03T12:20:00Z");
+  const servedLate = new Date("2026-09-03T12:40:00Z");
+  assert.equal(isOrderLate({ ...base, status: "SERVED", servedAt: servedOnTime }, new Date("2026-09-03T13:00:00Z")), false);
+  assert.equal(isOrderLate({ ...base, status: "SERVED", servedAt: servedLate }, new Date("2026-09-03T13:00:00Z")), true);
+  assert.equal(isOrderLate({ ...base, status: "PAID", servedAt: servedLate }, new Date("2026-09-03T14:00:00Z")), true);
 });

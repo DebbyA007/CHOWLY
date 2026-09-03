@@ -436,3 +436,89 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   unknown cuid both got 404. Backdating the order's `placedAt` by 30 minutes in Neon made
   the same read return `isDelayed: true` with no other change, and the Order table's
   column list has no delay column. Gate green.
+
+## Phase 3: waiter, complaint, payment
+
+### Commit 11: `feat: add waiter assignment api`
+
+- **Asked for:** `GET /api/waiter/orders` for the rail. `PATCH /api/orders/[id]/assign`
+  recording waiter, chef and bartender and setting SERVED with `servedAt`. Gated by
+  `STAFF_PIN` compared with `crypto.timingSafeEqual`.
+- **Accepted:** `lib/staff-pin.ts` reads the `x-staff-pin` header and compares it with
+  `timingSafeEqual` over equal-length buffers; a wrong-length PIN still runs a compare
+  against the expected value before returning false, so the length check is not itself
+  an early exit. The rail returns every PLACED and SERVED order oldest first, with the
+  derived delay, plus the waiter, chef and bartender lists in the same response so the
+  pick lists need no second call. Paid orders have left the floor and are not listed.
+  Assign takes the strict body, refuses anything but a PLACED order with a 409 that
+  names the current state, checks all three staff ids exist, and writes the assignment,
+  SERVED and `servedAt` in one update.
+- **Honest statement for the document:** the role switch is UI convenience, because the
+  assignment forbids logins. The PIN is the boundary. A PIN typed into a browser is as
+  secret as the people who know it, and that is what the no-login rule allows.
+- **Decision, flagged:** the rail GET is PIN-gated as well as the mutation, since it
+  lists every table's order and the spec only named the PATCH. Lift it if the rail is
+  meant to be public.
+- **Rejected:** nothing.
+- **Corrected by hand:** nothing.
+- **Verified:** with three fresh orders on the dev server: no PIN, a wrong PIN of the
+  same length, and a wrong-length PIN each got 401; the right PIN got the three orders
+  and three of each staff role; assign with an extra `status` key got 400 naming it, an
+  unknown chef got 400, no PIN got 401; a valid assign returned SERVED with `servedAt`
+  and the three names; assigning again got 409 "already served"; a garbage id got 404.
+  Gate green.
+
+### Commit 12: `feat: add complaint and rating apis`
+
+- **Asked for:** POST complaint and POST rating, both ownership-checked, the rating
+  upsert-safe against the unique constraint, both rate limited per session.
+- **Accepted:** ownership is part of each query. A complaint is refused with 409 unless
+  the order is late, where late means still PLACED past the promised wait or served
+  after it (`isOrderLate` in `lib/wait-time.ts`, unit tested, paying does not erase
+  lateness). The UI will only show the entry point once the ring has crossed, and the
+  server enforces the same rule, so the complaint is earned on both sides. The rating is
+  an upsert on the unique `orderId`, so rating again changes the score, and the reply is
+  201 the first time and 200 after. Zod bounds the score first, the check constraint
+  from Commit 4 is the last line. Limits are counted in the database: five complaints
+  and ten ratings per session per ten minutes.
+- **Decision, flagged:** a rating is accepted at any point after placing, not only after
+  serving, since the assignment lets the rating stand on its own.
+- **Rejected:** nothing.
+- **Corrected by hand:** nothing.
+- **Verified:** a complaint on an on-time order got 409; after backdating the order 30
+  minutes in Neon the same complaint got 201 with `isDelayed: true`; the other browser
+  got 404; a two-character description got 400. Scores 6, 0 and 3.5 got 400 with the
+  bound named; 4 got 201; 5 on the same order got 200 with the score changed and still
+  one row; the other browser got 404. Complaints two to five got 201 and the sixth got
+  429. Gate green.
+
+### Commit 13: `feat: add pretend payment api`
+
+- **Asked for:** `POST /api/orders/[id]/pay` in one `prisma.$transaction`, inserting the
+  payment with `isPretend: true`, flipping status to PAID and setting `paidAt`. A second
+  call returns the existing payment rather than erroring or duplicating.
+- **Accepted:** ownership in the query, and the order must be SERVED, since a customer
+  pays after being served. The amount is the order's stored total, never anything from
+  the body, and the strict schema takes only the method. The transaction inserts the
+  payment and flips the status together. If a payment already exists the call returns
+  it with 200. If two calls race, the unique `Payment.orderId` (delta 8) makes the loser
+  fail with P2002 inside its transaction, which rolls back its status update, and the
+  handler answers with the payment the winner wrote. Delta 9: the row says pretend.
+- **Rejected:** allowing payment while PLACED. It would let an order leave the rail
+  unserved, and the story is order, wait, serve, pay.
+- **Corrected by hand:** nothing.
+- **Verified:** paying a PLACED order got 409; the other browser paying a served order
+  got 404; a bad method and a posted `amountKobo` got 400. The owner's first call got
+  201 with PAID, `paidAt`, and a payment of the stored 300,000 kobo marked pretend; the
+  second call got 200 with the same payment id, the original method kept, one row. On a
+  third order, two calls fired in the same instant with `Promise.all` returned 201 and
+  200 carrying the same payment id, and Neon holds exactly one payment for it. Paid
+  orders vanished from the rail. Gate green.
+- **Postcss re-check, now that route handlers exist:** the audit in the overrides commit
+  proved `next start` never loads postcss. Route handlers on Vercel run as serverless
+  functions from a different bundle, so the check was repeated against Next's per-route
+  file traces (`route.js.nft.json`), which list every file shipped with each function.
+  The order and payment routes trace 64 files each with zero references to postcss or
+  deepmerge, no server trace anywhere mentions either, and no compiled file under
+  `.next/server` contains the string postcss. The conclusion holds: both chains are
+  build-time only, and after the overrides they are patched versions anyway.
