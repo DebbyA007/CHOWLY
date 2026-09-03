@@ -52,13 +52,7 @@
 /* Thermal strips. Faint print ruling, a torn zigzag at the bottom, hung a little crooked. */
 .pass-strip {
   background-color: var(--p-paper);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 27px,
-    rgba(42, 38, 34, 0.06) 27px,
-    rgba(42, 38, 34, 0.06) 28px
-  );
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='28'%3E%3Crect y='27' width='4' height='1' fill='%232a2622' fill-opacity='0.06'/%3E%3C/svg%3E");
   color: var(--p-ink);
   clip-path: polygon(
     0 0, 100% 0, 100% calc(100% - 12px),
