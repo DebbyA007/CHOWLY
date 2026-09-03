@@ -33,10 +33,10 @@ export function Lamp({ seed, width = 200, reach = 1, className = "" }: { seed: n
       <path d="M 70 0 L 130 0 L 146 22 L 54 22 Z" fill="var(--brass)" stroke="var(--brass-dark)" strokeWidth="2" />
       <rect x="54" y="20" width="92" height="5" fill="var(--soot)" />
       <g
-        className="heat-transition"
+        className="lamp-pool"
         fill="var(--lamp)"
         fillOpacity="var(--lamp-opacity)"
-        style={{ transformOrigin: "100px 26px", transform: `scale(${reach.toFixed(3)})`, transition: "fill 1000ms linear, fill-opacity 1000ms linear, transform 1000ms linear" }}
+        style={{ transformOrigin: "100px 26px", transform: `scale(${reach.toFixed(3)})` }}
       >
         {dots.map((dot, i) => (
           <circle key={i} cx={dot.x} cy={dot.y + 26} r={dot.r} />

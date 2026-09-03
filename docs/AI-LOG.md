@@ -993,3 +993,41 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   on the order page. 390 has no sideways scroll and one lamp. Reduced motion shows
   everything with no strip transform. Four tabs land on the first line with the char
   focus ring. No console errors. Screenshots in `docs/screens/menu-*`. Gate green.
+
+### Step 4, commit: `feat: light the order ticket with the lamp clock`
+
+- **Asked for:** moment three. Time is the condition of the whole screen, slow and
+  continuous, cooling or dimming as the order runs late, never an alarm, contrast held at
+  the extremes, and one slow step under reduced motion.
+- **Accepted:** `components/pass/heat.ts` is the one place the lamp is computed. From
+  `placedAt` and `waitMinutes` on every tick: heat runs 1 to 0.55 across the promised
+  minutes, then on toward 0 over a second promise's worth of time and settles. It only
+  ever falls while an order is placed, which a unit test walks minute by minute. Served
+  holds at 0.75, warm and steady; paid goes to 0.1 and the stylesheet takes the pool to
+  six percent, the lamp out. The screen carries `--heat` as an inline custom property
+  and the stylesheet mixes the pool colour, the pool opacity and the paper from it with
+  `color-mix`, so one number moves the whole screen. The pool also shrinks with the
+  promised minutes. The ticket is thermal paper on a brass spike, torn top and bottom,
+  with the reference, the table, the digits set in Fraunces at ticket-width, the lines
+  and the total; a late ticket curls by half a degree over two seconds. Under reduced
+  motion `computeHeat` returns one value per state and the transitions are two seconds,
+  so the idea stays and the glide goes. The 404 is a blank ticket on an empty spike.
+- **Rejected:** any red in the late state beyond the digits themselves in char ink;
+  the late end of the range is straw over aged paper. A timer started on mount.
+- **Corrected by hand:** the derived colours did not move at all in the first browser
+  run: `--lamp`, `--paper` and `--lamp-opacity` were declared on `:root`, where a custom
+  property resolves with the root's own heat of 1 and is inherited already mixed. They
+  are declared on the `.heat` element now, beside the inline heat, and move. Inline
+  transitions on the ticket and the pool were overriding the reduced-motion duration,
+  so they live in the stylesheet. And the in-page contrast reader had parsed oklab
+  strings as RGB; it reads through a canvas now.
+- **Verified, measured in Chromium:** paper rgb(244,238,221) and an amber pool at 0.60
+  on a fresh order; rgb(240,232,213) and 0.49 with fifteen of twenty-five minutes used;
+  rgb(235,226,204) and 0.38 five minutes late with "+05:04" in char ink; rgb(228,217,191)
+  and a straw pool at 0.20 at the floor. Contrast at that floor: ink 10.71, secondary
+  ink 4.84, the late digits 5.45. Served through the poll: 0.75 and "Served"; paid
+  through the poll: the pool at 0.06 and "Paid" at 4.91 on the paper. Heat fell between
+  two reads two seconds apart. Under reduced motion heat stayed at 1 through half the
+  promise and stepped to 0.25 when late with a two second transition. A stranger gets
+  "Nothing on this spike". No sideways scroll at 390. No console errors. Screenshots in
+  `docs/screens/order-*`. 27 unit tests. Gate green.

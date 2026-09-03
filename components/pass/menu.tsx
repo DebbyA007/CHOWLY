@@ -152,9 +152,9 @@ export function PassMenu({ menu }: { menu: MenuView }) {
       <div className="pointer-events-none absolute inset-x-0 top-[22px]" aria-hidden="true">
         <div className="relative mx-auto max-w-6xl">
           {[
-            { left: "22%", seed: 1, hide: true },
-            { left: "50%", seed: 2, hide: false },
-            { left: "78%", seed: 3, hide: true },
+            { left: "18%", seed: 1, hide: true },
+            { left: "42%", seed: 2, hide: false },
+            { left: "66%", seed: 3, hide: true },
           ].map((lamp) => (
             <div key={lamp.seed} className={`lamp absolute -translate-x-1/2 ${lamp.hide ? "hidden sm:block" : ""}`} style={{ left: lamp.left, opacity: 0 }}>
               <Lamp seed={lamp.seed} />

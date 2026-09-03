@@ -33,9 +33,9 @@
   --lamp-cool: #b8ad90;
   --paper-fresh: #f4eedd;
   --paper-aged: #e4d9bf;
-  --lamp: color-mix(in oklab, var(--lamp-warm), var(--lamp-cool) calc((1 - var(--heat)) * 100%));
-  --paper: color-mix(in oklab, var(--paper-fresh), var(--paper-aged) calc((1 - var(--heat)) * 100%));
-  --lamp-opacity: calc(0.2 + var(--heat) * 0.4);
+  --lamp: var(--lamp-warm);
+  --paper: var(--paper-fresh);
+  --lamp-opacity: 0.6;
 
   --font-display: var(--font-fraunces), "Fraunces", Georgia, serif;
   --font-print: var(--font-plex), "IBM Plex Mono", ui-monospace, monospace;
@@ -156,6 +156,35 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .paper,
   .heat-transition {
+    transition-duration: 2000ms;
+  }
+}
+
+/* A screen that takes the heat. The derived colours are declared here, on the element
+   that carries --heat, because a custom property resolves where it is declared: on
+   :root they would be mixed once with the root's heat and inherited already decided. */
+.heat {
+  --lamp: color-mix(in oklab, var(--lamp-warm), var(--lamp-cool) calc((1 - var(--heat)) * 100%));
+  --paper: color-mix(in oklab, var(--paper-fresh), var(--paper-aged) calc((1 - var(--heat)) * 100%));
+  --lamp-opacity: calc(0.2 + var(--heat) * 0.4);
+}
+.heat .ticket {
+  transition: background-color 1000ms linear, transform 2000ms ease;
+}
+.lamp-pool {
+  transition: fill 1000ms linear, fill-opacity 1000ms linear, transform 1000ms linear;
+}
+/* Ticket states the stylesheet answers on its own. Paid: the lamp goes out. Late: the
+   paper has hung long enough to curl a little. */
+.heat[data-state="paid"] {
+  --lamp-opacity: 0.06;
+}
+.heat[data-state="late"] .ticket {
+  transform: rotate(0.6deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .heat .ticket,
+  .lamp-pool {
     transition-duration: 2000ms;
   }
 }
