@@ -2,13 +2,21 @@
 
 import { useEffect, useRef } from "react";
 import { animate, createScope, createTimeline, splitText, stagger, svg, utils } from "animejs";
-import type { MenuView } from "@/lib/menu";
+import type { Cart } from "@/lib/cart";
+import type { MenuItemView, MenuView } from "@/lib/menu";
+
+type Props = {
+  menu: MenuView;
+  cart?: Cart;
+  onAdd?: (item: MenuItemView, button: HTMLElement) => void;
+  onRemove?: (item: MenuItemView) => void;
+};
 
 // The menu, and the one orchestrated page-load sequence in the whole app: the enamel
 // rims draw in, the restaurant name resolves, then the plates settle in from the
 // centre. Everything after this answers an action. With reduced motion on, all of it
 // collapses to a plain opacity change.
-export function MenuBoard({ menu }: { menu: MenuView }) {
+export function MenuBoard({ menu, cart, onAdd, onRemove }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const scope = useRef<ReturnType<typeof createScope> | null>(null);
 
@@ -98,6 +106,41 @@ export function MenuBoard({ menu }: { menu: MenuView }) {
                     <span className="text-lg font-medium tabular">{item.price}</span>
                     <span className="text-sm tabular text-ink-soft">{item.prepTimeMinutes} min to make</span>
                   </div>
+                  {onAdd ? (
+                    <div className="mt-4 flex items-center justify-end">
+                      {(cart?.[item.id] ?? 0) > 0 ? (
+                        <div className="flex items-center gap-1" role="group" aria-label={`${item.name} on the tray`}>
+                          <button
+                            type="button"
+                            onClick={() => onRemove?.(item)}
+                            aria-label={`Remove one ${item.name}`}
+                            className="stamp rim h-9 w-9 bg-chalk text-lg leading-none"
+                          >
+                            -
+                          </button>
+                          <span className="tabular w-8 text-center font-medium" aria-live="polite">
+                            {cart?.[item.id]}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(event) => onAdd(item, event.currentTarget)}
+                            aria-label={`Add one more ${item.name}`}
+                            className="stamp rim h-9 w-9 bg-chalk text-lg leading-none"
+                          >
+                            +
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(event) => onAdd(item, event.currentTarget)}
+                          className="stamp bg-enamel-mid px-3.5 py-2 text-sm font-medium text-chalk"
+                        >
+                          Add to order
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
                 </article>
               </li>
             ))}

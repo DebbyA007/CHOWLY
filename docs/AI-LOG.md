@@ -668,3 +668,39 @@ surfaces share a radius unless they are the same kind of thing.
   a glow is on the banned list and a wider rim stops being a hairline.
 - **Verified:** Chromium reads the rim stroke as chalk (`rgb(242, 239, 230)`) at 0.6
   seconds and as ink (`rgb(10, 31, 51)`) once settled. Gate green.
+
+### Commit 17: `feat: add cart and order submission`
+
+- **Asked for:** a motion path arc on add, a `createSpring` badge, and a timeline that
+  folds the cart into a printed ticket on submit.
+- **Accepted:** `lib/cart.ts` holds the cart shape and its sums, display only. The tray
+  sits along the bottom edge, always shows the badge so an added item has somewhere to
+  land, and says what to do when empty. On add, a chalk disc is created at the button,
+  flown along a quadratic SVG path built from the button and badge rectangles with
+  `svg.createMotionPath`, removed on arrival, and the badge lands with
+  `createSpring({ stiffness: 320, damping: 13 })`. Plates that are on the tray show a
+  stepper in place of the button. On submit the body posts item ids, quantities and the
+  table number only, and on 201 a `createTimeline` folds the tray to nothing, unfolds a
+  paper ticket carrying the reference, the promised minutes and the total, and slides it
+  away before the order page opens. Under reduced motion the disc is never created, the
+  badge blinks, and the ticket step is skipped for an immediate navigation. Everything
+  runs inside one `createScope` with the reduced-motion query and is reverted on
+  unmount.
+- **Rejected:** a client-side wait time preview on the tray, because the wait is
+  computed in exactly one server-side place and a preview would be a second one.
+  Letting the browser's native "fill out this field" tooltip handle an empty table
+  number, because it does not say where the number is; the form is `noValidate` and
+  the message is "Enter the number printed on your table."
+- **Corrected by hand:** nothing in the code beyond the validation copy above.
+- **Verified:** in Chromium the empty tray reads "Nothing on the tray yet. Add a dish to
+  start an order." Adding steak created one flyer, caught mid-flight at a point between
+  plate and tray, removed after landing with the badge mid-spring (transform 1.0037 and
+  settling); badge 1, total ₦8,500. Plus and minus moved the badge and total to 2 and
+  ₦17,000 and back. Steak plus mojito read ₦12,500. Placing the order produced the
+  ticket "Order CHW-0001. Placed. The kitchen promised 25 minutes. ₦12,500" over a
+  folded tray, then navigated to `/order/<id>`, which is a 404 until the next commit.
+  Under reduced motion no flyer was created and submit navigated straight away. Test
+  rows were deleted from Neon afterwards. Gate green.
+- **Not verifiable headlessly:** the feel of the arc and the spring. The numbers say the
+  disc travelled and the badge overshot, not whether it reads as an item landing on a
+  tray.
