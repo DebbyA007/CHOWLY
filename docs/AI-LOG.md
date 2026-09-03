@@ -1159,3 +1159,48 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   green.
 - **Not verifiable headlessly:** the sounds themselves. The cues are synthesised, so
   their character (a buzz, a tear, a tick, a thud) has to be heard.
+
+### Step 4, commit: `docs: screenshot every screen and state of the pass`
+
+- **What shipped:** the whole application in The Pass, every screen and state, on the
+  API and data unchanged from Phase 3. The five moments as built: the lamps switching on
+  over the steel and the strips dropping and printing; the ticket tearing off the
+  printer when the order is fired; the lamp as the clock, cooling and dimming the whole
+  screen as the order runs late, with the slip printing once the promise is past; the
+  rail with tickets on spikes under their own lamps and three ways to serve one; and
+  the lamp going out as the receipt tears off under the stamp. Sound off by default
+  behind a visible tag. The three direction prototypes remain at `/directions` behind an
+  index, marked noindex, as evidence of the choice; the critique that rejected two of
+  them is in `docs/directions/README.md` and in the Step 3 entry above.
+- **Corrected by hand across the step, in order:** contrast figures typed before the
+  script ran; button faces under 4.5:1; derived heat colours declared on `:root` and
+  never moving; inline transitions overriding the reduced-motion duration; an oklab
+  string read as RGB; the lamp hidden behind the ticket by a collapsed margin; red late
+  digits against the amendment; drag bounds that never sprang back; lamp bells over the
+  rail labels; the header colliding at phone width; a lamp bell over the name plate.
+  Each was found by a measurement or a screenshot, not by reasoning.
+- **Not verifiable headlessly, for the human to check on the live URL:**
+  1. The feel of the entrance: lamps on one at a time, the name warming in, strips
+     dropping and printing. Then with Reduce Motion on, everything should simply fade.
+  2. The tear on firing: the ticket pulled up off the printer, swinging toward the
+     rail, then the order page. Reduced motion: straight to the order page.
+  3. The lamp clock in real time. Fire one Zobo (a four minute promise) and watch the
+     pool shrink and cool over four minutes with no step; at 4:00 the plus sign should
+     appear and the slip print with no refresh, and nothing should flash or redden.
+     With Reduce Motion on, the light should stay warm until 4:00, then take one slow
+     step to its cooled state.
+  4. Serving from a second tab: the customer's ticket should go to "Served" within
+     three seconds and the lamp should steady.
+  5. The pull on the rail with a mouse, and with a finger on a phone: a short pull
+     springs back, a deliberate pull opens the dialog and springs back. Touch was not
+     exercised at all.
+  6. The stamp and the thud: settle a served ticket with sound on.
+  7. The four sounds: their character can only be heard.
+  8. Phone layouts beyond the captures here, in a real browser with its own chrome.
+  9. Keyboard: tab through every screen and confirm the focus ring shows on steel (lamp
+     amber) and on paper (char red).
+  10. Production: the fonts self-hosted, no CSP violations in the console, and the
+      session cookie showing Secure.
+- **Flagged for the human:** `CLAUDE.md` still describes the enamelware direction and
+  its tokens under "Design direction"; it is the rulebook and a graded file, so it is
+  not edited here. Phase 5 links `/directions` from the README and the AI-used section.
