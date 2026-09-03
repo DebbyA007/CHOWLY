@@ -32,7 +32,9 @@ export function MenuBoard({ menu }: { menu: MenuView }) {
       // exactly wrong above, so it is only created on the animated path.
       const rims = svg.createDrawable(".plate-rim rect");
       const split = splitText(name, { chars: true });
-      utils.set(rims, { draw: "0 0" });
+      // The rims draw in chalk over the deep ground, the way the enamel is seen first, and
+      // take their ink colour as the plates settle under them.
+      utils.set(rims, { draw: "0 0", stroke: "#f2efe6" });
       utils.set([".plate-rim", ".restaurant-name"], { opacity: 1 });
       utils.set(split.chars, { opacity: 0 });
 
@@ -49,7 +51,8 @@ export function MenuBoard({ menu }: { menu: MenuView }) {
           ".plate-body",
           { opacity: [0, 1], scale: [0.97, 1], duration: 700, delay: stagger(45, { from: "center" }) },
           "-=350",
-        );
+        )
+        .add(rims, { stroke: "#0a1f33", duration: 600, ease: "inOutSine" }, "<");
 
       return () => split.revert();
     });

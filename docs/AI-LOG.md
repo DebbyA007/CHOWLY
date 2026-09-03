@@ -657,3 +657,14 @@ surfaces share a radius unless they are the same kind of thing.
   motion emulated, 0.45 seconds in, all 14 plates and rims are visible, no plate carries
   a transform, and the name has zero split spans. No horizontal overflow at 390px. No
   console errors. Screenshots reviewed. Gate green.
+
+### Commit: `style: draw the rims in chalk before the plates settle`
+
+- **Asked for:** nothing; a refinement from reviewing the mid-sequence screenshot.
+- **Why:** the rims drew in ink over the deep ground, dark on dark, so the opener of the
+  one orchestrated sequence was nearly invisible. Enamel is seen chalk-first, so the
+  rims now draw in chalk and take their ink colour as the plates settle under them.
+- **Rejected:** widening the stroke or adding a glow to make the ink read on the ground;
+  a glow is on the banned list and a wider rim stops being a hairline.
+- **Verified:** Chromium reads the rim stroke as chalk (`rgb(242, 239, 230)`) at 0.6
+  seconds and as ink (`rgb(10, 31, 51)`) once settled. Gate green.
