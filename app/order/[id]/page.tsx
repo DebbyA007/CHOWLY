@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { OrderView } from "@/components/order-view";
+import { OrderScreen } from "@/components/pass/order-screen";
 import { orderInclude, presentOrder } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 import { orderIdSchema } from "@/lib/schemas";
@@ -29,8 +29,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   };
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8">
-      <OrderView initial={JSON.parse(JSON.stringify(initial))} />
-    </main>
+    <OrderScreen initial={JSON.parse(JSON.stringify(initial))} />
   );
 }

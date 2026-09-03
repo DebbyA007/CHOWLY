@@ -152,6 +152,92 @@ Anything using anime.js is a client component and needs `'use client'`.
 
 ## Design direction
 
+The visual language is **The Pass**: the kitchen side of a restaurant pass at nine at
+night. Brushed steel is the room, brass is the rail, thermal paper is everything printed,
+and the heat lamp is the clock. The customer's order is a ticket on a spike under its own
+lamp, the waiter's rail is a rail, and the receipt is the same paper torn off. It was
+chosen in Phase 4b over two other directions that were also built for real; the critique
+is `docs/directions/README.md` and the three prototypes stay at `/directions`.
+
+**Do not build:** purple, violet or indigo anywhere; two-stop gradients; glassmorphism or
+backdrop-blur; neon glow or coloured outer shadows; one soft grey shadow under every
+surface; one radius on everything; tracked-out all-caps eyebrow labels; an arrow glued to
+button text; meta strings joined with middle dots. Light is halftone, steel is grain,
+shadows are hard offsets in soot, and every visual choice traces to the pass or to the
+data it presents.
+
+### Tokens
+
+The values are the ones in `app/globals.css`.
+
+```
+--steel         #3A3D40   the room, brushed
+--steel-dark    #2C2F31
+--steel-light   #4B4F53
+--brass         #B08A3E   the rail, the plates, the spikes
+--brass-dark    #7D5F26   the machined lower edge
+--brass-light   #D6B466   the name on the steel, the machined upper edge
+--soot          #1B1A18   print, hard offsets, the printer slot
+--ink           #2A2622   text on paper
+--ink-soft      #625A4F   secondary text on paper, 4.84:1 on aged paper
+--char          #C9362A   the PAID stamp only, at stamp size
+--char-ink      #9B2A20   red text on paper, and button faces carrying paper text
+--served        #3F7D5A   served and paid, at large size only
+--served-ink    #2F6647   green text on paper, and button faces carrying paper text
+--lamp-warm     #F2A93B   a lamp just switched on
+--lamp-cool     #B8AD90   a lamp that has been on far too long
+--paper-fresh   #F4EEDD   thermal paper under a warm lamp
+--paper-aged    #E4D9BF   thermal paper under a cool one
+```
+
+`--heat` runs from 1 to 0. `--lamp`, `--paper` and `--lamp-opacity` are mixed from it with
+`color-mix` on the element that carries it (`.heat`), never on `:root`, because a custom
+property resolves where it is declared. The bright char and served are for stamps and
+button faces; text on paper uses the ink versions. No text ever sits on a lamp pool.
+
+### Type
+
+- Display: **Fraunces**, variable, with the `SOFT`, `WONK` and `opsz` axes loaded, for the
+  restaurant name and the big numbers. The only curve in the room.
+- Everything printed: **IBM Plex Mono**, weights 400, 500 and 700. Tabular figures on
+  every count.
+- Load both with `next/font/google`. No third family.
+
+### The hero is the lamp
+
+Time is the app's subject, so the heat lamp over the ticket is the clock. Its halftone
+pool shrinks as the promised minutes are used, and its light cools and dims, slowly and
+continuously, as the order runs late, while the paper ages under it. Never a red alert:
+a lamp that has been on too long, not a fire. Served holds warm and steady; paid puts the
+lamp out. Under `prefers-reduced-motion` the temperature still shifts, in one slow step
+per state, because it is the app's central idea. `components/pass/heat.ts` is the one
+place it is computed. Contrast holds at both ends of the range, worst case 4.84:1.
+
+### Motion budget
+
+One orchestrated page-load sequence on the menu: the lamps come on one at a time, the
+name warms in, the strips drop off the rail and print. That is the only motion nobody
+asked for.
+
+Everything after that answers an action and shows what changed:
+
+- Add a line: its hole is punched, the count prints, a line feeds up on the ticket.
+- Fire the order: a `createTimeline` tears the ticket off the printer and swings it up
+  toward the rail before the order page opens.
+- The rail: `createDraggable` on the y axis, a pull that meets friction and springs back
+  and opens the serving dialog past a deliberate distance. The button and the keyboard
+  open the same dialog.
+- Settle: the receipt feeds out, the PAID stamp lands once, the lamp goes out.
+- Sound: four synthesised cues that answer those actions, off by default behind a
+  visible tag.
+
+### Superseded: West African enamelware
+
+Replaced in Phase 4b because it read as competent and forgettable, a card grid on a blue
+ground with nothing a person would remember an hour later, and its countdown was a widget
+rather than the condition of the screen. Kept here for the lineage the submission
+document needs.
+
 The visual language is **West African enamelware**: the speckled enamel trays, bowls and
 plates found in every Lagos kitchen. Deep saturated ground, chalk-white forms, a dark
 hairline rim around every light shape the way real enamel is edged, and a scatter of
@@ -163,7 +249,7 @@ near-black with one acid accent; identical rounded cards with the same soft grey
 tracked-out all-caps eyebrow labels; meta strings joined with middle dots; a `→` glued to
 button text. Those are defaults, not decisions.
 
-### Tokens
+#### Tokens
 
 ```
 --enamel-deep    #123A5E   ground, the dining room after dark
@@ -178,7 +264,7 @@ button text. Those are defaults, not decisions.
 `--flame` is the only bright colour and it is reserved for time. Do not spend it on
 decoration.
 
-### Type
+#### Type
 
 - Display: **Bricolage Grotesque**, variable, for the restaurant name, the countdown and
   section heads. Use the width and optical size axes; treat it as an element, not a label.
@@ -186,7 +272,7 @@ decoration.
 - Load both with `next/font/google`. No third family. The countdown uses tabular figures
   so digits do not jitter as they tick.
 
-### The hero is the countdown ring
+#### The hero is the countdown ring
 
 The wait time is the dramatic spine of the whole assignment: order, wait, delay, complain,
 rate. So it is the hero, not a hero image and not a big number with a gradient. An SVG ring
@@ -196,7 +282,7 @@ promised wait, and settles to `--leaf` when the waiter marks it served. The comp
 button only appears once the ring has crossed, which is what makes the complaint feel
 earned instead of decorative.
 
-### Motion budget
+#### Motion budget
 
 One orchestrated page-load sequence on the menu: the enamel rims draw in with
 `createDrawable`, the restaurant name resolves with `splitText`, then the plates settle in

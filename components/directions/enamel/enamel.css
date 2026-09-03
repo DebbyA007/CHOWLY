@@ -1,0 +1,138 @@
+/* Direction 3: Cast Enamel. The screen is one enamel tray; the dishes are bowls on it. */
+.ce {
+  --ce-deep: #123a5e;
+  --ce-mid: #1b5687;
+  --ce-chalk: #f2efe6;
+  --ce-rim: #0a1f33;
+  --ce-flame: #e8a020;
+  --ce-pepper: #c2402c;
+  --ce-leaf: #2e7d5b;
+  --ce-metal: #3a3f44;
+  --ce-rust: #8a4b2a;
+  color: var(--ce-chalk);
+  background-color: var(--ce-deep);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23f2efe6'%3E%3Ccircle cx='13' cy='21' r='1.4' fill-opacity='0.16'/%3E%3Ccircle cx='57' cy='9' r='1' fill-opacity='0.1'/%3E%3Ccircle cx='101' cy='33' r='1.8' fill-opacity='0.14'/%3E%3Ccircle cx='143' cy='17' r='0.8' fill-opacity='0.12'/%3E%3Ccircle cx='31' cy='71' r='1.1' fill-opacity='0.18'/%3E%3Ccircle cx='89' cy='83' r='2.1' fill-opacity='0.09'/%3E%3Ccircle cx='127' cy='63' r='0.9' fill-opacity='0.15'/%3E%3Ccircle cx='9' cy='119' r='1.6' fill-opacity='0.12'/%3E%3Ccircle cx='67' cy='131' r='0.8' fill-opacity='0.17'/%3E%3Ccircle cx='113' cy='113' r='1.3' fill-opacity='0.11'/%3E%3Ccircle cx='161' cy='153' r='1.7' fill-opacity='0.13'/%3E%3Ccircle cx='43' cy='161' r='1' fill-opacity='0.16'/%3E%3Ccircle cx='171' cy='99' r='1.2' fill-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
+  font-family: var(--font-instrument), "Instrument Sans", system-ui, sans-serif;
+}
+.ce-display {
+  font-family: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+}
+.ce-name {
+  font-variation-settings: "wdth" 125, "opsz" 96;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+}
+.ce-bowl-name {
+  font-variation-settings: "wdth" 95, "opsz" 48;
+  font-weight: 600;
+}
+
+/* The tray's own rim: a chalk band around the viewport with the hairline inside it. */
+.ce-tray-rim {
+  position: absolute;
+  inset: 8px;
+  border: 12px solid var(--ce-chalk);
+  border-radius: 44px;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--ce-rim);
+}
+.ce-tray-rim::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border: 2px solid var(--ce-rim);
+  border-radius: 46px;
+}
+
+/* A bowl: HTML text over an SVG. It lifts on hover with a hard offset in rim colour,
+   which is mass, not a glow. */
+.ce-bowl {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--ce-rim);
+  cursor: pointer;
+  font: inherit;
+  transition: transform 160ms ease;
+}
+.ce-bowl:hover,
+.ce-bowl:focus-visible {
+  transform: translate(-3px, -4px) rotate(var(--tilt));
+}
+.ce-bowl:hover .ce-bowl-shadow,
+.ce-bowl:focus-visible .ce-bowl-shadow {
+  opacity: 1;
+}
+.ce-bowl:focus-visible {
+  outline: 4px solid var(--ce-flame);
+  outline-offset: 6px;
+  border-radius: 50%;
+}
+.ce-bowl-shadow {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+.ce-bowl-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18%;
+}
+.ce-tag {
+  background: var(--ce-chalk);
+  border: 2px solid var(--ce-rim);
+  color: var(--ce-rim);
+  border-radius: 6px;
+  padding: 0.1rem 0.5rem;
+  font-weight: 600;
+}
+.ce-lip {
+  background: var(--ce-chalk);
+  color: var(--ce-rim);
+  border-top: 2px solid var(--ce-rim);
+}
+.ce-button {
+  background: var(--ce-mid);
+  color: var(--ce-chalk);
+  border: 2px solid var(--ce-rim);
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  box-shadow: 4px 4px 0 var(--ce-rim);
+}
+.ce-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ce-rim);
+}
+.ce-button:focus-visible,
+.ce-input:focus-visible,
+.ce-less:focus-visible {
+  outline: 3px solid var(--ce-mid);
+  outline-offset: 3px;
+}
+.ce-input {
+  background: var(--ce-chalk);
+  border: 2px solid var(--ce-rim);
+  border-radius: 6px;
+  width: 5rem;
+  padding: 0.4rem 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+.ce-less {
+  background: var(--ce-chalk);
+  border: 2px solid var(--ce-rim);
+  border-radius: 50%;
+  width: 1.75rem;
+  height: 1.75rem;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--ce-rim);
+}

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "node --test lib/*.test.mts"
+    "test": "node --test lib/*.test.mts components/**/*.test.mts"
   },
   "prisma": {
     "seed": "node prisma/seed.mts"

@@ -1,0 +1,152 @@
+/* Direction 1: Signwriter. A painted plywood signboard over a chalked slate. */
+.sw {
+  --sw-board: #0e4d64;
+  --sw-board-deep: #093a4c;
+  --sw-yellow: #f5c33b;
+  --sw-red: #c4321c;
+  --sw-plywood: #efe3c6;
+  --sw-plywood-deep: #d9c79a;
+  --sw-slate: #1f2a26;
+  --sw-chalk: #f3efe4;
+  --sw-chalk-dim: rgba(243, 239, 228, 0.62);
+  font-family: var(--font-karla), "Karla", system-ui, sans-serif;
+  color: var(--sw-chalk);
+  background-color: var(--sw-slate);
+  /* chalk dust: a scatter of faint flecks over the slate */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='%23f3efe4' fill-opacity='0.055'%3E%3Ccircle cx='17' cy='31' r='1.4'/%3E%3Ccircle cx='71' cy='12' r='0.9'/%3E%3Ccircle cx='131' cy='47' r='1.6'/%3E%3Ccircle cx='191' cy='23' r='0.8'/%3E%3Ccircle cx='41' cy='97' r='1.1'/%3E%3Ccircle cx='109' cy='113' r='1.9'/%3E%3Ccircle cx='163' cy='83' r='0.7'/%3E%3Ccircle cx='23' cy='167' r='1.3'/%3E%3Ccircle cx='87' cy='181' r='0.9'/%3E%3Ccircle cx='149' cy='157' r='1.5'/%3E%3Ccircle cx='203' cy='197' r='1'/%3E%3Ccircle cx='59' cy='211' r='0.8'/%3E%3Ccircle cx='177' cy='129' r='1.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.sw-sign-face {
+  font-family: var(--font-sign), "Alfa Slab One", "Impact", serif;
+  font-weight: 400;
+}
+
+/* The board: painted plywood. Brush marks as diagonal strokes, the paint pooled darker
+   at the edges the way a brush leaves it. */
+.sw-board {
+  position: relative;
+  background-color: var(--sw-board);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cg stroke='%23093a4c' stroke-width='3' stroke-opacity='0.5' stroke-linecap='round'%3E%3Cpath d='M-10 30 L60 -10'/%3E%3Cpath d='M20 110 L130 10'/%3E%3Cpath d='M60 150 L160 60'/%3E%3Cpath d='M-20 90 L40 40'/%3E%3C/g%3E%3Cg stroke='%2313607a' stroke-width='2' stroke-opacity='0.55' stroke-linecap='round'%3E%3Cpath d='M0 70 L80 0'/%3E%3Cpath d='M40 140 L150 40'/%3E%3C/g%3E%3C/svg%3E");
+  border: 10px solid var(--sw-plywood);
+  outline: 3px solid var(--sw-board-deep);
+  outline-offset: -13px;
+}
+
+/* Sign lettering: yellow face, red shade dropped down and right, the way a painter cuts
+   in a second colour. Two hard offsets, no blur. */
+.sw-sign {
+  color: var(--sw-yellow);
+  text-shadow:
+    3px 3px 0 var(--sw-red),
+    6px 6px 0 var(--sw-red),
+    7px 7px 0 var(--sw-board-deep);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+}
+.sw-sign .sw-char {
+  display: inline-block;
+}
+
+.sw-tag {
+  color: var(--sw-plywood);
+}
+
+/* Chalk on slate. Off-white, slightly transparent so the slate shows through the strokes. */
+.sw-chalk {
+  color: var(--sw-chalk);
+}
+.sw-chalk-yellow {
+  color: var(--sw-yellow);
+}
+.sw-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0.55rem 0.25rem;
+  cursor: pointer;
+}
+.sw-row:hover .sw-name,
+.sw-row:focus-visible .sw-name {
+  color: var(--sw-yellow);
+}
+.sw-row:focus-visible {
+  outline: 3px dashed var(--sw-yellow);
+  outline-offset: 4px;
+}
+.sw-leader {
+  border-bottom: 3px dotted var(--sw-chalk-dim);
+  transform: translateY(-0.35em);
+  min-width: 1.5rem;
+}
+.sw-name {
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  line-height: 1.1;
+}
+.sw-price {
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+}
+.sw-desc {
+  color: var(--sw-chalk-dim);
+  font-size: 0.95rem;
+  padding: 0 0.25rem 0.4rem 0.25rem;
+  margin-top: -0.35rem;
+}
+
+/* The counter: a plywood strip along the bottom, wood grain as thin wavering lines. */
+.sw-counter {
+  background-color: var(--sw-plywood);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='60'%3E%3Cg fill='none' stroke='%23d9c79a' stroke-width='1.2'%3E%3Cpath d='M0 12 C 60 8, 120 18, 200 12 S 340 6, 400 12'/%3E%3Cpath d='M0 31 C 70 27, 130 36, 210 31 S 330 26, 400 31'/%3E%3Cpath d='M0 49 C 50 45, 140 54, 220 49 S 350 44, 400 49'/%3E%3C/g%3E%3C/svg%3E");
+  color: var(--sw-slate);
+  border-top: 6px solid var(--sw-board);
+}
+.sw-button {
+  font-family: var(--font-sign), "Alfa Slab One", serif;
+  background: var(--sw-yellow);
+  color: var(--sw-slate);
+  border: 3px solid var(--sw-slate);
+  box-shadow: 5px 5px 0 var(--sw-red);
+  padding: 0.6rem 1.25rem;
+  font-size: 1.15rem;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.sw-button:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--sw-red);
+}
+.sw-button:focus-visible {
+  outline: 3px dashed var(--sw-red);
+  outline-offset: 4px;
+}
+.sw-minus {
+  font-family: var(--font-sign), "Alfa Slab One", serif;
+  color: var(--sw-chalk);
+  background: none;
+  border: 2px dashed var(--sw-chalk-dim);
+  border-radius: 50%;
+  width: 1.9rem;
+  height: 1.9rem;
+  line-height: 1;
+}
+.sw-minus:focus-visible {
+  outline: 3px dashed var(--sw-yellow);
+  outline-offset: 3px;
+}
+.sw-table {
+  font-family: var(--font-sign), "Alfa Slab One", serif;
+  background: var(--sw-chalk);
+  border: 3px solid var(--sw-slate);
+  color: var(--sw-slate);
+  width: 5rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 1.1rem;
+}
+.sw-table:focus-visible {
+  outline: 3px dashed var(--sw-red);
+  outline-offset: 3px;
+}

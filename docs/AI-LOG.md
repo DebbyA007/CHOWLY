@@ -844,3 +844,385 @@ surfaces share a radius unless they are the same kind of thing.
   Gate green.
 - **Not verifiable headlessly:** whether the stamp reads as a rubber stamp landing. The
   transform samples prove scale and rotation ran, not the feel.
+
+## Phase 4b: the redesign
+
+The Phase 4 interface was judged competent and forgettable, which the brief calls a
+failure. The bar is that a person opens the live URL and reacts before reading a word.
+Four things are fixed: motion safety, no AI-default tells, 390px and keyboard, and the
+API and behaviour. Everything else is open, enamelware included.
+
+### Step 1: three art directions
+
+**1. Signwriter.** World: a bukka off Ubah Street at dusk, its plywood signboard freshly
+painted, the day's menu chalked on slate under one bulb. Material: painted plywood and
+chalk on slate. Type: Alfa Slab One for everything painted or chalked, the fat slab sign
+painters cut by hand, set with a hard offset shade in a second colour; Karla for the
+small print. Palette: board blue-green `#0E4D64`, sign yellow `#F5C33B`, sign red
+`#C4321C`, plywood cream `#EFE3C6`, slate `#1F2A26`, chalk `#F3EFE4`. Unlike any other
+restaurant app because the menu is not laid out, it is lettered: every name and price is
+painted or chalked, wobble included, and the wait is chalk tally marks wiped away.
+
+**2. The Pass.** World: the pass of a hotel kitchen on Berger at nine at night, a brass
+rail, heat lamps, thermal tickets curling in the heat. Material: brushed steel, brass,
+thermal paper, heat. Type: Fraunces, the variable serif with its soft and wonk axes, for
+the name and the big numbers; IBM Plex Mono for everything a printer would print.
+Palette: steel `#3A3D40`, brass `#B08A3E`, heat amber `#F2A93B`, thermal cream
+`#F4EEDD`, char red `#C9362A`, print soot `#1B1A18`. Unlike any other restaurant app
+because the customer stands on the kitchen side of the pass: their order is a ticket
+under a heat lamp, and the lamp is the clock, its light warming toward red as the order
+runs late.
+
+**3. Cast Enamel.** World: the shelf above a Lagos kitchen stove, enamel bowls and trays
+stacked, chipped at the rims from years of use. Material: enamel over pressed steel,
+with the chips showing the metal. Type: Bricolage Grotesque on its width axis, as an
+element; Instrument Sans for the rest. Palette: the seven tokens plus chip metal
+`#3A3F44` and rust `#8A4B2A`. Unlike any other restaurant app because the dishes are
+bowls, drawn, set down on one tray at the angles a hand leaves them, and time is a pot
+on the stove that boils over.
+
+They are three worlds: a sign painter's board, a kitchen pass, a shelf of enamel. Each
+gets the menu screen built for real on the seeded data, with its own entrance and its
+own add-to-order motion, before any of them is chosen.
+
+### Step 2: the three menu screens, built
+
+Each direction was built as a real menu screen on the seeded data, with its own
+entrance and add-to-order motion, at `/directions/signwriter`, `/directions/pass` and
+`/directions/enamel`, and screenshotted at 1440 and 390 into `docs/directions/`. The
+entrance choreography in all three collapses to an opacity change under reduced motion,
+which was checked with the query emulated. None can scroll sideways at 390. Corrections
+during the build: anime.js function values declare optional parameters, so per-letter
+rotations are written as a `[from, to]` pair of such functions; The Pass overflowed at
+390 because its lamps hang past the edge, so the panel clips sideways; Cast Enamel's chip
+paths hydrated with a mismatch because `Math.sin` differs in its last digits between Node
+and Chromium, so the coordinates are rounded.
+
+### Step 3: the critique and the choice
+
+The full critique, with the screenshots, is `docs/directions/README.md`. The decision:
+
+- **Signwriter, rejected.** It wins the first three seconds outright, and its type is
+  lettering rather than a label. But the chalkboard menu is the most worn trope in cafe
+  design, the hard-offset sign treatment is a fashion that would date, and the world
+  stops at the menu: chalk tallies are a metaphor a person must be told about, a second
+  chalkboard for the waiter is a classroom not a kitchen, and payment has no material of
+  its own. It has no answer for the wait or the rail.
+- **Cast Enamel, rejected.** Its one real idea, the bowl sized by prep time, is honest
+  information design. Everything else is the existing app with the plates rounded off:
+  the same palette, type and ground, so it carries the exact "forgettable" risk that
+  started this phase. Scattered circles on a dark ground read as a bubble interface, the
+  tray rim is a caption rather than a perception, the bowls are diagrams not drawings,
+  and the rail would be a dashboard with a texture.
+- **The Pass, chosen.** It is the only direction where the subject, time under pressure,
+  is the material: the heat lamp is the clock, so a late order changes the light of the
+  whole screen. Every screen has a place in one world, since the customer's ticket, the
+  rail and the receipt are three states of the same thermal paper. And it takes the
+  real risk, a steel kitchen one step from the banned dark-with-one-accent default,
+  answered with three warm materials, halftone light and torn paper instead of gradients
+  and glow. Its derivative parts are named in the critique: the receipt aesthetic is a
+  known microsite trope, Fraunces is the serif of the moment, halftone is print
+  nostalgia. The build will have to earn its way past them with the lamp as the clock,
+  which none of those tropes has.
+
+### Step 4, commit: `feat: switch the tokens and chrome to the pass`
+
+- **Asked for:** the whole application in The Pass, with two amendments: the three
+  prototypes stay behind `/directions` with an index, noindex and off the nav; and the
+  lamp clock cools and dims rather than alarms, continuously, with contrast holding at
+  both extremes and a single slow step under reduced motion.
+- **Accepted:** `app/globals.css` replaces the enamel tokens with steel, brass, soot,
+  ink, char and served, plus the heat system: one custom property, `--heat`, running
+  from 1 (a lamp just switched on) to 0 (a lamp on far too long), and every colour that
+  belongs to the lamp mixed from a warm and a cool end by that number with `color-mix`,
+  so the paper, the pool colour and the pool opacity move together from a single value.
+  Paper glides over one second per tick, and two seconds under reduced motion. Utilities
+  for brushed steel, thermal paper with print ruling, torn edges top, bottom and both,
+  brass bars and plates, the display and print type, and stamped buttons. The root
+  layout loads Fraunces with its axes and IBM Plex Mono and drops the enamel families.
+  The header is the brass rail with the name on a hanging plate and the roles as two
+  tags on rings, with the same honest caption. `/directions` is an index of the three
+  prototypes with `robots: noindex, nofollow`, and each prototype page carries the same;
+  the Cast Enamel prototype now loads its own fonts since the root no longer does.
+- **Contrast, checked at the extremes, not the average:** ink on paper 12.95 fresh and
+  10.71 fully aged; secondary ink 5.86 and 4.84; paper text on steel 9.43; brass on steel
+  5.51; soot on brass 5.43. Two failures found and fixed before anything was built on
+  them: char red and served green as small text on paper fell to 3.70 and 3.49 on aged
+  paper, so text uses darker ink versions and the bright versions are kept for large
+  stamps only. (Corrected in the next entry: the figures first written here were typed
+  before the script ran for the ink variants. The measured values are char-ink 5.45 and
+  served-ink 4.81 on aged paper, both passing, and paper text on the bright button faces
+  measures 4.48 and 4.22, both failing, so button faces use the ink variants too.) Text directly on a lamp pool fails at warm heat (3.17,
+  brass 1.85), so the rule is that no text ever sits on a pool: pools hang above the
+  name and behind paper, never behind type.
+- **Rejected:** a red late state. The late end of the range is a cooler, dimmer straw
+  over aged paper, a lamp that has been on too long, not a fire. Removing the
+  temperature shift under reduced motion; it stays, as a single two-second step on
+  state change, because it is the app's central idea.
+- **Corrected by hand:** nothing.
+- **Transitional state, stated plainly:** the old enamel screens still exist for two
+  commits and render unstyled until each is rebuilt in turn. Every commit builds.
+- **Verified:** Fraunces and IBM Plex Mono load, the heading computes as Fraunces with
+  `SOFT 100, WONK 1, opsz 144`, the index carries `noindex, nofollow`, no sideways
+  scroll at 390. Gate green.
+
+### Step 4, commit: `feat: rebuild the menu as the pass`
+
+- **Asked for:** moment one, the first three seconds, and moment two, committing the
+  order.
+- **Accepted:** the prototype's menu promoted to the real screen with the real cart and
+  the real POST. Three lamps hang from the header's rail (one at 390), the name warms
+  into the steel in Fraunces, the two thermal strips drop off the rail and print, and the
+  customer's own ticket feeds up from a printer slot at the bottom. Tapping a line
+  punches its hole and prints the count, and a new line feeds up on the ticket. Firing
+  the order posts item ids, quantities and the table only, and on 201 the ticket is
+  torn off the printer, swings up toward the rail, settles with a small overshoot and
+  fades, and the order page opens. Under reduced motion every entrance is a plain fade
+  and the tear is skipped. The button says what a kitchen says: fire the order.
+- **Rejected:** a fourth lamp over the role tags, since a pool behind text fails the
+  contrast rule from the previous entry; the lamps sit between the plate and the tags
+  and the two outer ones are hidden at 390. Any text on a lamp pool.
+- **Corrected by hand:** the contrast figures in the previous entry, which were typed
+  before the script ran for the ink variants; the entry now carries the measured values
+  and the button faces use the ink variants.
+- **Verified:** in Chromium at 0.7 seconds two lamps are on and the strips are still
+  hidden; settled, three lamps, all 14 lines, the slot up, and the strips resting at
+  their small opposite tilts. Two steaks and a mojito printed on the ticket at ₦21,000,
+  the minus brought it to ₦12,500, firing with no table said where the number is, and
+  firing with table 7 read "fired as CHW-0004", caught the ticket mid-tear, and landed
+  on the order page. 390 has no sideways scroll and one lamp. Reduced motion shows
+  everything with no strip transform. Four tabs land on the first line with the char
+  focus ring. No console errors. Screenshots in `docs/screens/menu-*`. Gate green.
+
+### Step 4, commit: `feat: light the order ticket with the lamp clock`
+
+- **Asked for:** moment three. Time is the condition of the whole screen, slow and
+  continuous, cooling or dimming as the order runs late, never an alarm, contrast held at
+  the extremes, and one slow step under reduced motion.
+- **Accepted:** `components/pass/heat.ts` is the one place the lamp is computed. From
+  `placedAt` and `waitMinutes` on every tick: heat runs 1 to 0.55 across the promised
+  minutes, then on toward 0 over a second promise's worth of time and settles. It only
+  ever falls while an order is placed, which a unit test walks minute by minute. Served
+  holds at 0.75, warm and steady; paid goes to 0.1 and the stylesheet takes the pool to
+  six percent, the lamp out. The screen carries `--heat` as an inline custom property
+  and the stylesheet mixes the pool colour, the pool opacity and the paper from it with
+  `color-mix`, so one number moves the whole screen. The pool also shrinks with the
+  promised minutes. The ticket is thermal paper on a brass spike, torn top and bottom,
+  with the reference, the table, the digits set in Fraunces at ticket-width, the lines
+  and the total; a late ticket curls by half a degree over two seconds. Under reduced
+  motion `computeHeat` returns one value per state and the transitions are two seconds,
+  so the idea stays and the glide goes. The 404 is a blank ticket on an empty spike.
+- **Rejected:** any red in the late state beyond the digits themselves in char ink;
+  the late end of the range is straw over aged paper. A timer started on mount.
+- **Corrected by hand:** the derived colours did not move at all in the first browser
+  run: `--lamp`, `--paper` and `--lamp-opacity` were declared on `:root`, where a custom
+  property resolves with the root's own heat of 1 and is inherited already mixed. They
+  are declared on the `.heat` element now, beside the inline heat, and move. Inline
+  transitions on the ticket and the pool were overriding the reduced-motion duration,
+  so they live in the stylesheet. And the in-page contrast reader had parsed oklab
+  strings as RGB; it reads through a canvas now.
+- **Verified, measured in Chromium:** paper rgb(244,238,221) and an amber pool at 0.60
+  on a fresh order; rgb(240,232,213) and 0.49 with fifteen of twenty-five minutes used;
+  rgb(235,226,204) and 0.38 five minutes late with "+05:04" in char ink; rgb(228,217,191)
+  and a straw pool at 0.20 at the floor. Contrast at that floor: ink 10.71, secondary
+  ink 4.84, the late digits 5.45. Served through the poll: 0.75 and "Served"; paid
+  through the poll: the pool at 0.06 and "Paid" at 4.91 on the paper. Heat fell between
+  two reads two seconds apart. Under reduced motion heat stayed at 1 through half the
+  promise and stepped to 0.25 when late with a two second transition. A stranger gets
+  "Nothing on this spike". No sideways scroll at 390. No console errors. Screenshots in
+  `docs/screens/order-*`. 27 unit tests. Gate green.
+
+### Step 4, commit: `feat: print the complaint slip and punch the rating`
+
+- **Asked for:** the complaint entry point only once the ring has crossed, and the one to
+  five rating with the complaint or on its own, in the world of the pass.
+- **Accepted:** the rating is punched into the ticket like a rail ticket: five holes, one
+  to five, punching a number punches every hole up to it, and the holes show the steel
+  behind the paper. "Punch it in" posts to the rating endpoint, which upserts, so
+  punching again changes the score. The complaint is a tear-off slip printed below the
+  lines only once the order is late, still waiting past the promise or served after it,
+  the same rule the server enforces; it sends the description, then the punched score as
+  its own request if one was chosen. Slips already sent print above the form. The
+  composition lives in a client `OrderScreen`, since a render function cannot cross the
+  server boundary.
+- **Rejected:** star icons, in favour of punched holes, which are what a ticket takes.
+  Coloured punches: a hole has no colour, so the score's meaning is carried by the
+  confirmation text, char ink for 1 and 2 and served ink above.
+- **Corrected by hand:** the lamp on the order ticket was invisible in the previous
+  commit's screenshots even though its pool measured correctly. The ticket's 250px top
+  margin collapsed through `main`, so `main` itself started 250px lower and the lamp,
+  absolutely positioned at its top, sat on the ticket's top edge behind the paper; the
+  brass wedge at the top of those tickets was the bell. The offset is padding on `main`
+  now, the lamp hangs from a brass drop rod on wide screens, and every state was
+  re-shot: the lamp sits at 120px and the ticket at 370px.
+- **Verified:** in Chromium an on-time order shows no slip and "Punch a number. On its
+  own, or with a complaint slip." Punching without a number says so. A 4 with a note
+  stored one row with four holes punched. Backdated twenty minutes against a twelve
+  minute promise the slip printed, reading "8 min 4 s past it"; an empty slip said what
+  to write; a slip with a score of 2 read "Slip sent. It is on the rail.", listed once,
+  one complaint row, the rating changed to 2. At 390 the late ticket has no sideways
+  scroll and four tabs reach the slip's textarea. No console errors. Screenshots in
+  `docs/screens/order-*` re-shot with the lamp in place. Gate green.
+
+### Step 4, commit: `feat: settle the ticket and print the receipt`
+
+- **Asked for:** moment five, payment and receipt. The last thing anyone sees.
+- **Accepted:** once the order is served the ticket prints a SETTLE section with the
+  stored total, three method stamps and "Settle the ticket (pretend)", with the pretend
+  sentence above it. The request carries the method only. On success the response
+  replaces the SWR data at once: the lamp goes out (the stylesheet drops the pool to six
+  percent for the paid state), the digits read "Paid" in served ink, and a second ticket,
+  the receipt, feeds out below the first with the lines, the total from the payment row,
+  the method, and "PRETEND PAYMENT. No money moved, and the record is marked pretend."
+  driven by the row's `isPretend`. The PAID stamp lands once, in bright char at stamp
+  size, which is large text and holds 3.7:1 on aged paper; under reduced motion the
+  receipt and the stamp fade in. On a later visit the stamp is simply there. One
+  refinement from reviewing the late ticket against the amendment: the late digits were
+  set in char ink, which read as the red alert the brief forbids, so the digits count in
+  ink at every state and only the plus sign is red. Lateness is told by the light and
+  the paper.
+- **Rejected:** anything that could pass for a checkout: no card fields, no spinner
+  theatre, no confetti. Red digits.
+- **Corrected by hand:** nothing.
+- **Verified:** in Chromium: no settle section on a placed order; the section appeared
+  through the poll after the waiter served it, reading "SETTLE ₦11,500" with the lamp
+  at 0.5; settling by mobile money caught the stamp mid-landing (scale in progress,
+  opacity rising), then the pool at 0.06, the state paid, the settle section gone and
+  the receipt reading the two lines, the total, the method and the pretend sentence.
+  Neon holds one payment, `isPretend: true`, 1,150,000 kobo, and the order is PAID.
+  After a reload the stamp is static and the digits read "Paid". No sideways scroll at
+  390. Under reduced motion the stamp carried rotation only and faded in. No console
+  errors. Screenshots in `docs/screens/order-settle-*` and `order-receipt-*`. Gate
+  green.
+
+### Step 4, commit: `feat: hang the rail`
+
+- **Asked for:** moment four, the waiter's rail. Service under pressure; a kitchen, not
+  a dashboard.
+- **Accepted:** the waiter station is a steel panel with a brass plate, and the PIN is
+  checked against the rail endpoint as before. The pass is two brass rails. On the top
+  rail every placed order hangs on a spike under its own small lamp, and each ticket
+  carries its own heat computed from its own `placedAt`, so a ticket that has hung past
+  its promise sits under a cooler, dimmer light on aged paper beside a fresh one under
+  amber. The ticket prints the reference, the table, the lines, the time against the
+  promise with a plus sign once past it, and a SLIPS count when complaints have come in.
+  The served rail below holds tickets that have come off the pass. Three paths mark an
+  order served and all open one steel dialog: the button on every ticket, Enter or Space
+  on a focused ticket, and a pull. The pull is `createDraggable` on the y axis with the
+  ticket's own resting spot as its bounds, so any pull meets friction and springs back
+  on release, and a deliberate pull of 120px of actual travel opens the dialog. Under
+  reduced motion no draggable is created and the other two paths carry the action. The
+  rails scroll sideways inside themselves at 390 while the page never does. The served
+  ticket moves from the PATCH response and the poll confirms it.
+- **Rejected:** a drop that serves without the dialog, since requirement 3 is that the
+  waiter records who cooked and who mixed. A red "Late" tag; the light and a plus sign
+  say it.
+- **Corrected by hand:** two, both from the browser run. The first drag container was
+  the whole top rail, so a short pull stayed within bounds and never sprang back, and a
+  long pull never travelled far enough through friction to cross a threshold measured
+  against the served rail; the bounds are now the ticket's own spot and the threshold a
+  fixed pull. The lamp bells overlapped the rail labels, which now sit above the bars.
+- **Verified:** in Chromium a wrong PIN says so; the right PIN opens an empty pass
+  reading "Nothing on the pass. Orders fired from the menu hang here within a few
+  seconds." Three fired orders hung under lamps through the poll, and the backdated one
+  reached heat 0.000 beside two at 0.99. Enter on the focused first ticket opened
+  "Serve CHW-0001" and the ticket moved to the served rail as soon as the PATCH
+  answered. The button opened and Cancel closed the dialog. A short pull opened nothing
+  and returned to a transform of zero; a long pull opened the dialog for the right
+  ticket and returned to zero; Escape closed it. At 390 the page has no sideways scroll
+  and the rail scrolls inside itself. Under reduced motion the ticket did not move
+  under the pointer and the button remained. The one console error is the 401 the
+  wrong PIN produced. Screenshots in `docs/screens/waiter-*`. Gate green.
+- **Not verifiable headlessly:** the feel of the spring on release, the grab cursor, and
+  touch dragging on a phone, which was not exercised at all.
+
+### Step 4, commit: `feat: add the soundscape, off by default`
+
+- **Asked for:** a soundscape if it serves the moments, off by default with a visible
+  toggle.
+- **Accepted:** four cues, synthesised with Web Audio so nothing is fetched and the
+  CSP stays as it is: a thermal head buzzing when a line prints on the ticket, paper
+  tearing along the serration when the order is fired, a metallic tick when a ticket is
+  spiked on the rail or a number is punched, and a low thud when the PAID stamp comes
+  down, timed to land with the stamp. The switch is a tag on the rail beside the roles,
+  reading "Sound off" or "Sound on" with `aria-pressed`. Nothing plays and no audio
+  context exists until a person switches it on; switching on plays the printer once so
+  they hear what they chose. The choice is kept in localStorage, which is a convenience
+  and not an identity, so the rule about the session cookie does not apply.
+- **Rejected:** ambient loops (a kitchen hum, a lamp buzz), because they would play with
+  nothing to answer and the brief asks for sound that serves a moment.
+- **Corrected by hand:** nothing.
+- **Verified:** in Chromium the tag reads "Sound off" with `aria-pressed="false"` and
+  zero audio contexts exist; adding a line with sound off creates none. Switching on
+  reads "Sound on", creates one context and stores the choice; adding a line with sound
+  on raises no error; the choice survives a reload; switching off stores off. Gate
+  green.
+- **Not verifiable headlessly:** the sounds themselves. The cues are synthesised, so
+  their character (a buzz, a tear, a tick, a thud) has to be heard.
+
+### Step 4, commit: `docs: screenshot every screen and state of the pass`
+
+- **What shipped:** the whole application in The Pass, every screen and state, on the
+  API and data unchanged from Phase 3. The five moments as built: the lamps switching on
+  over the steel and the strips dropping and printing; the ticket tearing off the
+  printer when the order is fired; the lamp as the clock, cooling and dimming the whole
+  screen as the order runs late, with the slip printing once the promise is past; the
+  rail with tickets on spikes under their own lamps and three ways to serve one; and
+  the lamp going out as the receipt tears off under the stamp. Sound off by default
+  behind a visible tag. The three direction prototypes remain at `/directions` behind an
+  index, marked noindex, as evidence of the choice; the critique that rejected two of
+  them is in `docs/directions/README.md` and in the Step 3 entry above.
+- **Corrected by hand across the step, in order:** contrast figures typed before the
+  script ran; button faces under 4.5:1; derived heat colours declared on `:root` and
+  never moving; inline transitions overriding the reduced-motion duration; an oklab
+  string read as RGB; the lamp hidden behind the ticket by a collapsed margin; red late
+  digits against the amendment; drag bounds that never sprang back; lamp bells over the
+  rail labels; the header colliding at phone width; a lamp bell over the name plate.
+  Each was found by a measurement or a screenshot, not by reasoning.
+- **Not verifiable headlessly, for the human to check on the live URL:**
+  1. The feel of the entrance: lamps on one at a time, the name warming in, strips
+     dropping and printing. Then with Reduce Motion on, everything should simply fade.
+  2. The tear on firing: the ticket pulled up off the printer, swinging toward the
+     rail, then the order page. Reduced motion: straight to the order page.
+  3. The lamp clock in real time. Fire one Zobo (a four minute promise) and watch the
+     pool shrink and cool over four minutes with no step; at 4:00 the plus sign should
+     appear and the slip print with no refresh, and nothing should flash or redden.
+     With Reduce Motion on, the light should stay warm until 4:00, then take one slow
+     step to its cooled state.
+  4. Serving from a second tab: the customer's ticket should go to "Served" within
+     three seconds and the lamp should steady.
+  5. The pull on the rail with a mouse, and with a finger on a phone: a short pull
+     springs back, a deliberate pull opens the dialog and springs back. Touch was not
+     exercised at all.
+  6. The stamp and the thud: settle a served ticket with sound on.
+  7. The four sounds: their character can only be heard.
+  8. Phone layouts beyond the captures here, in a real browser with its own chrome.
+  9. Keyboard: tab through every screen and confirm the focus ring shows on steel (lamp
+     amber) and on paper (char red).
+  10. Production: the fonts self-hosted, no CSP violations in the console, and the
+      session cookie showing Secure.
+- **Flagged for the human:** `CLAUDE.md` still describes the enamelware direction and
+  its tokens under "Design direction"; it is the rulebook and a graded file, so it is
+  not edited here. Phase 5 links `/directions` from the README and the AI-used section.
+
+### Between phases: the rulebook and the banned-visuals audit
+
+- **CLAUDE.md:** the Design direction section now describes The Pass, with the token
+  block matching `app/globals.css`. The enamelware direction moved intact under a
+  Superseded heading with one line on why it was replaced, so the rulebook carries its
+  own lineage.
+- **Audit of the built CSS**, run against `.next/static/css` after a production build,
+  by grep and a hue pass over every colour literal rather than by reasoning: one honest
+  hit and three false ones. The honest hit was the thermal paper's print ruling, a
+  `repeating-linear-gradient` with hard stops drawing a one pixel line every 28px, in the
+  app's paper utility and in the Pass prototype; it drew no colour transition, but the
+  check is the grep, so it is an SVG pattern now like the steel grain, and the rebuilt
+  stylesheet contains zero gradient functions. The false ones: `backdrop-filter` appears
+  once, inside Tailwind's transition-property list, with no such rule declared anywhere;
+  a `.filter` rule and a `.ring, .shadow` rule exist because Tailwind's scanner picked
+  those words up as candidate classes from code comments, and their variables are empty
+  and no element uses them. Every `box-shadow` in the build is a hard offset with zero
+  blur (`4px 4px 0`, `2px 2px 0`, inset one-pixel edges) and both `text-shadow` rules
+  are hard offsets; no `rgba(0,0,0,.1)` exists. Forty distinct colour literals, none
+  with a hue between 240 and 300 degrees at any saturation above ten percent, and no
+  oklch or oklab literal at all. The lamp pools are dots and the steel is lines.

@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
+import { RailHeader } from "@/components/pass/rail-header";
 import { StaffPinProvider } from "@/components/staff-pin";
 
-// Two families and no third. Bricolage Grotesque carries the restaurant name, the
-// countdown and section heads, with its width and optical size axes loaded so the type
-// can be used as an element. Instrument Sans carries body and UI copy. Both are
-// self-hosted at build time by next/font, so font-src 'self' covers them.
-const display = Bricolage_Grotesque({
+// Two families and no third. Fraunces carries the restaurant name and the big numbers
+// with its soft and wonk axes loaded; IBM Plex Mono carries everything a printer would
+// print, which in this world is everything else. Both self-hosted by next/font.
+const fraunces = Fraunces({
   subsets: ["latin"],
-  axes: ["opsz", "wdth"],
-  variable: "--font-bricolage",
+  axes: ["SOFT", "WONK", "opsz"],
+  variable: "--font-fraunces",
   display: "swap",
 });
 
-const body = Instrument_Sans({
+const plex = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-instrument",
+  weight: ["400", "500", "700"],
+  variable: "--font-plex",
   display: "swap",
 });
 
@@ -32,10 +32,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body className="speckle-deep antialiased">
+    <html lang="en" className={`${fraunces.variable} ${plex.variable}`}>
+      <body className="steel antialiased">
         <StaffPinProvider>
-          <SiteHeader />
+          <RailHeader />
           {children}
         </StaffPinProvider>
       </body>
