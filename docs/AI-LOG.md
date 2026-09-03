@@ -1031,3 +1031,35 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   promise and stepped to 0.25 when late with a two second transition. A stranger gets
   "Nothing on this spike". No sideways scroll at 390. No console errors. Screenshots in
   `docs/screens/order-*`. 27 unit tests. Gate green.
+
+### Step 4, commit: `feat: print the complaint slip and punch the rating`
+
+- **Asked for:** the complaint entry point only once the ring has crossed, and the one to
+  five rating with the complaint or on its own, in the world of the pass.
+- **Accepted:** the rating is punched into the ticket like a rail ticket: five holes, one
+  to five, punching a number punches every hole up to it, and the holes show the steel
+  behind the paper. "Punch it in" posts to the rating endpoint, which upserts, so
+  punching again changes the score. The complaint is a tear-off slip printed below the
+  lines only once the order is late, still waiting past the promise or served after it,
+  the same rule the server enforces; it sends the description, then the punched score as
+  its own request if one was chosen. Slips already sent print above the form. The
+  composition lives in a client `OrderScreen`, since a render function cannot cross the
+  server boundary.
+- **Rejected:** star icons, in favour of punched holes, which are what a ticket takes.
+  Coloured punches: a hole has no colour, so the score's meaning is carried by the
+  confirmation text, char ink for 1 and 2 and served ink above.
+- **Corrected by hand:** the lamp on the order ticket was invisible in the previous
+  commit's screenshots even though its pool measured correctly. The ticket's 250px top
+  margin collapsed through `main`, so `main` itself started 250px lower and the lamp,
+  absolutely positioned at its top, sat on the ticket's top edge behind the paper; the
+  brass wedge at the top of those tickets was the bell. The offset is padding on `main`
+  now, the lamp hangs from a brass drop rod on wide screens, and every state was
+  re-shot: the lamp sits at 120px and the ticket at 370px.
+- **Verified:** in Chromium an on-time order shows no slip and "Punch a number. On its
+  own, or with a complaint slip." Punching without a number says so. A 4 with a note
+  stored one row with four holes punched. Backdated twenty minutes against a twelve
+  minute promise the slip printed, reading "8 min 4 s past it"; an empty slip said what
+  to write; a slip with a score of 2 read "Slip sent. It is on the rail.", listed once,
+  one complaint row, the rating changed to 2. At 390 the late ticket has no sideways
+  scroll and four tabs reach the slip's textarea. No console errors. Screenshots in
+  `docs/screens/order-*` re-shot with the lamp in place. Gate green.

@@ -51,18 +51,20 @@ export function OrderTicket({ initial, children }: { initial: Order; children?: 
 
   return (
     <main
-      className="heat relative mx-auto w-full max-w-6xl px-4 pb-24 sm:px-8"
+      className="heat relative mx-auto w-full max-w-6xl px-4 pb-24 pt-[250px] sm:px-8"
       style={{ ["--heat" as string]: heat.toFixed(3) }}
       data-state={state}
       aria-label={`Order ${order.reference}`}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center" aria-hidden="true">
-        <div className="lamp -mt-[3px]">
+        <div className="lamp relative">
+          {/* the drop rod from the rail, behind nothing on wide screens and hidden at 390 where the header's caption would cross it */}
+          <div className="absolute left-1/2 hidden h-[100px] w-1 -translate-x-1/2 bg-brass sm:block" style={{ top: -100, boxShadow: "inset 1px 0 0 var(--brass-light), inset -1px 0 0 var(--brass-dark)" }} />
           <Lamp seed={9} width={340} reach={reach} />
         </div>
       </div>
 
-      <article className="ticket paper torn-both relative mx-auto mt-[250px] max-w-lg px-6 pb-4 sm:px-8">
+      <article className="ticket paper torn-both relative mx-auto max-w-lg px-6 pb-4 sm:px-8">
         <svg className="absolute left-1/2 top-3 -translate-x-1/2" width="28" height="44" viewBox="0 0 28 44" aria-hidden="true">
           <circle cx="14" cy="14" r="6" fill="var(--steel)" stroke="var(--ink)" strokeWidth="2" />
           <rect x="12" y="0" width="4" height="30" fill="var(--brass)" stroke="var(--brass-dark)" strokeWidth="1" />

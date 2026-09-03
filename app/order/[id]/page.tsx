@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { OrderTicket } from "@/components/pass/order-ticket";
+import { OrderScreen } from "@/components/pass/order-screen";
 import { orderInclude, presentOrder } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 import { orderIdSchema } from "@/lib/schemas";
@@ -29,6 +29,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   };
 
   return (
-    <OrderTicket initial={JSON.parse(JSON.stringify(initial))} />
+    <OrderScreen initial={JSON.parse(JSON.stringify(initial))} />
   );
 }
