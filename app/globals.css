@@ -1,119 +1,161 @@
 @import "tailwindcss";
 
 /*
-  CHOWLY design tokens. The visual language is West African enamelware: a deep
-  saturated ground, chalk-white forms, a dark hairline rim around every light shape the
-  way real enamel is edged, and a scatter of speckle as texture. See CLAUDE.md.
+  CHOWLY design tokens: The Pass.
 
-  --flame is the only bright colour and it is reserved for time.
+  The customer stands on the kitchen side of the pass. Brushed steel is the room, brass
+  is the rail, thermal paper is everything printed, and the heat lamp is the clock. The
+  lamp's light warms toward amber on a fresh order and cools and dims as the order runs
+  late, slowly, like a lamp that has been on too long. Never a red alert.
 */
 :root {
-  --enamel-deep: #123a5e;
-  --enamel-mid: #1b5687;
-  --chalk: #f2efe6;
-  --rim: #0a1f33;
-  --flame: #e8a020;
-  --pepper: #c2402c;
-  --leaf: #2e7d5b;
+  --steel: #3a3d40;
+  --steel-dark: #2c2f31;
+  --steel-light: #4b4f53;
+  --brass: #b08a3e;
+  --brass-dark: #7d5f26;
+  --brass-light: #d6b466;
+  --soot: #1b1a18;
+  --ink: #2a2622;
+  --ink-soft: #625a4f;
+  /* The bright accents are for stamps and button faces with paper text on them. Text on
+     paper uses the ink versions, which hold 4.5:1 on paper at its most aged. */
+  --char: #c9362a;
+  --char-ink: #9b2a20;
+  --served: #3f7d5a;
+  --served-ink: #2f6647;
 
-  /* Ink on chalk is the rim colour, so text and edges share one material. */
-  --ink: var(--rim);
-  --ink-soft: #3f5468;
+  /* Heat. --heat runs from 1 (a lamp just switched on over a fresh order) down to 0 (a
+     lamp that has been on far too long). Every colour that belongs to the lamp is mixed
+     from these two ends by that one number, so the whole screen shifts together. */
+  --heat: 1;
+  --lamp-warm: #f2a93b;
+  --lamp-cool: #b8ad90;
+  --paper-fresh: #f4eedd;
+  --paper-aged: #e4d9bf;
+  --lamp: color-mix(in oklab, var(--lamp-warm), var(--lamp-cool) calc((1 - var(--heat)) * 100%));
+  --paper: color-mix(in oklab, var(--paper-fresh), var(--paper-aged) calc((1 - var(--heat)) * 100%));
+  --lamp-opacity: calc(0.2 + var(--heat) * 0.4);
 
-  /* Radii mean something. A plate is a bowl, a tray is a tray, a ticket is paper, a
-     button is a stamp. */
-  --radius-plate: 28px;
-  --radius-tray: 14px;
-  --radius-button: 8px;
-  --radius-ticket: 4px;
-
-  --rim-width: 1.5px;
-
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
-  --font-body: var(--font-instrument), "Instrument Sans", system-ui, sans-serif;
+  --font-display: var(--font-fraunces), "Fraunces", Georgia, serif;
+  --font-print: var(--font-plex), "IBM Plex Mono", ui-monospace, monospace;
 }
 
 @theme inline {
-  --color-enamel-deep: var(--enamel-deep);
-  --color-enamel-mid: var(--enamel-mid);
-  --color-chalk: var(--chalk);
-  --color-rim: var(--rim);
-  --color-flame: var(--flame);
-  --color-pepper: var(--pepper);
-  --color-leaf: var(--leaf);
+  --color-steel: var(--steel);
+  --color-steel-dark: var(--steel-dark);
+  --color-steel-light: var(--steel-light);
+  --color-brass: var(--brass);
+  --color-brass-dark: var(--brass-dark);
+  --color-brass-light: var(--brass-light);
+  --color-soot: var(--soot);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
+  --color-char: var(--char);
+  --color-char-ink: var(--char-ink);
+  --color-served: var(--served);
+  --color-served-ink: var(--served-ink);
+  --color-lamp: var(--lamp);
+  --color-paper: var(--paper);
 }
 
-/* The speckle: a scatter of chalk flecks over the deep ground, and rim flecks over
-   chalk. Inline SVG so it needs no request and stays inside img-src 'self' data:. */
-@utility speckle-deep {
-  background-color: var(--enamel-deep);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='%23f2efe6' fill-opacity='0.13'%3E%3Ccircle cx='13' cy='21' r='1.1'/%3E%3Ccircle cx='57' cy='9' r='0.8'/%3E%3Ccircle cx='101' cy='33' r='1.3'/%3E%3Ccircle cx='143' cy='17' r='0.7'/%3E%3Ccircle cx='31' cy='71' r='0.9'/%3E%3Ccircle cx='89' cy='83' r='1.2'/%3E%3Ccircle cx='127' cy='63' r='0.8'/%3E%3Ccircle cx='9' cy='119' r='1.2'/%3E%3Ccircle cx='67' cy='131' r='0.7'/%3E%3Ccircle cx='113' cy='113' r='1'/%3E%3Ccircle cx='151' cy='143' r='1.1'/%3E%3Ccircle cx='43' cy='151' r='0.9'/%3E%3C/g%3E%3C/svg%3E");
+/* Brushed steel: fine horizontal lines, light and dark, never perfectly even. */
+@utility steel {
+  background-color: var(--steel);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='23'%3E%3Cg stroke-width='1'%3E%3Cpath d='M0 2.5 H320' stroke='%23ffffff' stroke-opacity='0.07'/%3E%3Cpath d='M0 6.5 H320' stroke='%23000000' stroke-opacity='0.12'/%3E%3Cpath d='M0 9.5 H320' stroke='%23ffffff' stroke-opacity='0.04'/%3E%3Cpath d='M0 13.5 H320' stroke='%23000000' stroke-opacity='0.08'/%3E%3Cpath d='M0 16.5 H320' stroke='%23ffffff' stroke-opacity='0.09'/%3E%3Cpath d='M0 20.5 H320' stroke='%23000000' stroke-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-@utility speckle-chalk {
-  background-color: var(--chalk);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='%230a1f33' fill-opacity='0.07'%3E%3Ccircle cx='21' cy='13' r='1'/%3E%3Ccircle cx='77' cy='29' r='0.8'/%3E%3Ccircle cx='121' cy='11' r='1.2'/%3E%3Ccircle cx='47' cy='61' r='0.9'/%3E%3Ccircle cx='103' cy='73' r='1.1'/%3E%3Ccircle cx='149' cy='51' r='0.7'/%3E%3Ccircle cx='17' cy='107' r='1.2'/%3E%3Ccircle cx='71' cy='121' r='0.8'/%3E%3Ccircle cx='131' cy='139' r='1'/%3E%3Ccircle cx='37' cy='149' r='0.7'/%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* The rim: every light shape gets the hairline edge real enamel has. */
-@utility rim {
-  border: var(--rim-width) solid var(--rim);
-}
-
-/* Enamel surfaces: chalk with ink text and the rim. The radius comes from the shape. */
-@utility enamel {
-  background-color: var(--chalk);
+/* Thermal paper. Takes the heat: fresh cream under a warm lamp, aged under a cool one.
+   Faint print ruling every 28px. The colour glides over a second so the per-second
+   ticks of the clock never step; under reduced motion it takes one slow step instead. */
+@utility paper {
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 27px, rgba(42, 38, 34, 0.06) 27px, rgba(42, 38, 34, 0.06) 28px);
   color: var(--ink);
-  border: var(--rim-width) solid var(--rim);
+  transition: background-color 1000ms linear;
 }
 
-/* Shapes. Each radius is a decision about what the thing is. */
-@utility plate {
-  border-radius: var(--radius-plate);
+/* Torn edges: a zigzag cut, top or bottom, the way a receipt leaves the printer. */
+@utility torn-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), 97% 100%, 94% calc(100% - 12px), 91% 100%, 88% calc(100% - 12px), 85% 100%, 82% calc(100% - 12px), 79% 100%, 76% calc(100% - 12px), 73% 100%, 70% calc(100% - 12px), 67% 100%, 64% calc(100% - 12px), 61% 100%, 58% calc(100% - 12px), 55% 100%, 52% calc(100% - 12px), 49% 100%, 46% calc(100% - 12px), 43% 100%, 40% calc(100% - 12px), 37% 100%, 34% calc(100% - 12px), 31% 100%, 28% calc(100% - 12px), 25% 100%, 22% calc(100% - 12px), 19% 100%, 16% calc(100% - 12px), 13% 100%, 10% calc(100% - 12px), 7% 100%, 4% calc(100% - 12px), 1% 100%, 0 calc(100% - 12px));
+  padding-bottom: 26px;
 }
-@utility tray {
-  border-radius: var(--radius-tray);
+@utility torn-top {
+  clip-path: polygon(0 12px, 3% 0, 6% 12px, 9% 0, 12% 12px, 15% 0, 18% 12px, 21% 0, 24% 12px, 27% 0, 30% 12px, 33% 0, 36% 12px, 39% 0, 42% 12px, 45% 0, 48% 12px, 51% 0, 54% 12px, 57% 0, 60% 12px, 63% 0, 66% 12px, 69% 0, 72% 12px, 75% 0, 78% 12px, 81% 0, 84% 12px, 87% 0, 90% 12px, 93% 0, 96% 12px, 99% 0, 100% 12px, 100% 100%, 0 100%);
+  padding-top: 24px;
 }
-@utility stamp {
-  border-radius: var(--radius-button);
-}
-@utility ticket {
-  border-radius: var(--radius-ticket);
+@utility torn-both {
+  clip-path: polygon(0 12px, 3% 0, 6% 12px, 9% 0, 12% 12px, 15% 0, 18% 12px, 21% 0, 24% 12px, 27% 0, 30% 12px, 33% 0, 36% 12px, 39% 0, 42% 12px, 45% 0, 48% 12px, 51% 0, 54% 12px, 57% 0, 60% 12px, 63% 0, 66% 12px, 69% 0, 72% 12px, 75% 0, 78% 12px, 81% 0, 84% 12px, 87% 0, 90% 12px, 93% 0, 96% 12px, 99% 0, 100% 12px, 100% calc(100% - 12px), 97% 100%, 94% calc(100% - 12px), 91% 100%, 88% calc(100% - 12px), 85% 100%, 82% calc(100% - 12px), 79% 100%, 76% calc(100% - 12px), 73% 100%, 70% calc(100% - 12px), 67% 100%, 64% calc(100% - 12px), 61% 100%, 58% calc(100% - 12px), 55% 100%, 52% calc(100% - 12px), 49% 100%, 46% calc(100% - 12px), 43% 100%, 40% calc(100% - 12px), 37% 100%, 34% calc(100% - 12px), 31% 100%, 28% calc(100% - 12px), 25% 100%, 22% calc(100% - 12px), 19% 100%, 16% calc(100% - 12px), 13% 100%, 10% calc(100% - 12px), 7% 100%, 4% calc(100% - 12px), 1% 100%, 0 calc(100% - 12px));
+  padding-top: 24px;
+  padding-bottom: 26px;
 }
 
-/* Display type. The width axis is used as an element: wide for the restaurant name and
-   the countdown, tighter for section heads. */
-@utility display-wide {
+/* Brass: a flat face with two machined edges. Not a gradient. */
+@utility brass-bar {
+  background: var(--brass);
+  border-top: 3px solid var(--brass-light);
+  border-bottom: 4px solid var(--brass-dark);
+}
+@utility brass-plate {
+  background: var(--brass);
+  color: var(--soot);
+  border: 2px solid var(--brass-dark);
+  box-shadow: inset 0 2px 0 var(--brass-light);
+}
+
+/* Display type: Fraunces with its soft and wonk axes up, the only curve in the room. */
+@utility display {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 112, "opsz" 96;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
-@utility display-tight {
+@utility display-print {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 92, "opsz" 48;
+  font-variation-settings: "SOFT" 60, "WONK" 0, "opsz" 48;
   font-weight: 600;
 }
-
-/* The countdown uses tabular figures so digits do not jitter as they tick. */
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }
 
+/* Buttons are stamped: a flat face, a hard offset, and they press in. */
+@utility stamp-button {
+  font-family: var(--font-print);
+  font-weight: 700;
+  border: 3px solid var(--soot);
+  box-shadow: 4px 4px 0 var(--soot);
+  transition: transform 100ms ease, box-shadow 100ms ease;
+}
+.stamp-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--soot);
+}
+.stamp-button:disabled {
+  opacity: 0.6;
+  transform: none;
+  box-shadow: 4px 4px 0 var(--soot);
+}
+
 body {
-  color: var(--chalk);
-  font-family: var(--font-body);
+  color: var(--paper-fresh);
+  font-family: var(--font-print);
   min-height: 100dvh;
 }
 
-/* Keyboard focus is visible on the ground and on chalk alike. */
+/* Keyboard focus is a heat-coloured ring on steel and a char ring on paper. */
 :focus-visible {
-  outline: 3px solid var(--flame);
-  outline-offset: 2px;
+  outline: 3px solid var(--lamp-warm);
+  outline-offset: 3px;
 }
-.enamel :focus-visible,
-.enamel:focus-visible {
-  outline-color: var(--enamel-mid);
+.paper :focus-visible,
+.paper:focus-visible {
+  outline-color: var(--char);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper,
+  .heat-transition {
+    transition-duration: 2000ms;
+  }
 }

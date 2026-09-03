@@ -6,7 +6,7 @@ const fraunces = Fraunces({ subsets: ["latin"], axes: ["SOFT", "WONK", "opsz"], 
 const plex = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-plex", display: "swap" });
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "CHOWLY" };
+export const metadata = { title: "CHOWLY", robots: { index: false, follow: false } };
 
 // Direction 2 of 3 for the redesign: The Pass. A prototype of the menu screen only.
 export default async function PassDirection() {

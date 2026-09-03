@@ -924,3 +924,42 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   known microsite trope, Fraunces is the serif of the moment, halftone is print
   nostalgia. The build will have to earn its way past them with the lamp as the clock,
   which none of those tropes has.
+
+### Step 4, commit: `feat: switch the tokens and chrome to the pass`
+
+- **Asked for:** the whole application in The Pass, with two amendments: the three
+  prototypes stay behind `/directions` with an index, noindex and off the nav; and the
+  lamp clock cools and dims rather than alarms, continuously, with contrast holding at
+  both extremes and a single slow step under reduced motion.
+- **Accepted:** `app/globals.css` replaces the enamel tokens with steel, brass, soot,
+  ink, char and served, plus the heat system: one custom property, `--heat`, running
+  from 1 (a lamp just switched on) to 0 (a lamp on far too long), and every colour that
+  belongs to the lamp mixed from a warm and a cool end by that number with `color-mix`,
+  so the paper, the pool colour and the pool opacity move together from a single value.
+  Paper glides over one second per tick, and two seconds under reduced motion. Utilities
+  for brushed steel, thermal paper with print ruling, torn edges top, bottom and both,
+  brass bars and plates, the display and print type, and stamped buttons. The root
+  layout loads Fraunces with its axes and IBM Plex Mono and drops the enamel families.
+  The header is the brass rail with the name on a hanging plate and the roles as two
+  tags on rings, with the same honest caption. `/directions` is an index of the three
+  prototypes with `robots: noindex, nofollow`, and each prototype page carries the same;
+  the Cast Enamel prototype now loads its own fonts since the root no longer does.
+- **Contrast, checked at the extremes, not the average:** ink on paper 12.95 fresh and
+  10.71 fully aged; secondary ink 5.86 and 4.84; paper text on steel 9.43; brass on steel
+  5.51; soot on brass 5.43. Two failures found and fixed before anything was built on
+  them: char red and served green as small text on paper fell to 3.70 and 3.49 on aged
+  paper, so text uses darker ink versions (char-ink 6.33 on aged paper, served-ink
+  6.03) and the bright versions are kept for stamps and button faces, where paper text
+  on them reads 4.55 and 4.68. Text directly on a lamp pool fails at warm heat (3.17,
+  brass 1.85), so the rule is that no text ever sits on a pool: pools hang above the
+  name and behind paper, never behind type.
+- **Rejected:** a red late state. The late end of the range is a cooler, dimmer straw
+  over aged paper, a lamp that has been on too long, not a fire. Removing the
+  temperature shift under reduced motion; it stays, as a single two-second step on
+  state change, because it is the app's central idea.
+- **Corrected by hand:** nothing.
+- **Transitional state, stated plainly:** the old enamel screens still exist for two
+  commits and render unstyled until each is rebuilt in turn. Every commit builds.
+- **Verified:** Fraunces and IBM Plex Mono load, the heading computes as Fraunces with
+  `SOFT 100, WONK 1, opsz 144`, the index carries `noindex, nofollow`, no sideways
+  scroll at 390. Gate green.

@@ -6,7 +6,7 @@ const sign = Alfa_Slab_One({ weight: "400", subsets: ["latin"], variable: "--fon
 const karla = Karla({ subsets: ["latin"], variable: "--font-karla", display: "swap" });
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "CHOWLY" };
+export const metadata = { title: "CHOWLY", robots: { index: false, follow: false } };
 
 // Direction 1 of 3 for the redesign: Signwriter. A prototype of the menu screen only.
 export default async function SignwriterDirection() {
