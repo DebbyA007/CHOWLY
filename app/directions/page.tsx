@@ -21,7 +21,8 @@ export default function DirectionsIndex() {
       <p className="mt-4 max-w-prose text-sm text-paper/85">
         Before the interface was rebuilt, three art directions were proposed and each was built for real as the menu
         screen on the seeded data. They are kept here as evidence of the choice. The critique that chose between them
-        is in the repository at docs/directions/README.md.
+        is in the repository at docs/directions/README.md. Three more directions, built after The Pass was
+        rejected as too heavy, are at <Link href="/directions-2">/directions-2</Link>.
       </p>
       <ul className="mt-8 flex flex-col gap-4">
         {directions.map((direction) => (

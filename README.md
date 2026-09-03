@@ -50,6 +50,11 @@ a written bar. They stay in the app at `LIVE_URL/directions` so the choice can b
 rather than read about. The critique, with the screenshots, is
 [`docs/directions/README.md`](docs/directions/README.md).
 
+The Pass was then judged too industrial, dark and heavy, and three more directions were
+built as full clickable walkthroughs at `LIVE_URL/directions-2`, each running the whole
+story on real data. Their critique is in
+[`docs/directions-2/README.md`](docs/directions-2/README.md).
+
 ## Stack
 
 | Layer | Choice |
@@ -223,6 +228,7 @@ authentication, by design; the server-side seam for waiter routes stays behind
 - [`docs/SUBMISSION.md`](docs/SUBMISSION.md): how it was built, how AI was used, every feature step by step, and a walkthrough for a stranger.
 - [`docs/AI-LOG.md`](docs/AI-LOG.md): the AI log, written as the work happened, with every rejection and correction.
 - [`docs/directions/README.md`](docs/directions/README.md): the three art directions and the critique.
+- [`docs/directions-2/README.md`](docs/directions-2/README.md): three more directions as walkthroughs, and the critique.
 - [`docs/BUILD-PLAN.md`](docs/BUILD-PLAN.md): the order of work, one commit per step.
 - [`CLAUDE.md`](CLAUDE.md): the rulebook the build was held to.
 
