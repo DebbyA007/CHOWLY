@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Enamel palette, see CLAUDE.md. Only the two tokens the deploy probe uses live here.
+   The full set arrives with the design tokens commit. */
+:root {
+  --enamel-deep: #123a5e;
+  --chalk: #f2efe6;
+}
+
+@theme inline {
+  --color-enamel-deep: var(--enamel-deep);
+  --color-chalk: var(--chalk);
+}
+
+body {
+  background: var(--enamel-deep);
+  color: var(--chalk);
+}

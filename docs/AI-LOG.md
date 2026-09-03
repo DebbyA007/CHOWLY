@@ -101,3 +101,42 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
 - **Corrected by hand:** nothing.
 - **Gate:** not runnable yet. There is no `package.json` before the scaffold commit, so
   typecheck, lint and build do not exist. The scaffold is the first gated commit.
+
+### Commit 1: `chore: scaffold next.js app with typescript and tailwind`
+
+- **Asked for:** create-next-app with App Router, TypeScript, Tailwind v4, no src directory
+  and ESLint. Delete all starter boilerplate in the same commit. Add `typecheck`, set
+  `build` to `prisma generate && next build`, strict tsconfig with `noUncheckedIndexedAccess`
+  and `noImplicitAny`, animejs pinned exactly, and a page that renders only the CHOWLY name
+  on `--enamel-deep` in `--chalk`.
+- **Accepted:** Next 15.5.25 through `create-next-app@15`, run in a scratch directory
+  because the tool refuses a directory that already holds `CLAUDE.md`, `prisma/` and
+  `.githooks`. The generated config files were copied in and the repo's own `.gitignore`
+  kept. `animejs` 4.5.0 exact. Prisma CLI and client pinned to 6.19.3 exact and installed
+  in this commit, since the build script calls `prisma generate` and the schema is already
+  in the repo, so no stub was needed. `*.tsbuildinfo` added to `.gitignore` because
+  `tsc --noEmit` with `incremental` writes `tsconfig.tsbuildinfo`.
+- **Rejected:** scaffold defaults that would have shipped something generic: the Geist font
+  pair, the demo page, the five SVGs in `public/`, the default favicon, the template README
+  and the placeholder metadata. `next build --turbopack` (the 15.5 scaffold default) was
+  dropped for the plain `next build` the spec names. Prisma 8.0.0-rc.12, the registry's
+  `latest`, was rejected: the 7 and 8 lines removed `url` and `directUrl` from the
+  datasource block and deprecated the `prisma-client-js` generator, all of which the
+  provided schema uses, so taking it would have meant editing a schema this commit must
+  not touch.
+- **Corrected by hand:** nothing in the committed files. Two process corrections: the first
+  gate run captured no exit codes (a bash-only variable under zsh) and was re-run; the
+  Playwright plugin wanted Google Chrome, which is not installed, so the visual check used
+  Playwright's cached Chromium through a small script instead. A power loss interrupted
+  the run after the gate had passed; the commit was made after re-verifying every file
+  and re-running the gate.
+- **Verified:** typecheck, lint and build all exit 0, and `npm ci --ignore-scripts`
+  followed by the build proves the Vercel install path. Headless Chromium computed the
+  body background as `rgb(18, 58, 94)` (`#123a5e`) and the text as `rgb(242, 239, 230)`
+  (`#f2efe6`), with CHOWLY as the only visible text. One console 404 remains,
+  `/favicon.ico`, because the default icon was removed and the designed one belongs with
+  the design tokens commit.
+- **Finding for the motion phase:** `animejs` 4.5.0 exports both `spring` and
+  `createSpring` from `dist/modules/easings/spring/index.d.ts` with the same signature,
+  `(parameters?: SpringParams): Spring`. `CLAUDE.md` prefers `createSpring`; both exist in
+  this version.
