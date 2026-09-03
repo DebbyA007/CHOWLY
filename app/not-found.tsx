@@ -10,7 +10,7 @@ export default function NotFound() {
         <p className="mt-2 text-sm text-ink-soft">
           If you were looking for an order, it belongs to the browser that placed it, so it only shows there.
         </p>
-        <Link href="/" className="stamp-button mt-6 inline-block bg-char-ink px-4 py-2.5 text-paper">
+        <Link href="/menu" className="stamp-button mt-6 inline-block bg-char-ink px-4 py-2.5 text-paper">
           Back to the pass
         </Link>
       </section>

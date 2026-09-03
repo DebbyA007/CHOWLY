@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 // nothing else, because the assignment forbids logins and the live link must be usable
 // by anyone: both sides of the pass are open. The caption says so.
 const roles = [
-  { href: "/", label: "Customer" },
+  { href: "/menu", label: "Customer" },
   { href: "/waiter", label: "Waiter" },
 ] as const;
 
@@ -17,7 +17,7 @@ export function RoleTags() {
     <nav aria-label="Role" className="flex flex-col items-end gap-2">
       <div className="flex gap-3">
         {roles.map((role) => {
-          const active = role.href === "/" ? pathname === "/" || pathname.startsWith("/order") : pathname.startsWith(role.href);
+          const active = role.href === "/menu" ? pathname.startsWith("/menu") || pathname.startsWith("/order") : pathname.startsWith(role.href);
           return (
             <Link
               key={role.href}

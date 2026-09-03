@@ -1261,3 +1261,35 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   no header, 200 with the right PIN, 401 with a wrong one. Gate green.
 - **For the human:** set `STAFF_PIN_REQUIRED=false` in Vercel's environment, or the
   deployed waiter routes will answer 401 by design.
+
+### Commit: `feat: add the landing page and move the menu to /menu`
+
+- **Asked for:** a landing at `/` that does the three second job and answers "what is
+  this" at once, with what CHOWLY is in the kitchen's own voice, two entrances one click
+  each and plainly open to anyone, a link to the three directions, links to the
+  repository and the submission document, and a visible note that payment is pretend.
+  Concept offered: the pass before service, lamps cold, rail empty, lamps warming as you
+  arrive.
+- **Accepted:** the concept as offered. Three lamps hang cold over an empty rail; a
+  third of a second after arrival `--heat` goes from 0 to 1 and the stylesheet glides
+  the pools from straw at 0.2 to amber at 0.6, which is the one thing that moves without
+  being asked, and it is the heat system rather than an animation, so under reduced
+  motion it takes its single slow step. CHOWLY is set at up to 192px in Fraunces. Two
+  lines in the kitchen's voice, then the plain statement that there is no login and no
+  PIN and both sides are open. The two entrances are two tickets hanging from the rail,
+  the two sides of the same pass: "Take a table" to `/menu` and "Open the pass" to
+  `/waiter`, each with "Open to anyone. One click, no gate." Below, three brass plates
+  link the three directions, the repository and the submission document, and a paper
+  strip says payment is pretend. The menu moved to `/menu`; the Customer tag and the
+  404's way back point there.
+- **Rejected:** a hero image, a big number, or any motion beyond the lamps warming and
+  the tickets dropping.
+- **Corrected by hand:** nothing.
+- **Verified:** in Chromium at 0.15 seconds the pools are straw at 0.2 with the doors
+  not yet dropped; at 3.4 seconds amber at 0.6 with both doors in. The five links are
+  present. Tab reaches the name plate, both tags and the doors with the amber focus
+  ring, and Enter on the kitchen door lands on the rail with no password field. The
+  customer door lands on `/menu` with the Customer tag current, and an order fired from
+  there lands on its ticket. No sideways scroll at 390. Under reduced motion both doors
+  are visible at half a second and the pool's transition is two seconds. No console
+  errors. Screenshots in `docs/screens/landing-*`. Gate green.

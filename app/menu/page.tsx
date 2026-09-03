@@ -6,7 +6,7 @@ import { getMenu } from "@/lib/menu";
 // unavailable disappears on the next load.
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function MenuPage() {
   const menu = await getMenu();
   return <PassMenu menu={menu} />;
 }
