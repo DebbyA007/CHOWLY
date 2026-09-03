@@ -63,7 +63,7 @@ export function LinenFloor() {
     return (
       <div className="relative overflow-hidden rounded-xl border border-[var(--thread)] px-3 py-3" style={{ background: `color-mix(in oklab, #fffdf8, #ebe6da ${((1 - h.heat) * 100).toFixed(0)}%)`, transition: "background-color 1000ms linear" }}>
         <div className="flex items-baseline justify-between gap-2">
-          <span className="serif text-xl italic">{order.reference}</span>
+          <span className="ref serif text-xl italic">{order.reference}</span>
           <span className="text-[12px] font-bold">Table {order.tableNo}</span>
         </div>
         <div className="mt-1 flex items-center gap-1" aria-hidden="true">

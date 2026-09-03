@@ -1461,3 +1461,23 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   pretend line. No sideways scroll. Reduced motion shows the landing at once with a two
   second sun. The tomato focus ring shows on the first entrance. No console errors.
   Screenshots in `docs/directions-2/one-*`, 390 first. Gate green.
+
+### Step 2, commit: `feat: build direction two, bill of fare, as a clickable walkthrough`
+
+- **What it is:** four routes under `/directions-2/two` on the shared engine: the card
+  face up with the candle lit as the landing, the bill of fare as one long printed
+  column, the order printed beside its candle, and the house book with one page per
+  order. Letterpress on cotton paper: fibre in the ground, every rule a dark line with
+  a paper-white highlight under it, the second colour a hair out of register on the
+  headings, old-style figures. The food is ink line with the green laid down first, out
+  of register.
+- **Ambient time:** the candle. Its wax burns down with progress and the pool grows;
+  the flame sways slowly and holds still under reduced motion; past the promise the
+  candle is a stub and the page has dimmed. Paid puts it out with a wisp. Never red.
+- **Verified at 390 in Chromium, clicked through:** the Pass chrome hidden; Zobo and
+  Chapman on the slip at ₦5,000; the order printed with the candle tall; the demo
+  control making it late with the page dimmed, "+05:11" and the note section printed;
+  a note sent with a score of 2, a mark of 4; the book page "the candle is a stub" with
+  the note counted; Enter opening the form; served; the account settled into "Paid in
+  full." with the pretend line. No sideways scroll; the green focus ring on the first
+  door. No console errors. Screenshots in `docs/directions-2/two-*`. Gate green.
