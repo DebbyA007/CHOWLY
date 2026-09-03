@@ -1562,3 +1562,32 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
 - **Lesson recorded.** A green build is not proof for anything visual, and one engine is
   not proof for another. The verification loop now includes the system WebKit probe
   beside headless Chromium.
+
+## Phase 4d: three structurally different directions, The Pass repaired among them
+
+### Verdict and brief
+
+- **The verdict on directions-2:** none of the three is the answer. They shared a layout,
+  the same callouts and the same white ground, so they were three palettes on one
+  structure. The routes and the critique stay as artefacts. **The Pass is not scrapped
+  after all:** the three complaints (industrial metal, too dark and heavy, shapes
+  blocking the ordering task) were a defect list, not a verdict on the world.
+- **The new brief:** three walkthroughs under `/directions-3`. Direction one is The Pass
+  repaired, not reimagined. Directions two and three each break a structural assumption
+  every version so far has shared, and neither may share direction one's layout, ground
+  or way of showing time. Constants: 390 first, food visibly depicted, no sound feature
+  anywhere, no explanatory callouts, the pretend label only on the payment button and the
+  receipt, a real landing page, the role switch made immediate with the cause reported.
+
+### Commit: `feat: remove the sound feature`
+
+- **Asked for:** the toggle, the cues, the audio context and the tag in every header,
+  gone. "It earns nothing."
+- **Done:** `lib/sound.ts` and `components/pass/sound-tag.tsx` deleted; the four cue
+  calls removed from the menu, the rating, the rail and the receipt; the tag removed from
+  The Pass header and from the three directions-2 frames; the README, CLAUDE.md, the
+  submission document and the screens index no longer describe it.
+- **Accepted without argument.** The cues were built well and answered real actions, but
+  a feature that is off by default and that nobody asked for is decoration with a
+  switch. The rejection is recorded here because it is a design decision the document
+  has to own.

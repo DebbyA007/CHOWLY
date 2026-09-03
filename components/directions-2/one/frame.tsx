@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import "./linen.css";
-import { SoundTag } from "@/components/pass/sound-tag";
 
 const base = "/directions-2/one";
 
 // The chrome of the linen world: a small woven label at the top, the two sides of the
-// table as stitched tags, and the sound tag. Everything sits on the cloth.
+// table as stitched tags. Everything sits on the cloth.
 export function LinenFrame({ children, progress = 1, state = "waiting" }: { children: React.ReactNode; progress?: number; state?: string }) {
   const pathname = usePathname();
   const tags = [
@@ -27,7 +26,6 @@ export function LinenFrame({ children, progress = 1, state = "waiting" }: { chil
               {t.label}
             </Link>
           ))}
-          <span className="scale-90"><SoundTag /></span>
         </nav>
         <p className="basis-full text-[11px] text-[var(--ink-soft)]">Both sides are open to anyone. The tags change the view, not who you are.</p>
       </header>

@@ -235,8 +235,6 @@ Everything after that answers an action and shows what changed:
   and opens the serving dialog past a deliberate distance. The button and the keyboard
   open the same dialog.
 - Settle: the receipt feeds out, the PAID stamp lands once, the lamp goes out.
-- Sound: four synthesised cues that answer those actions, off by default behind a
-  visible tag.
 
 ### Superseded: West African enamelware
 

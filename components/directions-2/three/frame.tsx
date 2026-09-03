@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import "./glaze.css";
-import { SoundTag } from "@/components/pass/sound-tag";
 
 const base = "/directions-2/three";
 
@@ -23,7 +22,6 @@ export function GlazeFrame({ children, progress = 1, state = "waiting" }: { chil
               {t.label}
             </Link>
           ))}
-          <span className="scale-90"><SoundTag /></span>
         </nav>
         <p className="basis-full text-[11px] text-[var(--ink-soft)]">Both sides are open to anyone. The tags change the view, not who you are.</p>
       </header>

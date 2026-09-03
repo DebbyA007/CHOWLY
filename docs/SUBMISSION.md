@@ -50,8 +50,7 @@ Next.js 15.5 with the App Router and strict TypeScript; Tailwind v4 with the des
 tokens in `app/globals.css`; Prisma 6.19 on PostgreSQL at Neon, the pooled connection for
 the app and the direct one for migrations; Zod for every request shape; SWR for the two
 views that poll; anime.js 4.5 for motion, every scope carrying a reduced-motion branch;
-Fraunces and IBM Plex Mono self-hosted through `next/font`; Web Audio for four
-synthesised sound cues; Vercel for hosting with the install command
+Fraunces and IBM Plex Mono self-hosted through `next/font`; Vercel for hosting with the install command
 `npm ci --ignore-scripts`, which is why the build script is `prisma generate && next
 build`. Two transitive packages carry npm overrides above their security advisories,
 because the only upstream fixes were semver-major; the audit and the proof that neither
@@ -356,12 +355,9 @@ replaced. The customer id is never read from a request.
    PAYMENT. No money moved, and the record is marked pretend." The PAID stamp lands
    once and is static on later visits.
 
-### Sound and the role tags
+### The role tags
 
-Four cues, synthesised with Web Audio: a printer buzz when a line prints, a tear when the
-order is fired, a tick when a ticket is spiked or a number punched, a thud when the stamp
-lands. Off by default behind a tag on the rail; nothing plays and no audio context exists
-until it is switched on. The Customer and Waiter tags change the view and nothing else.
+The Customer and Waiter tags change the view and nothing else.
 
 ### The API
 
@@ -418,8 +414,7 @@ two tabs: one is the customer at the table, the other is the kitchen.
 10. **The switch.** The Customer and Waiter tags at the top change the view and nothing
     else. Both sides are open to anyone with the link; that is the assignment's rule, and
     the app says so rather than pretending otherwise.
-11. **Two more things to try.** Switch "Sound off" to "Sound on" and fire another ticket
-    to hear the printer and the tear. Turn on Reduce Motion in your system settings and
+11. **One more thing to try.** Turn on Reduce Motion in your system settings and
     reload: every entrance becomes a fade, and the lamp still cools, in one slow step.
 12. **The directions.** LIVE_URL/directions shows the three art directions that were
     built before this one was chosen; each is a working menu screen.

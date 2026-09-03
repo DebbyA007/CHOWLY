@@ -6,7 +6,6 @@ import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import { MAX_PER_ITEM, cartCount, cartLines, cartTotalKobo, type Cart } from "@/lib/cart";
 import type { MenuItemView, MenuView } from "@/lib/menu";
 import { formatNaira } from "@/lib/money";
-import { play } from "@/lib/sound";
 import { Lamp } from "./lamp";
 
 type Scope = ReturnType<typeof createScope>;
@@ -93,7 +92,6 @@ export function PassMenu({ menu }: { menu: MenuView }) {
   function add(item: MenuItemView, line: HTMLElement) {
     const wasEmpty = !cart[item.id];
     setError(null);
-    void play("print");
     setCart((current) => ({ ...current, [item.id]: Math.min(MAX_PER_ITEM, (current[item.id] ?? 0) + 1) }));
     requestAnimationFrame(() => {
       scope.current?.methods.print?.(line);
@@ -141,7 +139,6 @@ export function PassMenu({ menu }: { menu: MenuView }) {
         setError(json?.error ?? "The order could not be fired. Check the connection and try again.");
         return;
       }
-      void play("tear");
       setFired({ id: json.id, reference: json.reference });
     } catch {
       setError("The order could not be fired. Check the connection and try again.");

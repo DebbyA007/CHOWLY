@@ -8,7 +8,7 @@ the viewport width.
 |---|---|
 | `menu-1440-entrance.png` | The menu 0.7 seconds in: two lamps on, the strips still to drop |
 | `menu-1440.png`, `menu-390.png` | The menu settled, full height, at both widths |
-| `menu-1440-header.png`, `menu-390-header.png` | The rail header with the sound tag and the role tags |
+| `menu-1440-header.png`, `menu-390-header.png` | The rail header with the role tags |
 | `menu-1440-ticket.png` | Two lines on the customer's ticket with a table entered |
 | `menu-1440-firing.png` | The ticket mid-tear after the order was fired |
 | `order-waiting-1440.png` | A fresh order under a warm lamp, digits counting down |

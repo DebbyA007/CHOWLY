@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import "./bill.css";
-import { SoundTag } from "@/components/pass/sound-tag";
 
 const base = "/directions-2/two";
 
@@ -24,7 +23,6 @@ export function BillFrame({ children, progress = 1, state = "waiting" }: { child
                 {t.label}
               </Link>
             ))}
-            <span className="scale-75"><SoundTag /></span>
           </nav>
         </div>
         <p className="mt-1 text-[12px] italic text-[var(--ink-soft)]">Both sides are open to anyone; the words change the view, not who you are.</p>

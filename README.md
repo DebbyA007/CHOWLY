@@ -66,7 +66,6 @@ story on real data. Their critique is in
 | Database | PostgreSQL on Neon, Prisma 6.19 |
 | Validation | Zod, every request shape strict |
 | Data fetching | SWR, polling every 3 seconds on the rail and the ticket |
-| Sound | Web Audio, synthesised, off by default |
 | Hosting | Vercel |
 
 ## Data model
