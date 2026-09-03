@@ -152,21 +152,30 @@ export function PassMenu({ menu }: { menu: MenuView }) {
 
   return (
     <div ref={root} className="overflow-x-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-[22px]" aria-hidden="true">
+      {/* Three lamps hang from the header's rail on wide screens, between the plate and
+          the tags so no pool ever sits behind text. */}
+      <div className="pointer-events-none absolute inset-x-0 top-[22px] hidden sm:block" aria-hidden="true">
         <div className="relative mx-auto max-w-6xl">
           {[
-            { left: "18%", seed: 1, hide: true },
-            { left: "42%", seed: 2, hide: false },
-            { left: "66%", seed: 3, hide: true },
+            { left: "23%", seed: 1 },
+            { left: "39%", seed: 2 },
+            { left: "55%", seed: 3 },
           ].map((lamp) => (
-            <div key={lamp.seed} className={`lamp absolute -translate-x-1/2 ${lamp.hide ? "hidden sm:block" : ""}`} style={{ left: lamp.left, opacity: 0 }}>
+            <div key={lamp.seed} className="lamp absolute -translate-x-1/2" style={{ left: lamp.left, opacity: 0 }}>
               <Lamp seed={lamp.seed} />
             </div>
           ))}
         </div>
       </div>
+      {/* On a phone one lamp hangs from a lower rail of its own, above the name. */}
+      <div className="relative mt-4 sm:hidden" aria-hidden="true">
+        <div className="brass-bar h-[14px]" />
+        <div className="lamp absolute left-1/2 top-[14px] -translate-x-1/2" style={{ opacity: 0 }}>
+          <Lamp seed={2} width={170} />
+        </div>
+      </div>
 
-      <header className="relative mx-auto max-w-6xl px-5 pb-8 pt-52 sm:px-8 sm:pt-60">
+      <header className="relative mx-auto max-w-6xl px-5 pb-8 pt-44 sm:px-8 sm:pt-60">
         <h1 className="pass-name display text-[clamp(3.4rem,10.5vw,9.5rem)] leading-[0.9] text-brass-light" style={{ opacity: 0, textWrap: "balance", textShadow: "2px 3px 0 var(--soot)" }}>
           {menu.restaurant.name}
         </h1>

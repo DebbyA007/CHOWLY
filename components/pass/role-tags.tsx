@@ -32,7 +32,7 @@ export function RoleTags() {
           );
         })}
       </div>
-      <p className="max-w-64 text-right text-[11px] leading-snug text-brass-light/80">
+      <p className="max-w-[13.5rem] text-right text-[11px] leading-snug text-brass-light/80 sm:max-w-64">
         Demo switch: it changes the view, not who you are. The waiter side asks for the staff PIN.
       </p>
     </nav>
