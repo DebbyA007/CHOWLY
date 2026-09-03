@@ -1333,3 +1333,81 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   minute Zobo so the lamp's whole story fits in one sitting, and includes the sound tag
   and the reduced-motion check.
 - **For the human:** `LIVE_URL` appears five times and needs the real address.
+
+## Phase 4c: three clickable directions, set in the dining room
+
+### The verdict on The Pass, and a distinction worth keeping
+
+The Pass was well built and wrong. It put the customer on the kitchen side of the
+counter: industrial, dark, heavy, a service worker's world rather than a guest's. The
+person using CHOWLY is seated at a table in a restaurant, and the interface should feel
+like where they are sitting, not where their food is cooked.
+
+The feedback was informal, from people shown the app, not from anyone grading it. Two
+criticisms were weighed and one was rejected. Accepted: too industrial, too dark, too
+heavy. Rejected: "too novel, wants something familiar". Familiar is not the target. The
+assignment opens on restaurants competing to be extraordinary, and building toward
+familiar is exactly how the first interface became forgettable. So the inversion is
+light rather than dark and air rather than density, with restraint as the luxury, and
+the ideas that worked survive with a new material: every component, route, API call and
+interaction; the five moments and their choreography; ambient time as the central idea,
+which cannot be a heat lamp now and must be the dining room's version of the clock.
+
+The trap is named too: light and spacious is one careless step from a generic wellness
+app, cream, soft sans, rounded cards, padding and nothing else. Every direction below
+names a material with texture, weight or imperfection and makes it visible. Two lessons
+are taken from a competing submission, mobile first and visible food, and nothing else
+from it.
+
+### Step 1: three directions
+
+**One. Linen.** World: Sunday lunch at the long table under the almond tree behind The
+Golden Gate, the cloth just ironed, the afternoon moving across it. Material: white
+linen with a visible weave, the ring a cold glass leaves on it, gouache. Type:
+Instrument Serif for the display, with its true italic for dish names, and Karla for
+everything else. Palette: linen `#F7F3EA`, thread `#E3DBC9`, shade `#D8D2C2`, ink
+`#2B2A28`, olive `#6B7A4C`, tomato `#C8553D`, ochre `#D9A441`, glass `#9FB7B5`. Food:
+painted in gouache on the cloth, flat opaque colour with edges that do not quite meet,
+the way gouache dries. Ambient time: the afternoon light. A sharp-edged patch of sun lies
+across the cloth where your order sits and moves across the table as the promised
+minutes pass; past the promise it has moved off and you are eating in the shade, the
+cloth cooler, the paint duller. Never red. Unlike any other restaurant app because it is
+a set table rather than a screen: the menu is a folded card on the cloth and the clock
+is the sun on it.
+
+**Two. Bill of fare.** World: the printed card at a small dining room on Ubah Street,
+letterpress on cotton paper, a candle in a glass. Material: cotton paper stock with
+visible fibre, letterpress bite, two inks a hair out of register, candle wax. Type: EB
+Garamond for the card, with old-style figures, and Work Sans only where a screen has to
+speak. Palette: paper `#F4EFE4`, fibre `#E8E1D2`, ink `#1E1B18`, second ink deep green
+`#2F5D3A`, wax `#F0E6C8`, flame ochre `#D9A441`. Food: ink line drawings printed in one
+colour with the second laid over a hair out of register, the way a two-colour press
+prints. Ambient time: the candle. Drawn beside your order, it burns down through the
+promised minutes; past the promise it is a stub in a pool of wax and the room's light
+has lowered so the ink sits on a dimmer page. Never red. Unlike any other restaurant
+app because the whole app is one printed card and the clock is a candle burning on it.
+
+**Three. Glaze.** World: a table at a new Lagos restaurant in the evening, terrazzo
+tabletop, glazed stoneware, the room settling. Material: terrazzo, chips of colour set
+in a pale ground; glazed ceramic with crazing lines and a glaze drip at the rim. Type:
+Newsreader for the display on its optical size axis, and Figtree. Palette: terrazzo
+ground `#EEE9E0` with chips of rust `#B4553A`, sage `#7E9A7B`, sand `#D9C79B` and ink
+`#2A2B2E`; glaze white `#FAF8F2`, glaze teal `#3D7A78`, glaze ochre `#C98B2C`. Food:
+painted onto the plates as glaze, flat colour that pools darker at the edge of each
+shape, on a plate with crazing. Ambient time: the room settling. The light on the
+terrazzo goes from bright to evening as the promised minutes pass; past the promise the
+room has settled into dusk, cooler and dimmer, a grey-green and never a purple, with
+the plate's rim catching the last of it. Unlike any other restaurant app because the
+dishes sit on plates you can see the glaze on, and time is the room around you rather
+than a number.
+
+**How the food is drawn, in all three.** The fourteen dishes are drawn once as vector
+geometry authored in this repository, then printed in each direction's material: gouache
+fills on linen, ink line with a second colour out of register on paper, glaze fills with
+crazing on ceramic. No photography, so nothing to licence and nothing that reads as
+stock; the drawing is part of the material. Source: `components/directions-2/shared`.
+
+**What the three share and what they do not.** They share the API, the seeded data,
+the cart and order logic, and the dish geometry. They do not share a layout: Linen is a
+set table with a folded card, Bill of fare is a single long printed card, Glaze is
+plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
