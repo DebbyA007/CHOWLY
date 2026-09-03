@@ -467,3 +467,27 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   unknown chef got 400, no PIN got 401; a valid assign returned SERVED with `servedAt`
   and the three names; assigning again got 409 "already served"; a garbage id got 404.
   Gate green.
+
+### Commit 12: `feat: add complaint and rating apis`
+
+- **Asked for:** POST complaint and POST rating, both ownership-checked, the rating
+  upsert-safe against the unique constraint, both rate limited per session.
+- **Accepted:** ownership is part of each query. A complaint is refused with 409 unless
+  the order is late, where late means still PLACED past the promised wait or served
+  after it (`isOrderLate` in `lib/wait-time.ts`, unit tested, paying does not erase
+  lateness). The UI will only show the entry point once the ring has crossed, and the
+  server enforces the same rule, so the complaint is earned on both sides. The rating is
+  an upsert on the unique `orderId`, so rating again changes the score, and the reply is
+  201 the first time and 200 after. Zod bounds the score first, the check constraint
+  from Commit 4 is the last line. Limits are counted in the database: five complaints
+  and ten ratings per session per ten minutes.
+- **Decision, flagged:** a rating is accepted at any point after placing, not only after
+  serving, since the assignment lets the rating stand on its own.
+- **Rejected:** nothing.
+- **Corrected by hand:** nothing.
+- **Verified:** a complaint on an on-time order got 409; after backdating the order 30
+  minutes in Neon the same complaint got 201 with `isDelayed: true`; the other browser
+  got 404; a two-character description got 400. Scores 6, 0 and 3.5 got 400 with the
+  bound named; 4 got 201; 5 on the same order got 200 with the score changed and still
+  one row; the other browser got 404. Complaints two to five got 201 and the sixth got
+  429. Gate green.

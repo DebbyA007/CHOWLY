@@ -45,3 +45,14 @@ export function isOrderDelayed(
 export function dueAt(order: { placedAt: Date; waitMinutes: number }): Date {
   return new Date(order.placedAt.getTime() + order.waitMinutes * 60_000);
 }
+
+// A complaint is earned, not decorative: it opens only once the order is late. Late means
+// still PLACED past the promised wait, or served after it. A paid order that was served
+// late is still late; paying does not erase the wait.
+export function isOrderLate(
+  order: { status: "PLACED" | "SERVED" | "PAID"; placedAt: Date; waitMinutes: number; servedAt: Date | null },
+  now: Date = new Date(),
+): boolean {
+  if (order.servedAt) return order.servedAt.getTime() > dueAt(order).getTime();
+  return isOrderDelayed(order, now);
+}
