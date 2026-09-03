@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline } from "animejs";
 import type { SerializedOrder } from "@/lib/orders";
+import { play } from "@/lib/sound";
 
 type Scope = ReturnType<typeof createScope>;
 type Method = "CARD" | "MOBILE_MONEY" | "CASH";
@@ -82,6 +83,8 @@ export function Receipt({ order, justPaid }: { order: SerializedOrder; justPaid:
 
   useEffect(() => {
     if (!justPaid) return;
+    // the thud lands with the stamp, after the receipt has fed out
+    const thud = window.setTimeout(() => void play("stamp"), 540);
     scope.current = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
       if (self?.matches.reduceMotion) {
         animate([".receipt", ".paid-stamp"], { opacity: [0, 1], duration: 200 });
@@ -93,7 +96,10 @@ export function Receipt({ order, justPaid }: { order: SerializedOrder; justPaid:
         // the stamp comes down once
         .add(".paid-stamp", { opacity: [0, 1], scale: [1.9, 1], rotate: [-16, -9], duration: 380, ease: "outBack(2)" }, "+=120");
     });
-    return () => scope.current?.revert();
+    return () => {
+      window.clearTimeout(thud);
+      scope.current?.revert();
+    };
   }, [justPaid]);
 
   if (!payment) return null;

@@ -1135,3 +1135,27 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   wrong PIN produced. Screenshots in `docs/screens/waiter-*`. Gate green.
 - **Not verifiable headlessly:** the feel of the spring on release, the grab cursor, and
   touch dragging on a phone, which was not exercised at all.
+
+### Step 4, commit: `feat: add the soundscape, off by default`
+
+- **Asked for:** a soundscape if it serves the moments, off by default with a visible
+  toggle.
+- **Accepted:** four cues, synthesised with Web Audio so nothing is fetched and the
+  CSP stays as it is: a thermal head buzzing when a line prints on the ticket, paper
+  tearing along the serration when the order is fired, a metallic tick when a ticket is
+  spiked on the rail or a number is punched, and a low thud when the PAID stamp comes
+  down, timed to land with the stamp. The switch is a tag on the rail beside the roles,
+  reading "Sound off" or "Sound on" with `aria-pressed`. Nothing plays and no audio
+  context exists until a person switches it on; switching on plays the printer once so
+  they hear what they chose. The choice is kept in localStorage, which is a convenience
+  and not an identity, so the rule about the session cookie does not apply.
+- **Rejected:** ambient loops (a kitchen hum, a lamp buzz), because they would play with
+  nothing to answer and the brief asks for sound that serves a moment.
+- **Corrected by hand:** nothing.
+- **Verified:** in Chromium the tag reads "Sound off" with `aria-pressed="false"` and
+  zero audio contexts exist; adding a line with sound off creates none. Switching on
+  reads "Sound on", creates one context and stores the choice; adding a line with sound
+  on raises no error; the choice survives a reload; switching off stores off. Gate
+  green.
+- **Not verifiable headlessly:** the sounds themselves. The cues are synthesised, so
+  their character (a buzz, a tear, a tick, a thud) has to be heard.
