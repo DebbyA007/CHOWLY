@@ -177,3 +177,121 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   preview URLs; production is unaffected.
 - **Deploy gate:** branch pushed after this commit. Connecting the repo to Vercel, setting
   the install command to `npm ci --ignore-scripts` and confirming the URL are manual steps.
+
+### Commit: `chore: override postcss and deepmerge-ts above their advisories`
+
+- **Asked for:** audit the five vulnerabilities `npm ci --ignore-scripts` reported on the
+  fresh scaffold, classify each by severity, directness and reach, say whether a fix
+  exists without a breaking major, and stop for a ruling. No `npm audit fix --force`.
+- **Finding:** five npm entries, two real advisory chains. One: `deepmerge-ts` 7.1.5
+  (high, stack exhaustion on recursive object graphs) reached through `prisma` and
+  `@prisma/config`. Two: `postcss` 8.4.31 (two high, two moderate: arbitrary `.map` file
+  reads through `sourceMappingURL` comments and a `</style>` escape in stringified
+  output), pinned by Next 15.5.25 as a nested dependency. The `next`, `prisma` and
+  `@prisma/config` entries only inherit from those two.
+- **Reach, and how it was proven:** neither chain reaches the production runtime.
+  Requiring `@prisma/client` loads only `runtime/library.js`, and neither `deepmerge-ts`
+  nor `@prisma/config` appears in Node's module cache afterwards; the word deepmerge does
+  not occur in either runtime file, and the lock only marked `prisma` as non-dev because
+  `@prisma/client` names the CLI as an optional peer. For postcss, Next requires it from
+  `dist/build/` files only and nothing under `dist/server/` does, so `next start` never
+  loads it. Both chains run on the build machine: the Prisma CLI during `prisma generate`
+  and migrations, postcss during CSS compilation. Their inputs are authored in this repo.
+- **Rejected:** npm's own fixes, because both are semver-major: `next` 16.3.4, or
+  `prisma` 6.12.0, which is a downgrade to before `@prisma/config` adopted deepmerge-ts.
+  No Prisma release, including the 8.0.0 release candidate, had moved off the
+  vulnerable range.
+- **Accepted (the ruling):** npm `overrides` pinning `postcss` to `^8.5.26` and
+  `deepmerge-ts` to `^8.0.0`. Tested first in a scratch copy: audit clean, Prisma
+  validate and generate clean, Next build clean. Next 16 itself ships postcss 8.5.23, so
+  the 8.5 line is proven inside Next's CSS pipeline. deepmerge-ts 8 is ESM like 7 and only
+  raises the Node floor to 16.9.
+- **Corrected by hand:** nothing.
+- **Verified:** after `rm -rf node_modules && npm ci --ignore-scripts`, the exact Vercel
+  install command, the output line is `found 0 vulnerabilities`. Resolved on disk:
+  postcss 8.5.28 with no nested copy under `next/`, deepmerge-ts 8.0.2. Gate green.
+- **Maintenance note:** overrides pin transitive versions and go stale silently. Nothing
+  warns when `next` or `prisma` moves to a version that no longer needs them, or that
+  needs a different one. Both overrides get re-checked whenever either parent is bumped,
+  and removed the moment the parent's own pin is clean.
+
+### Commit 3: `feat: connect prisma to neon with the first migration`
+
+- **Asked for:** `.env` with `DATABASE_URL` (Neon pooled), `DIRECT_URL` (Neon direct),
+  `SESSION_SECRET` and `STAFF_PIN`; a committed `.env.example` with every key present and
+  every value blank; confirmation that `.env` is ignored; the first migration, with the
+  generated SQL for Order and Payment reported.
+- **Accepted:** `.env.example` committed with the four keys blank and a one-line comment
+  each. `.env` is ignored by the `.env` rule and `.env.example` is un-ignored by the
+  `!.env.example` negation, both confirmed with `git check-ignore`. The human wired the
+  real values; the AI checked them for presence and shape only (character counts, the
+  `-pooler` host segment on the pooled string and its absence on the direct one) and
+  never printed them. Migration `20260903160256_init` was created and applied with
+  `prisma migrate dev` over `DIRECT_URL`.
+- **Deltas realised by this migration:** 1, `MenuItem.prepTimeMinutes INTEGER NOT NULL`.
+  2, `Order.waitMinutes INTEGER NOT NULL`. 3, `waiterId`, `chefId` and `bartenderId` as
+  nullable `TEXT` with `ON DELETE SET NULL`. 4, `OrderStatus` enum of exactly PLACED,
+  SERVED and PAID, so a delayed state has nowhere to be stored. 5, `placedAt`, `servedAt`
+  and `paidAt` as `TIMESTAMP(3)`. 6, `OrderItem.unitPriceKobo`, `subtotalKobo` and
+  `prepTimeMinutes` as snapshot columns. 7, every money column `INTEGER`. 8, the unique
+  index `Payment_orderId_key`. 9, `isPretend BOOLEAN NOT NULL DEFAULT true`. 11, the
+  unique index `Customer_sessionToken_key`. Delta 10's `CHECK` is the next commit, since
+  Prisma cannot express it.
+- **Rejected:** the build plan's message `feat: add prisma schema and connect neon`,
+  because the schema was already committed in `5775a14` and this commit does not touch
+  it. A message claiming otherwise would misdescribe the history the assignment grades.
+  No schema stub was ever needed for the same reason.
+- **Corrected by hand:** nothing.
+- **Verified:** `prisma migrate status` reports the database in sync. A Prisma client
+  query over the pooled `DATABASE_URL`, the path the app will use, returned PostgreSQL
+  18.6, the thirteen tables, and the applied migration row. Gate green.
+
+### Commit 4: `feat: add rating score check constraint`
+
+- **Asked for:** an empty migration carrying the hand-written
+  `ALTER TABLE "Rating" ADD CONSTRAINT rating_score_range CHECK (score BETWEEN 1 AND 5);`
+  as its own commit, with proof that the database rejects a score of 0 and of 6.
+- **Accepted:** `prisma migrate dev --create-only --name rating_score_check` produced the
+  empty file, the SQL was written by hand with a comment tying it to delta 10, and
+  `prisma migrate dev` applied it. Delta 10's reason: Prisma cannot express a check
+  constraint, and a range that only Zod enforces would leave any other write path free
+  to store a 0 or a 9. The database is the last line, not the first.
+- **Rejected:** nothing.
+- **Corrected by hand:** nothing.
+- **Verified:** `pg_constraint` on Neon lists `rating_score_range` as
+  `CHECK (((score >= 1) AND (score <= 5)))`. Three scripts each inserted a throwaway
+  customer and order, then a rating, inside a transaction ending in `ROLLBACK`. Score 0
+  and score 6 both failed with `new row for relation "Rating" violates check constraint
+  "rating_score_range"`. Score 3 ran to `Script executed successfully`. Row counts after
+  all three: 0 customers, 0 orders, 0 ratings. Gate green.
+
+### Commit 5: `feat: seed restaurant, menu, staff and prep times`
+
+- **Asked for:** one restaurant, The Golden Gate, 13 Ubah Street, Berger, Lagos. Two
+  menus, food and drinks, around fourteen items reusing the coursework six and extending
+  with dishes that fit a Lagos kitchen, all prices in kobo, prep times genuinely varied
+  from about 4 for a poured drink to about 22 for a grilled cut. Three chefs, three
+  bartenders and three waiters on this one restaurant. Idempotent.
+- **Assumption, flagged for review:** the coursework prices are naira, so Grilled Steak
+  8500 is stored as 850000 kobo. Read as kobo they would be a steak at 85 naira, which
+  no Lagos kitchen charges, so the naira reading was taken and every price is stored
+  times one hundred.
+- **Accepted:** fourteen items, eight on the kitchen menu and six on the bar, with prep
+  times 22, 20, 18, 15, 14, 12, 10, 8 and 6, 5, 5, 4, 4, 4. Every row carries a stable id
+  such as `item_grilled_steak` and is written with `upsert`, which is what makes the seed
+  idempotent and lets a later edit to a price or prep time land by re-running it. The
+  runner is `node prisma/seed.mts`, with no extra dependency, because Node 24 strips
+  types natively.
+- **Rejected:** a `tsx` or `ts-node` dependency for the seed, since Node runs the file as
+  is. A wipe-and-reload seed (`deleteMany` then `createMany`), because it is not
+  idempotent in any useful sense and would break `OrderItem` foreign keys once real
+  orders reference the items. The `.ts` extension for the seed, after Node warned it had
+  to re-parse the file as an ES module because package.json declares no module type;
+  the file became `seed.mts`, which states its module type, and the tsconfig `include`
+  gained `**/*.mts` so the gate still typechecks it.
+- **Corrected by hand:** nothing.
+- **Verified:** three seed runs, each reporting the same counts: 1 restaurant, 2 menus,
+  14 items, 3 chefs, 3 bartenders, 3 waiters. A read-back query through the pooled URL
+  returned every item with its kobo price and prep time, and a GROUP BY on item names
+  found no duplicates. `tsc --listFilesOnly` includes the seed and `eslint` lints it
+  without warnings. Gate green.
