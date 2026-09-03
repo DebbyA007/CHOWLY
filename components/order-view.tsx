@@ -5,7 +5,9 @@ import useSWR from "swr";
 import type { SerializedOrder as Order } from "@/lib/orders";
 import { ComplaintForm } from "./complaint-form";
 import { CountdownRing, ringState } from "./countdown-ring";
+import { PayPanel } from "./pay-panel";
 import { RatingControl } from "./rating-control";
+import { Receipt } from "./receipt";
 import { useNow } from "./use-now";
 
 // The customer's own order. Polls every three seconds so the ring settles to leaf the
@@ -36,6 +38,7 @@ export function OrderView({ initial }: { initial: Order }) {
   // know, so they render only after mount. The sentence still reads without them.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  const [justPaid, setJustPaid] = useState(false);
   const when = (iso: string | null) => (mounted && iso ? ` at ${at(iso)}` : "");
 
   // The complaint entry point appears only once the ring has crossed: still waiting past
@@ -90,6 +93,17 @@ export function OrderView({ initial }: { initial: Order }) {
           <span>Total</span>
           <span className="tabular">{order.total}</span>
         </p>
+
+        {order.status === "SERVED" && !order.payment ? (
+          <PayPanel
+            order={order}
+            onPaid={(updated) => {
+              setJustPaid(true);
+              void mutate(updated, { revalidate: true });
+            }}
+          />
+        ) : null}
+        {order.payment ? <Receipt order={order} justPaid={justPaid} /> : null}
 
         {late ? (
           <ComplaintForm

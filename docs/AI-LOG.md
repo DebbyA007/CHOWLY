@@ -812,3 +812,35 @@ surfaces share a radius unless they are the same kind of thing.
   complaint with a score of 2 produced "Complaint sent", one listed complaint, one row in
   Neon, the rating changed to 2 with the stamps in pepper, and the rail response carried
   the complaint on the ticket. No console errors. Screenshot reviewed. Gate green.
+
+### Commit 21: `feat: add payment and receipt`
+
+- **Asked for:** the pay button, the stamp animation, the receipt. Pretend legible on the
+  button, on the receipt and in the record. The ring goes quiet.
+- **Accepted:** the payment panel renders only once the order is served, headed with the
+  stored total and a sentence that says no money moves. Three method stamps, then
+  "Pay now (pretend)". The request carries the method and nothing else. On success the
+  PATCH-style response replaces the SWR data at once, the panel gives way to the
+  receipt, and the ring settles on leaf reading "Paid". The receipt is paper with both
+  edges perforated: the lines, the total from the payment row, "Paid by mobile money",
+  and "Pretend payment. No money moved, and the record is marked pretend." driven by the
+  row's `isPretend`. The PAID stamp lands once, on the payment that just happened, with
+  `animate` inside a `createScope` carrying the reduced-motion query: a scale and a
+  slight rotate settle with `outBack`, or a plain opacity change when the query
+  matches. On a later visit the stamp is simply there.
+- **Rejected:** any treatment that could pass for a real checkout: no card fields, no
+  processing spinner theatre, no success confetti. A stamp with letter spacing, since
+  a tracked-out label is on the banned list; the stamp is the word in caps and nothing
+  more.
+- **Corrected by hand:** nothing.
+- **Verified:** in Chromium: the panel was absent on a placed order and appeared through
+  the poll once the waiter served it, reading "Pay ₦11,500" with the pretend sentence.
+  Paying by mobile money produced the stamp mid-landing with its scale in progress, then
+  the ring on "Paid", the panel gone and the receipt reading the two lines, the total,
+  the method and the pretend sentence. Neon holds one payment with `isPretend: true`
+  and the stored total of 1,150,000 kobo, and the order is PAID. After a reload the
+  stamp is static and the status line reads "Paid at 10:53." Under reduced motion the
+  stamp carried rotation only and faded in. No console errors. Screenshots reviewed.
+  Gate green.
+- **Not verifiable headlessly:** whether the stamp reads as a rubber stamp landing. The
+  transform samples prove scale and rotation ran, not the feel.
