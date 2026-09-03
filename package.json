@@ -9,6 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },
+  "prisma": {
+    "seed": "node prisma/seed.mts"
+  },
   "dependencies": {
     "@prisma/client": "6.19.3",
     "animejs": "4.5.0",

@@ -264,3 +264,34 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   and score 6 both failed with `new row for relation "Rating" violates check constraint
   "rating_score_range"`. Score 3 ran to `Script executed successfully`. Row counts after
   all three: 0 customers, 0 orders, 0 ratings. Gate green.
+
+### Commit 5: `feat: seed restaurant, menu, staff and prep times`
+
+- **Asked for:** one restaurant, The Golden Gate, 13 Ubah Street, Berger, Lagos. Two
+  menus, food and drinks, around fourteen items reusing the coursework six and extending
+  with dishes that fit a Lagos kitchen, all prices in kobo, prep times genuinely varied
+  from about 4 for a poured drink to about 22 for a grilled cut. Three chefs, three
+  bartenders and three waiters on this one restaurant. Idempotent.
+- **Assumption, flagged for review:** the coursework prices are naira, so Grilled Steak
+  8500 is stored as 850000 kobo. Read as kobo they would be a steak at 85 naira, which
+  no Lagos kitchen charges, so the naira reading was taken and every price is stored
+  times one hundred.
+- **Accepted:** fourteen items, eight on the kitchen menu and six on the bar, with prep
+  times 22, 20, 18, 15, 14, 12, 10, 8 and 6, 5, 5, 4, 4, 4. Every row carries a stable id
+  such as `item_grilled_steak` and is written with `upsert`, which is what makes the seed
+  idempotent and lets a later edit to a price or prep time land by re-running it. The
+  runner is `node prisma/seed.mts`, with no extra dependency, because Node 24 strips
+  types natively.
+- **Rejected:** a `tsx` or `ts-node` dependency for the seed, since Node runs the file as
+  is. A wipe-and-reload seed (`deleteMany` then `createMany`), because it is not
+  idempotent in any useful sense and would break `OrderItem` foreign keys once real
+  orders reference the items. The `.ts` extension for the seed, after Node warned it had
+  to re-parse the file as an ES module because package.json declares no module type;
+  the file became `seed.mts`, which states its module type, and the tsconfig `include`
+  gained `**/*.mts` so the gate still typechecks it.
+- **Corrected by hand:** nothing.
+- **Verified:** three seed runs, each reporting the same counts: 1 restaurant, 2 menus,
+  14 items, 3 chefs, 3 bartenders, 3 waiters. A read-back query through the pooled URL
+  returned every item with its kobo price and prep time, and a GROUP BY on item names
+  found no duplicates. `tsc --listFilesOnly` includes the seed and `eslint` lints it
+  without warnings. Gate green.
