@@ -704,3 +704,37 @@ surfaces share a radius unless they are the same kind of thing.
 - **Not verifiable headlessly:** the feel of the arc and the spring. The numbers say the
   disc travelled and the badge overshot, not whether it reads as an item landing on a
   tray.
+
+### Commit 18: `feat: add live countdown ring`
+
+- **Asked for:** the hero. SVG `stroke-dashoffset` from real elapsed time against
+  `waitMinutes`, computed from `placedAt` so it survives a refresh. Flame on time, pepper
+  past the wait, leaf when served.
+- **Accepted:** `/order/[id]` renders on the server for the browser that placed the
+  order, with the same combined ownership query the API uses, and 404s for anyone else.
+  A styled not-found page replaces Next's generic one, since a link to another table's
+  order lands there. The client view polls `/api/orders/[id]` through SWR every three
+  seconds with the server render as fallback, so the ring settles to leaf the moment the
+  waiter marks the order served, without a refresh. The ring itself ticks once a second
+  from `Date.now()` against `placedAt`: it drains through the promised wait in flame,
+  holds full in pepper with a `+mm:ss` overrun once elapsed passes the wait, and holds
+  full in leaf reading "Served" or "Paid". Digits are Bricolage wide with tabular
+  figures. The ring does not know the client clock on the server, so it renders `--:--`
+  until mounted and fills within a frame.
+- **Rejected:** a timer started on mount, because a refresh would restart it; the ring
+  reads the clock against `placedAt` every tick. A stored delay flag, again, because
+  `ringState` derives it exactly as the server does.
+- **Corrected by hand:** a hydration mismatch found by the browser check. The status
+  line formatted the placed time with `toLocaleTimeString`, and the server produced
+  "10:38" while the browser produced "10:38 AM", so React discarded the server tree.
+  Clock times now render only after mount, and the sentence reads without them until
+  then. A second read of the served ring caught the stroke mid-fade; sampling after the
+  600ms transition confirmed leaf.
+- **Verified:** in Chromium, with the order placed from the page's own session: the ring
+  read 24:53 in flame with the offset growing over two seconds; after a reload it
+  continued from 24:45 rather than restarting; with `placedAt` backdated 30 minutes it
+  read +05:05 in pepper with "past the 25 minutes promised"; after the waiter assignment
+  went in through the API it turned to "Served" in leaf through the poll alone, with the
+  waiter, chef and bartender named. A second browser opening the order address got the
+  styled 404, and so did a malformed id. No console errors after the fix. Screenshots
+  reviewed. Test rows deleted. Gate green.
