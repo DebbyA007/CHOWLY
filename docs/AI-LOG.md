@@ -593,3 +593,30 @@ surfaces share a radius unless they are the same kind of thing.
   the body background image over the deep ground, `icon.svg` served as `image/svg+xml`
   and linked from the head, and no console messages at all. Screenshot reviewed. Gate
   green.
+
+### Commit 15: `feat: add role switch`
+
+- **Asked for:** a persistent customer and waiter switch, honest about being UI
+  convenience and not auth. The waiter side prompts for the PIN once per session.
+- **Accepted:** the role is the route. `/` is the customer and `/waiter` is the waiter,
+  and the switch in the site header is a pair of links styled as one enamel two-segment
+  control with the active segment filled, so the state survives refresh through the URL
+  and nothing pretends to be a login. The caption under it says so in one sentence. The
+  PIN lives in React state in a provider at the root layout: switching roles and back
+  keeps it, a reload asks again. The gate on `/waiter` checks the PIN against the rail
+  endpoint, which compares in constant time server-side, and only renders the waiter
+  view after a 200.
+- **Rejected:** `localStorage` and `sessionStorage` for the PIN, because both are readable
+  by any script on the page. Storing the role in a cookie or storage, because the URL
+  already holds it and is shareable. A 403 body message that reveals whether the PIN was
+  close, in favour of one message for missing and wrong alike.
+- **Corrected by hand:** the browser check, not the code. The first script waited on any
+  `role="alert"` and matched a region Next injects, so it read an empty string while the
+  request was still in flight; re-checking against the form's own error id read the
+  message.
+- **Verified:** in Chromium the home page marks Customer current and `/waiter` marks
+  Waiter current. A wrong PIN shows "That PIN was not accepted. Check it with the manager
+  and try again." with `aria-invalid` on the field and the gate still up. The right PIN
+  reveals the waiter content. Going to Customer and back does not prompt again; a reload
+  does. Both storages are empty afterwards. The one console error is the 401 the wrong
+  PIN produced. Gate green.

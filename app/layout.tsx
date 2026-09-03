@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 import "./globals.css";
+import { SiteHeader } from "@/components/site-header";
+import { StaffPinProvider } from "@/components/staff-pin";
 
 // Two families and no third. Bricolage Grotesque carries the restaurant name, the
 // countdown and section heads, with its width and optical size axes loaded so the type
@@ -31,7 +33,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body className="speckle-deep antialiased">{children}</body>
+      <body className="speckle-deep antialiased">
+        <StaffPinProvider>
+          <SiteHeader />
+          {children}
+        </StaffPinProvider>
+      </body>
     </html>
   );
 }
