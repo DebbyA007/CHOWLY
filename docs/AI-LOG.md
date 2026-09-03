@@ -738,3 +738,45 @@ surfaces share a radius unless they are the same kind of thing.
   waiter, chef and bartender named. A second browser opening the order address got the
   styled 404, and so did a malformed id. No console errors after the fix. Screenshots
   reviewed. Test rows deleted. Gate green.
+
+### Commit 19: `feat: add waiter ticket rail`
+
+- **Asked for:** SWR at 3 seconds, `createDraggable` tickets from Placed to Served, with
+  keyboard and button equivalents for the same action. The assignment dialog records
+  chef and bartender.
+- **Accepted:** the rail polls `/api/waiter/orders` with the PIN header every three
+  seconds and re-prompts for the PIN if the server stops accepting it. Tickets are paper:
+  small radius, a perforated top edge, the reference and table, the lines, elapsed
+  against promised, a pepper "Late" tag from the derived delay, and a complaint count.
+  Three paths reach one dialog: a "Mark served" button on every placed ticket, Enter or
+  Space on a focused ticket, and a drag. The drag is `createDraggable` on the x axis
+  inside the Placed column with container friction, so a ticket can be pulled toward
+  the Served column and springs back on release through the release spring; releasing
+  past forty-five percent of the column width opens the dialog. The draggables live in
+  a `createScope` with the reduced-motion query and are not created at all when it
+  matches, leaving the button and keyboard paths. The dialog is a native `<dialog>`, so
+  focus trapping and Escape come free, with three labelled selects filled from the rail
+  response. Paid orders are not on the rail.
+- **Rejected:** a drop that marks served without the dialog, because requirement 3 is
+  that the waiter records who cooked and who mixed, so a drop opens the dialog and
+  never skips it. A custom modal, in favour of the native element. Storing the PIN
+  anywhere but memory.
+- **Corrected by hand:** a nesting mistake caught on review before the gate: the drag
+  wrapper and the ticket inside it shared a class, so the draggable query would have
+  created draggables inside draggables; the wrapper has its own class now. And an
+  improvement the browser check prompted: the served ticket first waited for the next
+  poll to move, which on a slow connection left it sitting in Placed after the toast
+  said served, so the dialog now hands the PATCH response to the rail and the ticket
+  moves at once, with the poll confirming.
+- **Verified:** in Chromium: an empty rail shows "No tickets on the rail. Orders placed
+  from the menu appear here within a few seconds." Three orders placed from a customer
+  session appeared through the poll. Enter on the focused first ticket opened "Serve
+  CHW-0001", and after choosing the three names it moved to Served as soon as the PATCH
+  answered. The button opened the dialog, Cancel closed it, and serving through it moved
+  the second ticket. A short drag opened nothing and the ticket sprang back to a
+  transform of zero; a long drag opened the dialog for the third ticket and the ticket
+  sprang back; Escape closed it. With reduced motion emulated the ticket did not move
+  under the pointer and the button remained. No console errors. Screenshots reviewed.
+  Gate green.
+- **Not verifiable headlessly:** the spring feel on release and the grab cursor. The
+  transform readings prove the return, not how it looks.
