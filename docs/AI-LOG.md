@@ -948,9 +948,11 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   10.71 fully aged; secondary ink 5.86 and 4.84; paper text on steel 9.43; brass on steel
   5.51; soot on brass 5.43. Two failures found and fixed before anything was built on
   them: char red and served green as small text on paper fell to 3.70 and 3.49 on aged
-  paper, so text uses darker ink versions (char-ink 6.33 on aged paper, served-ink
-  6.03) and the bright versions are kept for stamps and button faces, where paper text
-  on them reads 4.55 and 4.68. Text directly on a lamp pool fails at warm heat (3.17,
+  paper, so text uses darker ink versions and the bright versions are kept for large
+  stamps only. (Corrected in the next entry: the figures first written here were typed
+  before the script ran for the ink variants. The measured values are char-ink 5.45 and
+  served-ink 4.81 on aged paper, both passing, and paper text on the bright button faces
+  measures 4.48 and 4.22, both failing, so button faces use the ink variants too.) Text directly on a lamp pool fails at warm heat (3.17,
   brass 1.85), so the rule is that no text ever sits on a pool: pools hang above the
   name and behind paper, never behind type.
 - **Rejected:** a red late state. The late end of the range is a cooler, dimmer straw
@@ -963,3 +965,31 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
 - **Verified:** Fraunces and IBM Plex Mono load, the heading computes as Fraunces with
   `SOFT 100, WONK 1, opsz 144`, the index carries `noindex, nofollow`, no sideways
   scroll at 390. Gate green.
+
+### Step 4, commit: `feat: rebuild the menu as the pass`
+
+- **Asked for:** moment one, the first three seconds, and moment two, committing the
+  order.
+- **Accepted:** the prototype's menu promoted to the real screen with the real cart and
+  the real POST. Three lamps hang from the header's rail (one at 390), the name warms
+  into the steel in Fraunces, the two thermal strips drop off the rail and print, and the
+  customer's own ticket feeds up from a printer slot at the bottom. Tapping a line
+  punches its hole and prints the count, and a new line feeds up on the ticket. Firing
+  the order posts item ids, quantities and the table only, and on 201 the ticket is
+  torn off the printer, swings up toward the rail, settles with a small overshoot and
+  fades, and the order page opens. Under reduced motion every entrance is a plain fade
+  and the tear is skipped. The button says what a kitchen says: fire the order.
+- **Rejected:** a fourth lamp over the role tags, since a pool behind text fails the
+  contrast rule from the previous entry; the lamps sit between the plate and the tags
+  and the two outer ones are hidden at 390. Any text on a lamp pool.
+- **Corrected by hand:** the contrast figures in the previous entry, which were typed
+  before the script ran for the ink variants; the entry now carries the measured values
+  and the button faces use the ink variants.
+- **Verified:** in Chromium at 0.7 seconds two lamps are on and the strips are still
+  hidden; settled, three lamps, all 14 lines, the slot up, and the strips resting at
+  their small opposite tilts. Two steaks and a mojito printed on the ticket at ₦21,000,
+  the minus brought it to ₦12,500, firing with no table said where the number is, and
+  firing with table 7 read "fired as CHW-0004", caught the ticket mid-tear, and landed
+  on the order page. 390 has no sideways scroll and one lamp. Reduced motion shows
+  everything with no strip transform. Four tabs land on the first line with the char
+  focus ring. No console errors. Screenshots in `docs/screens/menu-*`. Gate green.
