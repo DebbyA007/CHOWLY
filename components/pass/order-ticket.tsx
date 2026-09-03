@@ -27,7 +27,9 @@ function at(iso: string | null): string {
 // stylesheet turns into the pool's colour and opacity and the paper's tone, so the
 // whole screen cools as the order runs late. The pool also shrinks as the promised
 // minutes are used. Polls every three seconds so served and paid arrive by themselves.
-export function OrderTicket({ initial, children }: { initial: Order; children?: (order: Order, refresh: () => void, state: string) => React.ReactNode }) {
+type Slot = (order: Order, refresh: () => void, state: string, replace: (updated: Order) => void) => React.ReactNode;
+
+export function OrderTicket({ initial, children, below }: { initial: Order; children?: Slot; below?: (order: Order) => React.ReactNode }) {
   const { data, error, mutate } = useSWR<Order>(`/api/orders/${initial.id}`, fetcher, { refreshInterval: 3000, fallbackData: initial });
   const order = data ?? initial;
   const now = useNow();
@@ -77,8 +79,17 @@ export function OrderTicket({ initial, children }: { initial: Order; children?: 
         </div>
 
         <figure className="pt-5 text-center" aria-label={`${digits} ${caption}`}>
-          <p className={`display tabular text-[clamp(3.8rem,13vw,6.8rem)] leading-none ${state === "late" ? "text-char-ink" : state === "served" || state === "paid" ? "text-served-ink" : "text-ink"}`}>
-            {digits}
+          {/* The digits count in ink at every state. Late is told by the light and the
+              paper, not by a red number; only the plus sign is in char ink. */}
+          <p className={`display tabular text-[clamp(3.8rem,13vw,6.8rem)] leading-none ${state === "served" || state === "paid" ? "text-served-ink" : "text-ink"}`}>
+            {state === "late" ? (
+              <>
+                <span className="text-char-ink">+</span>
+                {digits.slice(1)}
+              </>
+            ) : (
+              digits
+            )}
           </p>
           <figcaption className="mt-2 text-sm text-ink-soft">{caption}</figcaption>
         </figure>
@@ -112,8 +123,9 @@ export function OrderTicket({ initial, children }: { initial: Order; children?: 
           <span className="tabular">{order.total}</span>
         </p>
 
-        {children ? children(order, () => void mutate(), state) : null}
+        {children ? children(order, () => void mutate(), state, (updated) => void mutate(updated, { revalidate: true })) : null}
       </article>
+      {below ? below(order) : null}
     </main>
   );
 }

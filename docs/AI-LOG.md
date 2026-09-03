@@ -1063,3 +1063,34 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   one complaint row, the rating changed to 2. At 390 the late ticket has no sideways
   scroll and four tabs reach the slip's textarea. No console errors. Screenshots in
   `docs/screens/order-*` re-shot with the lamp in place. Gate green.
+
+### Step 4, commit: `feat: settle the ticket and print the receipt`
+
+- **Asked for:** moment five, payment and receipt. The last thing anyone sees.
+- **Accepted:** once the order is served the ticket prints a SETTLE section with the
+  stored total, three method stamps and "Settle the ticket (pretend)", with the pretend
+  sentence above it. The request carries the method only. On success the response
+  replaces the SWR data at once: the lamp goes out (the stylesheet drops the pool to six
+  percent for the paid state), the digits read "Paid" in served ink, and a second ticket,
+  the receipt, feeds out below the first with the lines, the total from the payment row,
+  the method, and "PRETEND PAYMENT. No money moved, and the record is marked pretend."
+  driven by the row's `isPretend`. The PAID stamp lands once, in bright char at stamp
+  size, which is large text and holds 3.7:1 on aged paper; under reduced motion the
+  receipt and the stamp fade in. On a later visit the stamp is simply there. One
+  refinement from reviewing the late ticket against the amendment: the late digits were
+  set in char ink, which read as the red alert the brief forbids, so the digits count in
+  ink at every state and only the plus sign is red. Lateness is told by the light and
+  the paper.
+- **Rejected:** anything that could pass for a checkout: no card fields, no spinner
+  theatre, no confetti. Red digits.
+- **Corrected by hand:** nothing.
+- **Verified:** in Chromium: no settle section on a placed order; the section appeared
+  through the poll after the waiter served it, reading "SETTLE ₦11,500" with the lamp
+  at 0.5; settling by mobile money caught the stamp mid-landing (scale in progress,
+  opacity rising), then the pool at 0.06, the state paid, the settle section gone and
+  the receipt reading the two lines, the total, the method and the pretend sentence.
+  Neon holds one payment, `isPretend: true`, 1,150,000 kobo, and the order is PAID.
+  After a reload the stamp is static and the digits read "Paid". No sideways scroll at
+  390. Under reduced motion the stamp carried rotation only and faded in. No console
+  errors. Screenshots in `docs/screens/order-settle-*` and `order-receipt-*`. Gate
+  green.
