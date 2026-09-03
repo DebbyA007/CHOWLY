@@ -415,3 +415,24 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   middleware minted for that same request. Jollof twice on one ticket became a single
   line of three with wait 18. The sixth order in ten minutes returned 429. The session's
   table number updated to 7. Gate green.
+
+### Commit 10: `feat: add order detail api with derived delay`
+
+- **Asked for:** `GET /api/orders/[id]` with an ownership check against the session and
+  `isDelayed` derived at read time, never stored.
+- **Accepted:** the ownership check is inside the query, `where: { id, customerId }`,
+  so there is no window between finding the order and checking who owns it. A miss is
+  a 404 whether the id is malformed, unknown, or someone else's, so the endpoint never
+  confirms that another table's order exists. The id is validated as a cuid before any
+  database work. `isDelayed` and `dueAt` come from the presenter in `lib/orders.ts`,
+  which computes them from `placedAt` and `waitMinutes` at the moment of the read.
+- **Rejected:** a 403 for someone else's order, because it would leak that the id is
+  real. A separate ownership check after the fetch, because a combined query cannot be
+  bypassed by a later edit that forgets the check.
+- **Corrected by hand:** nothing.
+- **Verified:** against the dev server: the placing browser read `CHW-0001` with
+  `isDelayed: false` and a `dueAt` 25 minutes after placement; a second browser with its
+  own cookie, and a request with no cookie, both got 404; `1 OR 1=1` and a well-formed
+  unknown cuid both got 404. Backdating the order's `placedAt` by 30 minutes in Neon made
+  the same read return `isDelayed: true` with no other change, and the Order table's
+  column list has no delay column. Gate green.
