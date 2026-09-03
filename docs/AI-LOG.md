@@ -1204,3 +1204,25 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
 - **Flagged for the human:** `CLAUDE.md` still describes the enamelware direction and
   its tokens under "Design direction"; it is the rulebook and a graded file, so it is
   not edited here. Phase 5 links `/directions` from the README and the AI-used section.
+
+### Between phases: the rulebook and the banned-visuals audit
+
+- **CLAUDE.md:** the Design direction section now describes The Pass, with the token
+  block matching `app/globals.css`. The enamelware direction moved intact under a
+  Superseded heading with one line on why it was replaced, so the rulebook carries its
+  own lineage.
+- **Audit of the built CSS**, run against `.next/static/css` after a production build,
+  by grep and a hue pass over every colour literal rather than by reasoning: one honest
+  hit and three false ones. The honest hit was the thermal paper's print ruling, a
+  `repeating-linear-gradient` with hard stops drawing a one pixel line every 28px, in the
+  app's paper utility and in the Pass prototype; it drew no colour transition, but the
+  check is the grep, so it is an SVG pattern now like the steel grain, and the rebuilt
+  stylesheet contains zero gradient functions. The false ones: `backdrop-filter` appears
+  once, inside Tailwind's transition-property list, with no such rule declared anywhere;
+  a `.filter` rule and a `.ring, .shadow` rule exist because Tailwind's scanner picked
+  those words up as candidate classes from code comments, and their variables are empty
+  and no element uses them. Every `box-shadow` in the build is a hard offset with zero
+  blur (`4px 4px 0`, `2px 2px 0`, inset one-pixel edges) and both `text-shadow` rules
+  are hard offsets; no `rgba(0,0,0,.1)` exists. Forty distinct colour literals, none
+  with a hue between 240 and 300 degrees at any saturation above ten percent, and no
+  oklch or oklab literal at all. The lamp pools are dots and the steel is lines.
