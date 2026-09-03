@@ -1,0 +1,244 @@
+// CHOWLY data model.
+//
+// This is the coursework ERD as the build forced it to change. Eleven deliberate
+// departures from the original, each annotated with DELTA and a reason. Those
+// annotations feed the "data model as finally implemented" section of the document,
+// so keep them in sync if anything here moves.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")       // Neon pooled
+  directUrl = env("DIRECT_URL")         // Neon direct, for migrations
+}
+
+// DELTA 4: Delayed is deliberately absent. It is a derived condition
+// (now() > placedAt + waitMinutes AND status = PLACED), never a stored value.
+// Storing it would mean hand-setting rows to make the complaint flow work.
+enum OrderStatus {
+  PLACED
+  SERVED
+  PAID
+}
+
+enum MenuType {
+  FOOD
+  DRINKS
+}
+
+enum PaymentMethod {
+  CARD
+  MOBILE_MONEY
+  CASH
+}
+
+model Restaurant {
+  id         String      @id @default(cuid())
+  name       String
+  location   String
+  phone      String
+  email      String
+  menus      Menu[]
+  waiters    Waiter[]
+  chefs      Chef[]
+  bartenders Bartender[]
+  createdAt  DateTime    @default(now())
+}
+
+model Menu {
+  id           String     @id @default(cuid())
+  name         String
+  type         MenuType
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items        MenuItem[]
+
+  @@index([restaurantId])
+}
+
+model MenuItem {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+
+  // DELTA 7: integer kobo. Floats do not belong anywhere near a total.
+  priceKobo   Int
+
+  // DELTA 1: required by the build spec, absent from the original ERD.
+  // Feeds the wait time the customer is shown and the delay derivation.
+  prepTimeMinutes Int
+
+  available   Boolean @default(true)
+  menuId      String
+  menu        Menu    @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  orderItems  OrderItem[]
+
+  @@index([menuId])
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  name       String
+
+  // DELTA 11: no logins are permitted, so identity is an opaque token carried in a
+  // signed httpOnly cookie. This is what survives a refresh and what every ownership
+  // check compares against. Never accept a customer id from a request body.
+  sessionToken String @unique
+
+  // Optional: a walk-in customer gives a table number and nothing else.
+  phone      String?
+  email      String?
+  tableNo    String
+
+  orders     Order[]
+  complaints Complaint[]
+  ratings    Rating[]
+  payments   Payment[]
+  createdAt  DateTime @default(now())
+}
+
+model Waiter {
+  id           String     @id @default(cuid())
+  name         String
+  phone        String
+  shift        String
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orders       Order[]
+}
+
+model Chef {
+  id           String     @id @default(cuid())
+  name         String
+  specialty    String
+  experience   String
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orders       Order[]
+}
+
+model Bartender {
+  id           String     @id @default(cuid())
+  name         String
+  specialty    String
+  shift        String
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orders       Order[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  reference String      @unique // human readable, e.g. CHW-0007
+  status    OrderStatus @default(PLACED)
+
+  // DELTA 2: computed server side at submit from the items' prep times.
+  // The original stored a string like "25 mins", which cannot be compared to a clock.
+  waitMinutes Int
+
+  // DELTA 7: derived server side by summing line snapshots. Never sent by the client.
+  totalKobo   Int
+
+  // DELTA 5: real timestamps. The original split date and time across two columns,
+  // which makes sorting and the delay comparison impossible.
+  placedAt  DateTime  @default(now())
+  servedAt  DateTime?
+  paidAt    DateTime?
+
+  tableNo    String
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  // DELTA 3: nullable. The customer submits with no staff attached; the waiter records
+  // all three afterwards. NOT NULL here makes requirement 3 impossible to implement.
+  waiterId    String?
+  waiter      Waiter?    @relation(fields: [waiterId], references: [id])
+  chefId      String?
+  chef        Chef?      @relation(fields: [chefId], references: [id])
+  bartenderId String?
+  bartender   Bartender? @relation(fields: [bartenderId], references: [id])
+
+  items      OrderItem[]
+  complaints Complaint[]
+  rating     Rating?
+  payment    Payment?
+
+  @@index([status, placedAt])
+  @@index([customerId])
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int
+
+  // DELTA 6: the price is snapshotted onto the line at order time. Without this,
+  // editing the menu silently rewrites the value of every historical order and every
+  // payment already taken against it.
+  unitPriceKobo Int
+  subtotalKobo  Int
+
+  // Snapshotted too, so the delay derivation stays honest if the menu changes later.
+  prepTimeMinutes Int
+
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+}
+
+model Complaint {
+  id          String   @id @default(cuid())
+  description String
+  createdAt   DateTime @default(now())
+
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@index([orderId])
+}
+
+model Rating {
+  id      String @id @default(cuid())
+  // DELTA 10: CHECK (score BETWEEN 1 AND 5) is added by hand in the migration SQL,
+  // since Prisma cannot express a check constraint. Validate in Zod as well, but the
+  // database is the last line, not the first.
+  score   Int
+  comment String?
+  createdAt DateTime @default(now())
+
+  // DELTA 10: one rating per order. Without unique, a customer can rate the same
+  // order repeatedly and skew the record.
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+}
+
+model Payment {
+  id         String        @id @default(cuid())
+  amountKobo Int
+  method     PaymentMethod
+
+  // DELTA 9: the assignment requires the payment be clearly labelled as pretend.
+  // It is labelled in the row as well as in the UI, so the record is honest on its own.
+  isPretend  Boolean @default(true)
+
+  paidAt     DateTime @default(now())
+
+  // DELTA 8: unique, and the insert plus the status flip run inside one transaction.
+  // The original model declared 1:1 without enforcing it, so a double-clicked pay
+  // button would record two payments against one order.
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+}
