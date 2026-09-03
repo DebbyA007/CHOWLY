@@ -1503,3 +1503,25 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   bill settled into "Settled. Thank you." with the pretend line. No sideways scroll,
   ochre focus ring, no console errors. Screenshots in `docs/directions-2/three-*`.
   Gate green.
+
+### Step 3, critique: `docs: critique the three directions and pick linen`
+
+- **Asked for:** a harsh critique naming what is derivative in each, the bar answered per
+  direction, a ranking, and a pick in three sentences.
+- **Written** to `docs/directions-2/README.md`, with the four frames per direction that
+  the argument rests on.
+- **The pick is Linen.** The reason is the clock: light moving across a table is the
+  brief's sentence and a person feels it. Glaze had the best food and the best hero and
+  lost on its material; terrazzo dates a thing to 2019. Bill of fare was the most
+  restaurant-native and lost on being the paper-and-Garamond template with the food
+  reduced to glyphs.
+- **Rejected by the critique, from my own work:** Instrument Serif in italic, which I
+  reached for in Linen because it is the serif everyone reaches for; it goes in the
+  rebuild. The dashed stitched border, a stock handmade device. The teal drip on every
+  glazed card in Glaze, which on the landing plate rendered as a bar at twelve o'clock.
+  The empty middle of Bill of fare's landing at 1440, where the doors sit at the foot of
+  the viewport with nothing above them.
+- **Also indexed** at `/directions-2`, plain and neutral on purpose, describing the three
+  and the demo control's limits; linked from `/directions`, the README and the
+  submission document. Every screen of every walkthrough now exists at 390 and at 1440
+  in `docs/directions-2/`.
