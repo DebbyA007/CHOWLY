@@ -140,3 +140,40 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   `createSpring` from `dist/modules/easings/spring/index.d.ts` with the same signature,
   `(parameters?: SpringParams): Spring`. `CLAUDE.md` prefers `createSpring`; both exist in
   this version.
+
+### Commit 2: `chore: configure security headers`
+
+- **Asked for:** Content-Security-Policy, `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy: strict-origin-when-cross-origin` and `X-Frame-Options: DENY` in
+  `next.config.ts`. The CSP must still allow next/font, and any relaxation is to be named,
+  never widened silently.
+- **Accepted:** static headers from `headers()` on `/(.*)`, so the document and every
+  static asset carry them. Production CSP: `default-src 'self'`, `script-src 'self'
+  'unsafe-inline'`, `style-src 'self' 'unsafe-inline'`, `img-src 'self' data: blob:`,
+  `font-src 'self'`, `connect-src 'self'`, `object-src 'none'`, `base-uri 'self'`,
+  `form-action 'self'`, `frame-ancestors 'none'`, `upgrade-insecure-requests`.
+  Development adds `'unsafe-eval'` to `script-src` and `ws://localhost:*` to
+  `connect-src` for Fast Refresh, keyed on `NODE_ENV`, so production carries neither.
+- **Relaxations, named:** `script-src 'unsafe-inline'`, because Next.js hydrates the App
+  Router through inline scripts and a static header cannot carry a per-request nonce.
+  `style-src 'unsafe-inline'`, for inline style attributes (the countdown ring sets its
+  stroke offset that way) and the style tags Next.js injects in development. next/font
+  needed nothing: Bricolage Grotesque was loaded temporarily through `next/font/google`,
+  the browser fetched it from `/_next/static/media/` on this origin with a 200,
+  `document.fonts` reported it loaded, and Chromium raised no violation. The experiment
+  was reverted with git before the commit.
+- **Rejected:** a nonce-based CSP through middleware, which would remove `'unsafe-inline'`
+  from `script-src`. Rejected for this commit because the spec places the headers in
+  `next.config.ts` and a nonce needs per-request middleware. Recorded as the upgrade path
+  once route handlers exist.
+- **Corrected by hand:** nothing in the committed file. One process correction: the
+  recovery gate's `next build` ran while the dev server was starting, both write `.next`,
+  and the dev server answered 500 with `ENOENT` on `_buildManifest.js` until restarted.
+  The rule from that: never run the build while `next dev` is up.
+- **Verified:** `curl -I` against `next dev` shows all four headers. `next start` on port
+  3001 shows all four on the document and on a JS chunk. Headless Chromium reported zero
+  CSP violations in both modes, and the only console error is the known favicon 404.
+  Vercel's preview toolbar loads from `vercel.live` and will be blocked by `script-src` on
+  preview URLs; production is unaffected.
+- **Deploy gate:** branch pushed after this commit. Connecting the repo to Vercel, setting
+  the install command to `npm ci --ignore-scripts` and confirming the URL are manual steps.
