@@ -1525,3 +1525,40 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   and the demo control's limits; linked from `/directions`, the README and the
   submission document. Every screen of every walkthrough now exists at 390 and at 1440
   in `docs/directions-2/`.
+
+### Correction: `fix: send upgrade-insecure-requests only outside development`
+
+- **What happened.** After the three walkthroughs were delivered, the pages rendered
+  white and unstyled in Safari on the dev server while every automated check said they
+  were fine: curl returned 200 with `text/css` on every stylesheet, the Tailwind classes
+  were present in the generated sheet, and headless Chromium rendered all three
+  directions styled with no console errors.
+- **Wrong turns, all mine.** First that a stale tab from the server restarts explained
+  it. Then, after a pasted line said "Chrome on macOS", that a second server on another
+  machine was being looked at, which cost a full round of diagnosis before it was
+  corrected to Safari on this machine. Then the MIME type against `nosniff`, ruled out by
+  the headers. Then the Safari version against Tailwind v4's 16.4 floor, ruled out by
+  macOS 26.5.2 and Safari 26.5.2.
+- **Found by reading Safari's own console, not by any tool of mine:** every asset was
+  being requested over `https://localhost:3000` and failing the TLS handshake. The cause
+  is `upgrade-insecure-requests` in the Content Security Policy set at commit 2. It
+  rewrites every http subresource to https, which is right in production behind TLS and
+  fatal on a plain-http dev server. Chromium treats `http://localhost` as potentially
+  trustworthy and does not upgrade it; WebKit upgrades it anyway. That is why the
+  headless Chromium checks passed and Safari did not.
+- **Confirmed independently at the same time** with a probe in the system WebKit
+  framework (Safari's engine) through a proxy that strips one header at a time: with the
+  CSP stripped, all three sheets applied; with only `nosniff` stripped, nothing changed.
+  WebKit reported the upgraded sheets as "cross-origin", because `https://localhost:3000`
+  is a different origin from the page.
+- **Fix.** The directive is now sent only outside development, on the same `isDev`
+  switch that already gates `unsafe-eval` and the Fast Refresh websocket. It stays on in
+  production and in any environment that is not explicitly development, which is the
+  fail-safe direction. Verified: the dev CSP no longer carries it and the same WebKit
+  probe renders all four pages styled; a `next start` of the production build on this
+  machine still sends it, and, as expected, that plain-http production server is
+  unstyled in WebKit for exactly the same reason, which is correct because production
+  is served over https.
+- **Lesson recorded.** A green build is not proof for anything visual, and one engine is
+  not proof for another. The verification loop now includes the system WebKit probe
+  beside headless Chromium.
