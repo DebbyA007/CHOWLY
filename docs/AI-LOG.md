@@ -1094,3 +1094,44 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   390. Under reduced motion the stamp carried rotation only and faded in. No console
   errors. Screenshots in `docs/screens/order-settle-*` and `order-receipt-*`. Gate
   green.
+
+### Step 4, commit: `feat: hang the rail`
+
+- **Asked for:** moment four, the waiter's rail. Service under pressure; a kitchen, not
+  a dashboard.
+- **Accepted:** the waiter station is a steel panel with a brass plate, and the PIN is
+  checked against the rail endpoint as before. The pass is two brass rails. On the top
+  rail every placed order hangs on a spike under its own small lamp, and each ticket
+  carries its own heat computed from its own `placedAt`, so a ticket that has hung past
+  its promise sits under a cooler, dimmer light on aged paper beside a fresh one under
+  amber. The ticket prints the reference, the table, the lines, the time against the
+  promise with a plus sign once past it, and a SLIPS count when complaints have come in.
+  The served rail below holds tickets that have come off the pass. Three paths mark an
+  order served and all open one steel dialog: the button on every ticket, Enter or Space
+  on a focused ticket, and a pull. The pull is `createDraggable` on the y axis with the
+  ticket's own resting spot as its bounds, so any pull meets friction and springs back
+  on release, and a deliberate pull of 120px of actual travel opens the dialog. Under
+  reduced motion no draggable is created and the other two paths carry the action. The
+  rails scroll sideways inside themselves at 390 while the page never does. The served
+  ticket moves from the PATCH response and the poll confirms it.
+- **Rejected:** a drop that serves without the dialog, since requirement 3 is that the
+  waiter records who cooked and who mixed. A red "Late" tag; the light and a plus sign
+  say it.
+- **Corrected by hand:** two, both from the browser run. The first drag container was
+  the whole top rail, so a short pull stayed within bounds and never sprang back, and a
+  long pull never travelled far enough through friction to cross a threshold measured
+  against the served rail; the bounds are now the ticket's own spot and the threshold a
+  fixed pull. The lamp bells overlapped the rail labels, which now sit above the bars.
+- **Verified:** in Chromium a wrong PIN says so; the right PIN opens an empty pass
+  reading "Nothing on the pass. Orders fired from the menu hang here within a few
+  seconds." Three fired orders hung under lamps through the poll, and the backdated one
+  reached heat 0.000 beside two at 0.99. Enter on the focused first ticket opened
+  "Serve CHW-0001" and the ticket moved to the served rail as soon as the PATCH
+  answered. The button opened and Cancel closed the dialog. A short pull opened nothing
+  and returned to a transform of zero; a long pull opened the dialog for the right
+  ticket and returned to zero; Escape closed it. At 390 the page has no sideways scroll
+  and the rail scrolls inside itself. Under reduced motion the ticket did not move
+  under the pointer and the button remained. The one console error is the 401 the
+  wrong PIN produced. Screenshots in `docs/screens/waiter-*`. Gate green.
+- **Not verifiable headlessly:** the feel of the spring on release, the grab cursor, and
+  touch dragging on a phone, which was not exercised at all.
