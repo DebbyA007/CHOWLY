@@ -325,3 +325,43 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
 - **Verified:** 16 tests pass, including a client posting `priceKobo` on a line and
   `totalKobo` plus `waitMinutes` at the top level, both rejected with the field named.
   Gate green.
+
+### Commit 7: `feat: add customer session cookie`
+
+- **Asked for:** a signed, httpOnly, sameSite=lax cookie holding an opaque token, the
+  customer row created on first visit, never localStorage.
+- **Accepted:** `lib/session-token.ts` signs a 32-byte random token with HMAC-SHA256 over
+  `SESSION_SECRET` using Web Crypto, and verifies with a constant-time compare.
+  `middleware.ts` mints the cookie on a visitor's first request, on the edge runtime,
+  with a matcher that skips static assets. `lib/session.ts` maps the verified token to a
+  Customer row: `getCustomer` is read-only for server components, `requireCustomer` is
+  for route handlers and creates the row on first use with an upsert on the unique
+  `sessionToken`, or answers 401 when nothing verifies. The customer id is never read
+  from the request. `lib/prisma.ts` holds the client singleton, `lib/http.ts` a small
+  `HttpError` and `handle` wrapper, and `GET /api/session` returns the customer so the
+  behaviour is testable now and the UI can show the table later.
+- **Interpretation, flagged:** the cookie is minted on the first visit with no database
+  work, and the row is created on the first API call that needs an identity. The edge
+  runtime cannot run Prisma, and page views by crawlers should not write rows. From the
+  customer's side it is the same thing: a refresh keeps the identity either way.
+- **Rejected:** `localStorage`, because injected script can read it. Node's
+  `crypto.timingSafeEqual` for the cookie compare, because the same code must run on the
+  edge runtime, so a constant-time loop over the hex strings is used instead;
+  `timingSafeEqual` is kept for the staff PIN, which only runs on Node. The `server-only`
+  package, in favour of a comment, to avoid a dependency for one import.
+- **Corrected by hand:** the double Set-Cookie. The first cut had both the middleware and
+  `requireCustomer` minting a session, and the curl check on an API-first request showed
+  two Set-Cookie headers carrying different tokens, with only header order making the
+  created row match the cookie the browser would keep. The middleware is now the only
+  minting site. It forwards the signed value to the handler in a request header that it
+  deletes from every incoming request first, so a client cannot supply it, and the
+  handler verifies that header's signature exactly as it verifies the cookie.
+- **Verified:** 20 unit tests pass, including tampered token, tampered signature, wrong
+  secret and malformed values. Against the dev server with a cookie jar: an API-first
+  request gets exactly one Set-Cookie (`HttpOnly; SameSite=lax; Max-Age=2592000; Path=/`)
+  and a row; the next request with that cookie returns the same id and no Set-Cookie; a
+  client-sent `x-chowly-session` header with no cookie is ignored; a tampered cookie is
+  replaced with a fresh identity; a page visit's cookie is reused by the API call after
+  it. The seven test customers were deleted from Neon afterwards. Gate green. `secure`
+  is set only in production, which is the one attribute curl against localhost cannot
+  show; check it on the live URL.
