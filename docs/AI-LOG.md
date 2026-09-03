@@ -884,3 +884,43 @@ on the stove that boils over.
 They are three worlds: a sign painter's board, a kitchen pass, a shelf of enamel. Each
 gets the menu screen built for real on the seeded data, with its own entrance and its
 own add-to-order motion, before any of them is chosen.
+
+### Step 2: the three menu screens, built
+
+Each direction was built as a real menu screen on the seeded data, with its own
+entrance and add-to-order motion, at `/directions/signwriter`, `/directions/pass` and
+`/directions/enamel`, and screenshotted at 1440 and 390 into `docs/directions/`. The
+entrance choreography in all three collapses to an opacity change under reduced motion,
+which was checked with the query emulated. None can scroll sideways at 390. Corrections
+during the build: anime.js function values declare optional parameters, so per-letter
+rotations are written as a `[from, to]` pair of such functions; The Pass overflowed at
+390 because its lamps hang past the edge, so the panel clips sideways; Cast Enamel's chip
+paths hydrated with a mismatch because `Math.sin` differs in its last digits between Node
+and Chromium, so the coordinates are rounded.
+
+### Step 3: the critique and the choice
+
+The full critique, with the screenshots, is `docs/directions/README.md`. The decision:
+
+- **Signwriter, rejected.** It wins the first three seconds outright, and its type is
+  lettering rather than a label. But the chalkboard menu is the most worn trope in cafe
+  design, the hard-offset sign treatment is a fashion that would date, and the world
+  stops at the menu: chalk tallies are a metaphor a person must be told about, a second
+  chalkboard for the waiter is a classroom not a kitchen, and payment has no material of
+  its own. It has no answer for the wait or the rail.
+- **Cast Enamel, rejected.** Its one real idea, the bowl sized by prep time, is honest
+  information design. Everything else is the existing app with the plates rounded off:
+  the same palette, type and ground, so it carries the exact "forgettable" risk that
+  started this phase. Scattered circles on a dark ground read as a bubble interface, the
+  tray rim is a caption rather than a perception, the bowls are diagrams not drawings,
+  and the rail would be a dashboard with a texture.
+- **The Pass, chosen.** It is the only direction where the subject, time under pressure,
+  is the material: the heat lamp is the clock, so a late order changes the light of the
+  whole screen. Every screen has a place in one world, since the customer's ticket, the
+  rail and the receipt are three states of the same thermal paper. And it takes the
+  real risk, a steel kitchen one step from the banned dark-with-one-accent default,
+  answered with three warm materials, halftone light and torn paper instead of gradients
+  and glow. Its derivative parts are named in the critique: the receipt aesthetic is a
+  known microsite trope, Fraunces is the serif of the moment, halftone is print
+  nostalgia. The build will have to earn its way past them with the lamp as the clock,
+  which none of those tropes has.
