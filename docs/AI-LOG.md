@@ -491,3 +491,34 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   bound named; 4 got 201; 5 on the same order got 200 with the score changed and still
   one row; the other browser got 404. Complaints two to five got 201 and the sixth got
   429. Gate green.
+
+### Commit 13: `feat: add pretend payment api`
+
+- **Asked for:** `POST /api/orders/[id]/pay` in one `prisma.$transaction`, inserting the
+  payment with `isPretend: true`, flipping status to PAID and setting `paidAt`. A second
+  call returns the existing payment rather than erroring or duplicating.
+- **Accepted:** ownership in the query, and the order must be SERVED, since a customer
+  pays after being served. The amount is the order's stored total, never anything from
+  the body, and the strict schema takes only the method. The transaction inserts the
+  payment and flips the status together. If a payment already exists the call returns
+  it with 200. If two calls race, the unique `Payment.orderId` (delta 8) makes the loser
+  fail with P2002 inside its transaction, which rolls back its status update, and the
+  handler answers with the payment the winner wrote. Delta 9: the row says pretend.
+- **Rejected:** allowing payment while PLACED. It would let an order leave the rail
+  unserved, and the story is order, wait, serve, pay.
+- **Corrected by hand:** nothing.
+- **Verified:** paying a PLACED order got 409; the other browser paying a served order
+  got 404; a bad method and a posted `amountKobo` got 400. The owner's first call got
+  201 with PAID, `paidAt`, and a payment of the stored 300,000 kobo marked pretend; the
+  second call got 200 with the same payment id, the original method kept, one row. On a
+  third order, two calls fired in the same instant with `Promise.all` returned 201 and
+  200 carrying the same payment id, and Neon holds exactly one payment for it. Paid
+  orders vanished from the rail. Gate green.
+- **Postcss re-check, now that route handlers exist:** the audit in the overrides commit
+  proved `next start` never loads postcss. Route handlers on Vercel run as serverless
+  functions from a different bundle, so the check was repeated against Next's per-route
+  file traces (`route.js.nft.json`), which list every file shipped with each function.
+  The order and payment routes trace 64 files each with zero references to postcss or
+  deepmerge, no server trace anywhere mentions either, and no compiled file under
+  `.next/server` contains the string postcss. The conclusion holds: both chains are
+  build-time only, and after the overrides they are patched versions anyway.
