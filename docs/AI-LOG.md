@@ -522,3 +522,74 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   deepmerge, no server trace anywhere mentions either, and no compiled file under
   `.next/server` contains the string postcss. The conclusion holds: both chains are
   build-time only, and after the overrides they are patched versions anyway.
+
+## Phase 4: the interface
+
+### Design plan, reviewed before building
+
+The brief fixes the direction, so the plan is about executing it as a decision rather than
+a default.
+
+- **Palette:** the seven tokens from `CLAUDE.md`, unchanged. Two derived values only:
+  `--ink` is the rim colour used as text on chalk, so edges and type are one material,
+  and `--ink-soft` for secondary text on chalk. Flame is spent on time and nothing else.
+- **Type:** Bricolage Grotesque with the `opsz` and `wdth` axes loaded, used wide (wdth
+  112) for the restaurant name and the countdown and tighter (wdth 92) for section
+  heads. Instrument Sans for everything else. Tabular figures on the countdown.
+- **Layout concept:** the customer screen is a table seen from above. The deep speckled
+  ground is the tabletop, the dishes are chalk plates with the rim hairline, and the cart
+  is a tray along the bottom edge. The order page is one plate in the centre with the
+  countdown ring as the dish. The waiter side is a rail of paper tickets.
+
+```
+  CHOWLY                         [ Customer | Waiter ]
+  The Golden Gate
+  13 Ubah Street, Berger, Lagos
+  Kitchen
+  ( plate ) ( plate ) ( plate )
+  ( plate ) ( plate ) ( plate )
+  Bar
+  ( plate ) ( plate ) ( plate )
+  ================ tray: 3 items, ₦12,500, Place order ================
+```
+
+- **Radii mean something:** plate 28px (a bowl), tray 14px, button 8px (a stamp), ticket
+  4px (paper). No single radius on everything.
+- **Separation:** the rim hairline only. No shadows, no left-edge bars, no glass.
+- **Copy:** sentence case, a button names what happens ("Place order", then "Placed").
+
+Reviewed against the generic defaults: not cream with terracotta and a serif, not
+near-black with an acid accent, not a card kit with one radius and a grey shadow, no
+eyebrow labels, no middle dots, no arrows. Every choice above traces to enamelware or to
+the data on the plate. One thing to watch: the plates grid could drift toward a SaaS
+card grid, so plates get the large bowl radius, the rim and the speckle, and no two
+surfaces share a radius unless they are the same kind of thing.
+
+### Commit 14: `feat: add enamel design tokens and typography`
+
+- **Asked for:** the token block into `app/globals.css`, Bricolage Grotesque and
+  Instrument Sans via `next/font/google`, the enamel rim and speckle as reusable
+  utilities.
+- **Accepted:** the seven tokens on `:root` under the brief's own names, mapped into
+  Tailwind's colour namespace so `bg-chalk` and `text-flame` exist. Utilities that say
+  what a thing is: `enamel` (chalk, ink, rim), `rim`, `speckle-deep` and `speckle-chalk`
+  (inline SVG flecks, so they need no request and stay within `img-src 'self' data:`),
+  `plate`, `tray`, `stamp` and `ticket` for the four radii, `display-wide` and
+  `display-tight` for the two width settings, `tabular` for the countdown. Both fonts
+  loaded with `next/font/google`, Bricolage with its `opsz` and `wdth` axes as the
+  installed declaration allows. `app/icon.svg`, a chalk plate with the rim on the deep
+  ground, replaces the 404 the probe had been logging. A visible focus ring in flame on
+  the ground and enamel-mid on chalk.
+- **Rejected:** Tailwind theme tokens for the fonts and radii. The first draft declared
+  them in `@theme inline` under the same names as the raw `:root` tokens, which reads as
+  a self-reference and would have inlined the variables away; the raw tokens stay on
+  `:root` and the shapes are named utilities instead. A CSS `prefers-reduced-motion`
+  blanket rule that zeroes every transition, because the anime.js scopes carry their own
+  reduced-motion branch and the blanket rule would also kill the deliberate opacity
+  fallback.
+- **Corrected by hand:** nothing.
+- **Verified:** Chromium reports the heading in Bricolage Grotesque with
+  `"opsz" 96, "wdth" 112` at weight 600, the body in Instrument Sans, the speckle SVG as
+  the body background image over the deep ground, `icon.svg` served as `image/svg+xml`
+  and linked from the head, and no console messages at all. Screenshot reviewed. Gate
+  green.
