@@ -245,3 +245,22 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
 - **Verified:** `prisma migrate status` reports the database in sync. A Prisma client
   query over the pooled `DATABASE_URL`, the path the app will use, returned PostgreSQL
   18.6, the thirteen tables, and the applied migration row. Gate green.
+
+### Commit 4: `feat: add rating score check constraint`
+
+- **Asked for:** an empty migration carrying the hand-written
+  `ALTER TABLE "Rating" ADD CONSTRAINT rating_score_range CHECK (score BETWEEN 1 AND 5);`
+  as its own commit, with proof that the database rejects a score of 0 and of 6.
+- **Accepted:** `prisma migrate dev --create-only --name rating_score_check` produced the
+  empty file, the SQL was written by hand with a comment tying it to delta 10, and
+  `prisma migrate dev` applied it. Delta 10's reason: Prisma cannot express a check
+  constraint, and a range that only Zod enforces would leave any other write path free
+  to store a 0 or a 9. The database is the last line, not the first.
+- **Rejected:** nothing.
+- **Corrected by hand:** nothing.
+- **Verified:** `pg_constraint` on Neon lists `rating_score_range` as
+  `CHECK (((score >= 1) AND (score <= 5)))`. Three scripts each inserted a throwaway
+  customer and order, then a rating, inside a transaction ending in `ROLLBACK`. Score 0
+  and score 6 both failed with `new row for relation "Rating" violates check constraint
+  "rating_score_range"`. Score 3 ran to `Script executed successfully`. Row counts after
+  all three: 0 customers, 0 orders, 0 ratings. Gate green.
