@@ -436,3 +436,34 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   unknown cuid both got 404. Backdating the order's `placedAt` by 30 minutes in Neon made
   the same read return `isDelayed: true` with no other change, and the Order table's
   column list has no delay column. Gate green.
+
+## Phase 3: waiter, complaint, payment
+
+### Commit 11: `feat: add waiter assignment api`
+
+- **Asked for:** `GET /api/waiter/orders` for the rail. `PATCH /api/orders/[id]/assign`
+  recording waiter, chef and bartender and setting SERVED with `servedAt`. Gated by
+  `STAFF_PIN` compared with `crypto.timingSafeEqual`.
+- **Accepted:** `lib/staff-pin.ts` reads the `x-staff-pin` header and compares it with
+  `timingSafeEqual` over equal-length buffers; a wrong-length PIN still runs a compare
+  against the expected value before returning false, so the length check is not itself
+  an early exit. The rail returns every PLACED and SERVED order oldest first, with the
+  derived delay, plus the waiter, chef and bartender lists in the same response so the
+  pick lists need no second call. Paid orders have left the floor and are not listed.
+  Assign takes the strict body, refuses anything but a PLACED order with a 409 that
+  names the current state, checks all three staff ids exist, and writes the assignment,
+  SERVED and `servedAt` in one update.
+- **Honest statement for the document:** the role switch is UI convenience, because the
+  assignment forbids logins. The PIN is the boundary. A PIN typed into a browser is as
+  secret as the people who know it, and that is what the no-login rule allows.
+- **Decision, flagged:** the rail GET is PIN-gated as well as the mutation, since it
+  lists every table's order and the spec only named the PATCH. Lift it if the rail is
+  meant to be public.
+- **Rejected:** nothing.
+- **Corrected by hand:** nothing.
+- **Verified:** with three fresh orders on the dev server: no PIN, a wrong PIN of the
+  same length, and a wrong-length PIN each got 401; the right PIN got the three orders
+  and three of each staff role; assign with an extra `status` key got 400 naming it, an
+  unknown chef got 400, no PIN got 401; a valid assign returned SERVED with `servedAt`
+  and the three names; assigning again got 409 "already served"; a garbage id got 404.
+  Gate green.
