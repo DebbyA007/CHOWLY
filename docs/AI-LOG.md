@@ -381,3 +381,37 @@ Decisions made before the first commit use a shorter form: proposed, decided, wh
   unavailable in Neon dropped the count to 13 with the item absent; restoring it brought
   back 14. The security headers from Commit 2 are present on the JSON response. Gate
   green.
+
+### Commit 9: `feat: add order placement api`
+
+- **Asked for:** `POST /api/orders` accepting item ids, quantities and a table number
+  only. Prices, subtotals, the total and `waitMinutes` computed server-side from the
+  database, price and prep time snapshotted onto each line, a posted price rejected.
+- **Accepted:** the strict schema from Commit 6 does the rejecting before any database
+  work, and the error names the field. Repeated ids merge into one line. Items are
+  loaded by id with `available: true`, so an item pulled from the menu between the
+  customer's page load and their order is refused with a message to reload. Each line
+  stores `unitPriceKobo`, `subtotalKobo` and `prepTimeMinutes` from the row just read
+  (delta 6). The total is the sum of those subtotals and the wait comes from
+  `calculateWaitMinutes` over those prep times (delta 2). The order and the customer's
+  latest table number are written in one transaction. `lib/orders.ts` holds the single
+  presenter every order route returns, with `isDelayed` and `dueAt` derived at read
+  time (delta 4). `lib/rate-limit.ts` counts in the database, five orders per session
+  per ten minutes, so the limit holds across serverless instances.
+- **Interpretation, flagged:** the reference is sequential and human readable, `CHW-0001`
+  onwards, taken from the order count and retried on the unique constraint if two orders
+  land in the same instant. A random suffix would never collide but reads worse on a
+  ticket.
+- **Rejected:** an in-memory rate limiter, because each Vercel function instance would
+  keep its own counter and the limit would be theatre. A per-request `new PrismaClient`,
+  in favour of the singleton from Commit 7.
+- **Corrected by hand:** nothing.
+- **Verified:** against the dev server: steak plus mojito at table 7 returned 201 with
+  `CHW-0001`, wait 25 (22 + 3), total 1,250,000 kobo shown as ₦12,500, and both lines
+  carrying their snapshotted price and prep time. A line with `priceKobo` and a body with
+  `totalKobo` and `waitMinutes` both returned 400 naming the fields. An unknown item id,
+  quantity 0, an empty ticket and a non-JSON body each returned 400 with a usable
+  message. A request with no cookie at all was still placed, on the identity the
+  middleware minted for that same request. Jollof twice on one ticket became a single
+  line of three with wait 18. The sixth order in ten minutes returned 429. The session's
+  table number updated to 7. Gate green.
