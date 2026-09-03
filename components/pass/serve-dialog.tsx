@@ -12,14 +12,13 @@ export type Staff = {
 type Props = {
   order: RailOrder | null;
   staff: Staff;
-  pin: string;
   onClose: () => void;
   onServed: (updated: RailOrder) => void;
 };
 
 // The waiter records who served, who cooked and who mixed, then the ticket comes off
 // the pass. A native dialog on a steel panel: focus is trapped and Escape closes it.
-export function ServeDialog({ order, staff, pin, onClose, onServed }: Props) {
+export function ServeDialog({ order, staff, onClose, onServed }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -40,7 +39,7 @@ export function ServeDialog({ order, staff, pin, onClose, onServed }: Props) {
     try {
       const response = await fetch(`/api/orders/${order.id}/assign`, {
         method: "PATCH",
-        headers: { "content-type": "application/json", "x-staff-pin": pin },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ waiterId: String(form.get("waiterId")), chefId: String(form.get("chefId")), bartenderId: String(form.get("bartenderId")) }),
       });
       const body = (await response.json().catch(() => null)) as (RailOrder & { error?: string }) | null;

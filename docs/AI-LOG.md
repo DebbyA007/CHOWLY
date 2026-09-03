@@ -1226,3 +1226,38 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   are hard offsets; no `rgba(0,0,0,.1)` exists. Forty distinct colour literals, none
   with a hue between 240 and 300 degrees at any saturation above ten percent, and no
   oklch or oklab literal at all. The lamp pools are dots and the steel is lines.
+
+## Before Phase 5: no gates, and a front door
+
+### Commit: `feat: open the waiter side behind an explicit server-side flag`
+
+- **Asked for:** no gates anywhere. Remove the PIN prompt from the waiter side entirely,
+  keep the server-side seam and the constant-time compare, and gate the seam behind an
+  explicit `STAFF_PIN_REQUIRED` flag that is on when absent or malformed and off only
+  when it is exactly false. Keep the tests for the enabled path. Reloading the waiter
+  page must just work.
+- **Accepted:** `lib/staff-pin.ts` gains `staffPinRequired(env)`: the check is on unless
+  the flag, trimmed, is exactly the string `false`; absent, empty, `0`, `no`, `off`,
+  `False` and `true` all keep it on. `assertStaffPin` takes the environment as a
+  parameter so the seam is unit tested for every shape of the variable: eleven cases
+  for the flag, the required path with a missing, wrong, short and long PIN, the
+  fail-closed path when no PIN is configured, and the open path. `HttpError` moved to
+  `lib/errors.ts`, free of framework imports, so the seam can be tested under plain
+  Node; `lib/http.ts` re-exports it. The rail fetches with no header and, if a
+  deployment has the check on, says so plainly instead of asking for anything. The PIN
+  plate, the in-memory PIN provider and every `x-staff-pin` header in the UI are gone.
+  The role tags' caption reads that both sides are open to anyone. `.env` and
+  `.env.example` carry `STAFF_PIN_REQUIRED="false"` with the rule in a comment.
+- **Rejected:** opening the routes when `STAFF_PIN` is unset, because an absent variable
+  meaning allow-everything is fail-open. A case-insensitive `false`, because explicit
+  means exact; only whitespace around it is tolerated.
+- **Corrected by hand:** the new unit file would not load under Node because the seam's
+  relative import lacked an extension, which the bundler tolerates and Node does not;
+  the import spells `./errors.ts`.
+- **Verified:** 32 unit tests pass. Against the dev server with the flag off: the rail
+  endpoint answers 200 with no header; clicking Waiter from the tags lands on the rail
+  with no password field, and a reload shows the rail again with no prompt. Against a
+  second dev server with `STAFF_PIN_REQUIRED=true`: the same endpoint answers 401 with
+  no header, 200 with the right PIN, 401 with a wrong one. Gate green.
+- **For the human:** set `STAFF_PIN_REQUIRED=false` in Vercel's environment, or the
+  deployed waiter routes will answer 401 by design.

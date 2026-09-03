@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Fraunces, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { RailHeader } from "@/components/pass/rail-header";
-import { StaffPinProvider } from "@/components/staff-pin";
 
 // Two families and no third. Fraunces carries the restaurant name and the big numbers
 // with its soft and wonk axes loaded; IBM Plex Mono carries everything a printer would
@@ -34,10 +33,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${plex.variable}`}>
       <body className="steel antialiased">
-        <StaffPinProvider>
-          <RailHeader />
-          {children}
-        </StaffPinProvider>
+        <RailHeader />
+        {children}
       </body>
     </html>
   );

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 // The role switch: two tags hanging from the rail on rings. It changes the view and
-// nothing else, because the assignment forbids logins; the waiter side asks for the
-// staff PIN before it shows any order. The caption says so.
+// nothing else, because the assignment forbids logins and the live link must be usable
+// by anyone: both sides of the pass are open. The caption says so.
 const roles = [
   { href: "/", label: "Customer" },
   { href: "/waiter", label: "Waiter" },
@@ -33,7 +33,7 @@ export function RoleTags() {
         })}
       </div>
       <p className="max-w-[13.5rem] text-right text-[11px] leading-snug text-brass-light/80 sm:max-w-64">
-        Demo switch: it changes the view, not who you are. The waiter side asks for the staff PIN.
+        Two sides of one pass, both open to anyone. The tags change the view, not who you are.
       </p>
     </nav>
   );

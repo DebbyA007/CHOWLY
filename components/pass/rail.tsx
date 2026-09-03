@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { createDraggable, createScope } from "animejs";
 import { play } from "@/lib/sound";
-import { useStaffPin } from "../staff-pin";
 import { ServeDialog, type Staff } from "./serve-dialog";
 import { SpikeTicket, type RailOrder } from "./spike-ticket";
 import { usePrefersReducedMotion } from "./use-reduced-motion";
@@ -19,7 +18,6 @@ type Rail = { now: string; orders: RailOrder[]; staff: Staff };
 // every ticket and Enter or Space on a focused ticket open the same dialog, so the drag
 // is never the only way.
 export function Rail() {
-  const { pin, setPin } = useStaffPin();
   const reduce = usePrefersReducedMotion();
   const [serving, setServing] = useState<RailOrder | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -30,14 +28,13 @@ export function Rail() {
   const openRef = useRef<(order: RailOrder) => void>(() => {});
   const placedRef = useRef<RailOrder[]>([]);
 
+  // No PIN, no gate: the kitchen side is open to anyone, by design. If a deployment
+  // has switched the server-side check on, the rail says so instead of pretending.
   const { data, error, mutate } = useSWR<Rail>(
-    pin ? ["/api/waiter/orders", pin] : null,
-    async ([url, staffPin]: [string, string]) => {
-      const response = await fetch(url, { headers: { "x-staff-pin": staffPin } });
-      if (response.status === 401) {
-        setPin(null);
-        throw new Error("The PIN was no longer accepted.");
-      }
+    "/api/waiter/orders",
+    async (url: string) => {
+      const response = await fetch(url);
+      if (response.status === 401) throw new Error("This deployment has locked the kitchen side (STAFF_PIN_REQUIRED is on).");
       if (!response.ok) throw new Error("The rail could not be loaded.");
       return response.json();
     },
@@ -91,8 +88,6 @@ export function Rail() {
     const timer = window.setTimeout(() => setToast(null), 2500);
     return () => window.clearTimeout(timer);
   }, [toast]);
-
-  if (!pin) return null;
 
   return (
     <div ref={railRef}>
@@ -164,7 +159,6 @@ export function Rail() {
         <ServeDialog
           order={serving}
           staff={data.staff}
-          pin={pin}
           onClose={() => setServing(null)}
           onServed={(updated) => {
             setServing(null);
