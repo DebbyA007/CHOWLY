@@ -1432,3 +1432,32 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   unknown action got 400 naming the two allowed; reset deleted the one order. With the
   flag overridden to empty on a second dev server, exactly as production, the route
   answered 404 to everything. 35 unit tests. Gate green.
+
+### Step 2, commit: `feat: build direction one, linen, as a clickable walkthrough`
+
+- **What it is:** the shared walkthrough engine and the first of three directions.
+  `components/directions-2/shared` holds the fourteen dishes as vector geometry with
+  three material renderers, and presentation-free hooks for the cart, the order with
+  ambient time, and the waiter side, plus the drag helper and the demo control. Linen is
+  four routes under `/directions-2/one`: the set table as the landing, the folded card
+  as the menu, the plate under the moving sun as the order, and the waiter's pad as the
+  floor, all on the real API and the seeded data, writing real orders and cleaning up
+  through the demo reset.
+- **Ambient time:** a sharp-edged patch of sun across the cloth, its position and
+  opacity driven by the same progress number as before; the cloth itself mixes from
+  linen to shade. Past the promise the sun has moved off the plate and the caption says
+  so. Never red; the late digits print in ink.
+- **The food:** gouache on the cloth, every dish laid down twice a hair apart so no edge
+  quite meets.
+- **Corrected by hand:** a tuple destructuring the strict compiler refused in the shared
+  dish geometry; typed tuples now.
+- **Verified at 390 in Chromium, clicked through as a person would:** the landing's two
+  entrances sit at 587 and 767 pixels of 844, in the lower third; the Pass chrome is
+  hidden; Zobo and Chapman on the napkin at ₦5,000; asking the kitchen lands on the order
+  with the cloth in sun; "Make it late" moves the clock, the cloth reads shade and the
+  digits "+05:12"; a word sent with a score of 2 and a rating of 4; the floor shows the
+  entry "in the shade" with "1 word from the table"; Enter opens the card and marking
+  served moves it; the bill settles by mobile money into "Paid, thank you." with the
+  pretend line. No sideways scroll. Reduced motion shows the landing at once with a two
+  second sun. The tomato focus ring shows on the first entrance. No console errors.
+  Screenshots in `docs/directions-2/one-*`, 390 first. Gate green.

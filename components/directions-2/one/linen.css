@@ -1,0 +1,102 @@
+/* Direction one: Linen. A set table under the almond tree, the afternoon moving across it. */
+.linen {
+  --lin: #f7f3ea;
+  --lin-shade: #e6e1d3;
+  --lin-sun: #fbf6e2;
+  --thread: #e3dbc9;
+  --ink: #2b2a28;
+  --ink-soft: #6a655c;
+  --olive: #6b7a4c;
+  --tomato: #c8553d;
+  --ochre: #d9a441;
+  --glass: #9fb7b5;
+  --p: 1;
+  /* the cloth takes the light: sun at p = 1, shade at p = 0 */
+  --cloth: color-mix(in oklab, var(--lin), var(--lin-shade) calc((1 - var(--p)) * 100%));
+  color: var(--ink);
+  background-color: var(--cloth);
+  /* the weave: two fine sets of lines, warp and weft, never perfectly even */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M0 3.5H8' stroke='%232b2a28' stroke-opacity='0.055'/%3E%3Cpath d='M3.5 0V8' stroke='%232b2a28' stroke-opacity='0.045'/%3E%3Cpath d='M0 7.5H8' stroke='%23ffffff' stroke-opacity='0.5'/%3E%3C/svg%3E");
+  font-family: var(--font-karla), "Karla", system-ui, sans-serif;
+  transition: background-color 1000ms linear;
+}
+.linen .serif {
+  font-family: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+}
+/* the patch of sun across the cloth: a sharp-edged parallelogram, no gradient */
+.linen .sun {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 46%;
+  background: var(--lin-sun);
+  transform: skewX(-14deg);
+  left: calc(18% + (1 - var(--p)) * 92%);
+  opacity: calc(0.25 + var(--p) * 0.75);
+  transition: left 1000ms linear, opacity 1000ms linear;
+  pointer-events: none;
+}
+/* the ring a cold glass leaves */
+.linen .ring {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 5px solid var(--glass);
+  opacity: 0.28;
+  pointer-events: none;
+}
+/* stitched edges on cards and the napkin */
+.linen .stitched {
+  background: #fffdf8;
+  border: 1.5px dashed var(--ink-soft);
+  outline: 4px solid #fffdf8;
+}
+.linen .napkin {
+  background: #fffdf8;
+  border-top: 1.5px dashed var(--ink-soft);
+}
+.linen .btn {
+  font-family: var(--font-karla), "Karla", system-ui, sans-serif;
+  font-weight: 700;
+  color: #fffdf8;
+  background: var(--olive);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+}
+.linen .btn.quiet {
+  background: #fffdf8;
+  color: var(--ink);
+}
+.linen .btn:disabled {
+  opacity: 0.55;
+}
+.linen :focus-visible {
+  outline: 3px solid var(--tomato);
+  outline-offset: 3px;
+}
+.linen .dish-lift {
+  transition: transform 160ms ease;
+}
+.linen .row:hover .dish-lift,
+.linen .row:focus-visible .dish-lift {
+  transform: translateY(-3px) rotate(-2deg);
+}
+.linen .field {
+  border: 1.5px solid var(--ink);
+  background: #fffdf8;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+}
+.linen[data-state="late"] .dish-lift {
+  filter: saturate(0.8);
+}
+@media (prefers-reduced-motion: reduce) {
+  .linen,
+  .linen .sun {
+    transition-duration: 2000ms;
+  }
+}
