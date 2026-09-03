@@ -1411,3 +1411,24 @@ stock; the drawing is part of the material. Source: `components/directions-2/sha
 the cart and order logic, and the dish geometry. They do not share a layout: Linen is a
 set table with a folded card, Bill of fare is a single long printed card, Glaze is
 plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
+
+### Commit: `feat: add the demo clock control behind DEMO_CONTROLS`
+
+- **Asked for:** a demo control that fast-forwards the wait clock so the late state is
+  reachable in seconds, labelled clearly, scoped to the walkthrough routes and
+  unreachable from the real customer flow, with confirmation that it cannot be hit from
+  production since an endpoint that moves an order's clock is a live endpoint.
+- **Accepted:** `POST /api/demo` with two actions in a strict discriminated union:
+  `fast-forward` backdates `placedAt` of one order by 1 to 600 minutes, `reset` deletes
+  the caller's own orders so a walkthrough cleans up after itself. Three layers keep it
+  out of the product. The route answers 404 unless `DEMO_CONTROLS` is exactly `true`,
+  which production never sets; the flag's parser is unit tested for absent, empty, `1`,
+  `yes`, `TRUE` and `true`. Every action is scoped through the same ownership query the
+  real routes use, so a session can only move or delete its own orders, and only a
+  placed order's clock can be moved. And nothing in the customer or waiter flows
+  renders the control; only the walkthrough routes under `/directions-2` will.
+- **Verified:** with the flag on, fast-forwarding the session's own four-minute order by
+  ten minutes returned it delayed; another session on the same order got 404; an
+  unknown action got 400 naming the two allowed; reset deleted the one order. With the
+  flag overridden to empty on a second dev server, exactly as production, the route
+  answered 404 to everything. 35 unit tests. Gate green.
