@@ -1431,7 +1431,7 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   ten minutes returned it delayed; another session on the same order got 404; an
   unknown action got 400 naming the two allowed; reset deleted the one order. With the
   flag overridden to empty on a second dev server, exactly as production, the route
-  answered 404 to everything. 35 unit tests. Gate green.
+  answered 404 to everything. 34 unit tests. Gate green.
 
 ### Step 2, commit: `feat: build direction one, linen, as a clickable walkthrough`
 
@@ -1481,3 +1481,25 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   the note counted; Enter opening the form; served; the account settled into "Paid in
   full." with the pretend line. No sideways scroll; the green focus ring on the first
   door. No console errors. Screenshots in `docs/directions-2/two-*`. Gate green.
+
+### Step 2, commit: `feat: build direction three, glaze, as a clickable walkthrough`
+
+- **What it is:** four routes under `/directions-2/three` on the shared engine: the
+  place set on the terrazzo as the landing, the dishes glazed onto round plates in a
+  grid you tap, the order as one big plate with the digits on it, and the floor as a
+  plan of tables. Terrazzo in the ground: chips of rust, sage, sand and ink in an SVG
+  pattern, no two the same shape. Every light surface is glazed stoneware: white,
+  a dark rim, a teal drip at the top edge, crazing drawn as fine cracks. Mass is a
+  hard offset in ink, never a blur.
+- **Ambient time:** the room settles. The ground mixes from terrazzo to a cool
+  grey-green dusk with progress, and the plate's hard shadow lengthens as the light
+  drops. Past the promise it reads "the room has settled into evening". Never red,
+  never purple. Reduced motion steps once at 2000ms.
+- **Verified at 390 in Chromium, clicked through:** entrances at 566 and 772 of 844;
+  Zobo and Chapman on the bill at ₦5,000; the plate with the digits and the room
+  bright; the demo control settling the room, "+05:11" and the word section on a
+  glazed card; a word sent with a score of 2, a rating of 4; the floor plan reading
+  "the room has settled" with the word counted; Enter opening the card; served; the
+  bill settled into "Settled. Thank you." with the pretend line. No sideways scroll,
+  ochre focus ring, no console errors. Screenshots in `docs/directions-2/three-*`.
+  Gate green.

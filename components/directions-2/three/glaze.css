@@ -1,0 +1,94 @@
+/* Direction three: Glaze. Terrazzo tabletop, glazed stoneware, the room settling. */
+.glaze {
+  --terrazzo: #eee9e0;
+  --dusk: #d6d5cd;
+  --ink: #2a2b2e;
+  --ink-soft: #5f6064;
+  --white: #faf8f2;
+  --teal: #3d7a78;
+  --ochre: #c98b2c;
+  --rust: #b4553a;
+  --sage: #7e9a7b;
+  --sand: #d9c79b;
+  --p: 1;
+  --room: color-mix(in oklab, var(--terrazzo), var(--dusk) calc((1 - var(--p)) * 100%));
+  color: var(--ink);
+  background-color: var(--room);
+  /* terrazzo: chips of four stones set in the pale ground, no two the same shape */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill-opacity='0.55'%3E%3Cpath d='M14 22l9-6 7 7-4 9-10 2z' fill='%23b4553a'/%3E%3Cpath d='M70 12l11 3 2 9-8 5-7-6z' fill='%237e9a7b'/%3E%3Cpath d='M126 30l8-2 6 6-3 8-9 1-4-6z' fill='%23d9c79b'/%3E%3Cpath d='M40 74l7-4 6 5-2 8-8 1z' fill='%232a2b2e' fill-opacity='0.35'/%3E%3Cpath d='M98 70l10 2 3 8-6 6-9-3-2-7z' fill='%23b4553a'/%3E%3Cpath d='M150 96l8 4-1 9-9 2-5-6z' fill='%237e9a7b'/%3E%3Cpath d='M20 128l9 1 4 7-5 7-9-2-3-7z' fill='%23d9c79b'/%3E%3Cpath d='M78 140l8-3 7 6-3 8-10 1-4-6z' fill='%232a2b2e' fill-opacity='0.35'/%3E%3Cpath d='M132 152l9-1 4 8-6 6-8-2z' fill='%23b4553a'/%3E%3Cpath d='M54 34l5 1 2 4-3 3-5-1z' fill='%237e9a7b'/%3E%3Cpath d='M160 60l5 2 1 5-4 3-5-2z' fill='%23d9c79b'/%3E%3Cpath d='M8 92l5 0 2 5-3 3-5-1z' fill='%23b4553a'/%3E%3Cpath d='M112 112l5 1 1 5-4 2-4-2z' fill='%232a2b2e' fill-opacity='0.3'/%3E%3C/g%3E%3C/svg%3E");
+  font-family: var(--font-figtree), "Figtree", system-ui, sans-serif;
+  transition: background-color 1000ms linear;
+}
+.glaze .news {
+  font-family: var(--font-newsreader), "Newsreader", Georgia, serif;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+}
+/* a glazed surface: white glaze, a teal drip at one edge, crazing drawn in the SVGs */
+.glaze .glazed {
+  background: var(--white);
+  border: 1.5px solid var(--ink);
+  border-radius: 22px;
+  position: relative;
+}
+.glaze .glazed::after {
+  content: "";
+  position: absolute;
+  top: -1.5px;
+  left: 14%;
+  width: 22%;
+  height: 7px;
+  background: var(--teal);
+  border-radius: 0 0 8px 8px;
+}
+/* mass: a hard offset in ink under a lifted plate, never a blur */
+.glaze .plate {
+  background: var(--white);
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 4px 5px 0 rgba(42, 43, 46, 0.14);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.glaze .plate:hover,
+.glaze .plate:focus-visible {
+  transform: translate(-2px, -3px);
+  box-shadow: 7px 9px 0 rgba(42, 43, 46, 0.16);
+}
+.glaze .btn {
+  font-family: var(--font-figtree), "Figtree", system-ui, sans-serif;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--teal);
+  border: 1.5px solid var(--ink);
+  border-radius: 14px;
+  padding: 0.7rem 1.2rem;
+}
+.glaze .btn.quiet {
+  background: var(--white);
+  color: var(--ink);
+}
+.glaze .btn:disabled {
+  opacity: 0.55;
+}
+.glaze :focus-visible {
+  outline: 3px solid var(--ochre);
+  outline-offset: 3px;
+}
+.glaze .field {
+  font: inherit;
+  background: var(--white);
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  padding: 0.5rem 0.7rem;
+}
+/* the plate's shadow lengthens as the room settles */
+.glaze .room-plate {
+  box-shadow: calc(4px + (1 - var(--p)) * 14px) calc(5px + (1 - var(--p)) * 10px) 0 rgba(42, 43, 46, calc(0.14 + (1 - var(--p)) * 0.1));
+  transition: box-shadow 1000ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glaze,
+  .glaze .room-plate {
+    transition-duration: 2000ms;
+  }
+}
