@@ -78,7 +78,7 @@ function Tray({ menu }: { menu: MenuView }) {
         {/* The tray. Every bowl sits on its rim; the chosen one is turned to the top. */}
         <div className="relative mx-auto mt-3 aspect-square w-full max-w-[340px] sm:max-w-[440px] lg:max-w-none" onPointerDown={(e) => { dragStart.current = e.clientX; }} onPointerUp={(e) => { if (dragStart.current === null) return; const dx = e.clientX - dragStart.current; dragStart.current = null; if (Math.abs(dx) > 40) turn(dx < 0 ? 1 : -1); }}>
           <div className="tray lacquer absolute inset-0 rounded-full" style={{ opacity: 0 }}>
-            <div className="ring absolute inset-0" style={{ transform: `rotate(${(-index * 360) / n}deg)` }}>
+            <div className="turn absolute inset-0" style={{ transform: `rotate(${(-index * 360) / n}deg)` }}>
               {items.map((item, i) => {
                 const a = (i / n) * Math.PI * 2 - Math.PI / 2;
                 const selected = i === index;

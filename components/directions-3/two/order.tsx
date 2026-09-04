@@ -46,10 +46,8 @@ export function RunOrder({ id }: { id: string }) {
         <section aria-label={`${o.digits} ${caption}`}>
           <div className="flex items-baseline justify-between"><h1 className="syne text-2xl sm:text-4xl">{order.reference}</h1><span className="text-sm font-bold">Table {order.tableNo}</span></div>
           <div className="chalk mt-3 p-2"><Room runs={[{ id: order.id, reference: order.reference, table, f: pos.f, lap: pos.lap, state: o.state, mine: true }]} tableNo={order.tableNo} className="w-full" /></div>
-          <div className="mt-3 flex items-end justify-between gap-3">
-            <p data-digits className="syne tabular text-[clamp(3rem,13vw,5.5rem)] leading-none">{o.state === "late" ? <><span style={{ color: "var(--red)" }}>+</span>{o.digits.slice(1)}</> : o.digits}</p>
-            <p className="max-w-[55%] text-right text-[13px] leading-snug text-[color:var(--ink-soft)]">{caption}</p>
-          </div>
+          <p data-digits className="syne tabular mt-3 text-[clamp(3rem,13vw,5.5rem)] leading-none">{o.state === "late" ? <><span style={{ color: "var(--red)" }}>+</span>{o.digits.slice(1)}</> : o.digits}</p>
+          <p className="mt-1 text-[14px] leading-snug text-[color:var(--ink-soft)]">{caption}</p>
           <p className="mt-2 text-[13px] text-[color:var(--ink-soft)]" aria-live="polite">
             {order.status === "PLACED" ? `Sent${o.when(order.placedAt) ? ` at ${o.when(order.placedAt)}` : ""}. The kitchen promised ${order.waitMinutes} minutes.` : order.status === "SERVED" ? `Landed${o.when(order.servedAt) ? ` at ${o.when(order.servedAt)}` : ""}${order.staff.waiter ? `, run by ${order.staff.waiter.name}` : ""}.${order.staff.chef ? ` Cooked by ${order.staff.chef.name}` : ""}${order.staff.bartender ? `, drinks by ${order.staff.bartender.name}` : ""}.` : `Paid${o.when(order.paidAt) ? ` at ${o.when(order.paidAt)}` : ""}.`}
           </p>

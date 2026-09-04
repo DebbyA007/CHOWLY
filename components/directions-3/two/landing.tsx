@@ -34,7 +34,7 @@ export function RunLanding() {
   }, []);
   return (
     <RunFrame>
-      <main ref={root} className="mx-auto flex min-h-[calc(100dvh-64px)] max-w-6xl flex-col px-4 pb-8 pt-4 sm:px-8 lg:grid lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-10">
+      <main ref={root} className="mx-auto flex min-h-[calc(100dvh-64px)] max-w-6xl flex-col px-4 pb-8 pt-4 sm:px-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
         <div className="relative mx-auto mt-2 h-[280px] w-[280px] sm:h-[420px] sm:w-[420px] lg:order-2" aria-hidden="true">
           <div className="tray lacquer absolute inset-0 rounded-full" style={{ opacity: 0 }}>
             <div className="absolute inset-[9%] rounded-full border-2 border-[color:var(--lacquer-light)]" />
@@ -48,8 +48,8 @@ export function RunLanding() {
             })}
           </div>
         </div>
-        <div className="lg:order-1">
-          <h1 className="name syne text-[clamp(3.4rem,15vw,9rem)] leading-[0.9]" style={{ opacity: 0 }}>CHOWLY</h1>
+        <div className="min-w-0 lg:order-1">
+          <h1 className="name syne text-[clamp(3rem,11.5vw,8rem)] leading-[0.9]" style={{ opacity: 0 }}>CHOWLY</h1>
           <p className="line mt-3 max-w-md text-[15px] leading-snug sm:text-lg" style={{ opacity: 0 }}>
             Turn the tray, pick a bowl, and watch the runner carry it across the room to your table. Settle up when it lands.
           </p>
