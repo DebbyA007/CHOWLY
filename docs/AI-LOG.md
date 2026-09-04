@@ -1258,3 +1258,132 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   handoff's generated `support.js` under `docs/design-ref`, which is a reference bundle,
   not code. The next commit ignores `docs/**` in the lint config. Recorded because the
   rule is gate green before each commit and this one was not.
+
+### Commit: `feat: the menu, the money and the numbers the handoff specifies`
+
+- **The seed** now carries the handoff's ten dishes with its exact descriptions, prices
+  and prep times, in three menus: Mains and Soups (both `FOOD`) and Drinks. The first
+  seed's menu keeps its id so its items stay attached; the four dishes that left the
+  menu are marked unavailable rather than deleted, because old orders point at them.
+  The staff are the handoff's: chefs Emeka Obi, Tunde Bello and Amaka Nwosu, bartenders
+  Ify Chukwu and Sade Balogun, and Ada Okafor first among the waiters so the staff pill
+  reads "Ada O.". A bartender no order had ever named was removed on the second run;
+  the first run kept him because a test order still pointed at him.
+- **The promise is the longest prep time in the order**, as the handoff states, in
+  place of the earlier formula that added three minutes per extra unit. The tests
+  changed with it and the sample order (jollof 12, catfish 20, two chapman 4) promises
+  20 minutes.
+- **VAT at 7.5%** is added server-side, rounded to whole naira so nothing on a receipt
+  carries decimals: ₦17,500 becomes ₦1,313 and ₦18,813, the handoff's figures. The
+  subtotal is read back from the lines and VAT is the difference, so nothing is stored
+  twice and old orders read as VAT zero.
+- **Order numbers** are sequential from 1001 and show as "#1042"; the earlier
+  `CHW-0007` form is gone. **Receipt numbers** are the payment's place in the sequence
+  of payments, four digits. **Lines read back in the order they were added**, which is
+  how the handoff lists the sample order.
+- **The menu shows in the handoff's order**, which is neither by name nor by price, so
+  a small list in `lib/menu-order.ts` ranks it; anything not listed comes after. The
+  staff chips follow the same idea. Each item carries its photo path.
+- **A route for the session's own orders** (`GET /api/orders/mine`) lets the Order and
+  Pay tabs find the current order after a reload; ownership is the query.
+- **Payment methods.** The handoff offers Card, Bank transfer and Cash at the till; the
+  schema's enum is `CARD`, `MOBILE_MONEY` and `CASH` and the schema is not to be
+  simplified. Bank transfer maps to `MOBILE_MONEY`, and the receipt says "Paid by bank
+  transfer". Recorded as a mapping, not a match.
+
+### Commit: `feat: the photography, licensed and self-hosted`
+
+- **Decided with the user:** photographs, not illustration. Eleven were chosen from
+  candidates found through the Wikimedia Commons API and Openverse, viewed on contact
+  sheets, and picked for the handoff's treatment: dark, close, warm, the plate filling
+  the circle. Each was downloaded at 1024 or 2048 wide, cropped square and
+  centre-weighted (the room to 390 by 452 at two times), resized with `sips`, and
+  re-encoded. One CSS treatment sits over all of them so eleven sources read as one
+  shoot. Source, author and licence for each are in `docs/PHOTOGRAPHY.md`; four are
+  CC BY or public domain, seven are CC BY-SA, and the cropped files stay under their
+  sources' licences.
+- **Rejected:** the CC0 jollof (busy with coleslaw), the CC0 steak frites (a branded
+  plate rim inside the crop), the CC0 pepper soup (mostly yam), the CC0 zobo (a tub).
+  Nothing from a Lagos restaurant exists under an open licence, so the room is a
+  candlelit table elsewhere, chosen for its light.
+- **Why not remote images:** the app's CSP is `img-src 'self' data: blob:`, so a CDN
+  image would never load. Everything is served from `public/photos/`, 552 KB in all.
+
+### Commit: `feat: night service foundation`
+
+- Tokens in `app/globals.css` verbatim from the handoff, the derived alphas included;
+  Newsreader and Space Grotesk through `next/font`; the app as a 430px column centred on
+  the same ground; the shared chrome (header, pill, chips, tab bar, the fixed foot);
+  the paper utilities (fibre, the printed rule, the perforation, the torn foot, the
+  stamp, struck numerals); the clock helpers that write times the way the design does
+  ("9:04 pm", "3 Sep 2026, 9:38 pm"); and the hooks: the menu in the client cache with
+  a preload, the session's orders, one order with its clock derived from `placedAt`,
+  the rail kept while it revalidates, the cart kept for the session.
+- **The Pass's styles moved** to `app/directions/legacy.css` under a layout that loads
+  Fraunces and Plex there and nowhere else, so the three phase 4b prototypes still
+  render as artefacts while the product carries none of it.
+- **Corrected during verification:** `next/font` refuses an `axes` list alongside a
+  fixed weight, so Newsreader loads as a variable font and the stylesheet pins 400. The
+  first dev server answered 500 on every page until then.
+
+### Commit: `feat: build the eight screens of night service`
+
+- Landing, menu with the cart bar and the order sheet, order placed and running late
+  with the report and rating sheets, live orders, one order open, tables, the waiter's
+  menu, pay, and the receipt. Copy is the handoff's own. The word pretend appears on the
+  pay button and once on the receipt and nowhere else; the walkthrough counts it on
+  every screen. No explanatory callouts.
+- **Where the handoff had no screen:** the order review before placing (the handoff's
+  "View order" leads straight to a placed order), the report and rating sheets, the
+  Tables tab, and the waiter's Menu tab. Each is built from the same parts as the
+  screens beside it and adds no new language. "Email receipt" is not built: there is no
+  email to send it to, and a dead control is worse than a missing one. "Start over" on
+  the paid state was a prototype affordance and is not built; paid shows the receipt.
+- **What the stepper derives.** The data holds placed, served and paid. "In the kitchen"
+  is done two minutes after placing; "Ready to serve" says about the promised time,
+  "Any moment" once late, and the served time once served.
+- **The staff pill** shows the first waiter in the roster, and marking an order served
+  records that waiter with the chosen chef and bartender. There is no login, so the
+  pill is the session's waiter, not a signed-in one; the handoff does not design a
+  choice and one was not added.
+- **Paper, as surface detail.** The order card, the pay summary, the waiter rows and the
+  receipt carry the fibre; the divider inside cards is the printed rule; totals and
+  every price sit struck into the surface; the receipt alone gets the perforation, the
+  torn foot and the stamp. The grid, the row heights, the gutters, the tab bar and the
+  type scale are the handoff's; no paper idea moved any of them.
+- **Motion.** One entrance per screen, once per session. Menu rows stagger in; the add
+  control morphs from a 38px circle to the stepper pill, width and colour gliding; the
+  cart bar rises the first time an item lands and its count and total tick. The ring's
+  `stroke-dashoffset` is set from the clock every second and glides between ticks; ochre
+  to late red is a two-second crossfade on the ring, the numerals, the pill, the tab and
+  the stepper. A step completing swells its dot once. New waiter rows slide in on the
+  poll; a status change recolours in place; nothing pulses. Paying prints the receipt:
+  the card feeds down from the perforation, the lines come in, the stamp lands last.
+  Every scope declares the reduced-motion query and degrades to a fade.
+- **Corrected during verification, from the frames:** the menu rows vanished after a
+  category switch and the late screen's note and actions never appeared, both because
+  an inline zero opacity waited for an entrance that only ran at mount; elements that
+  arrive later now animate in when they arrive. The lines on the order card read back
+  by price, not as added; fixed in the data commit.
+
+### Commit: `docs: replace the design direction with night service`
+
+- CLAUDE.md now carries Night Service and its tokens, type, spacing, motion and
+  photography rules, with The Pass under Superseded beside the enamelware and its
+  history kept. The middle-dot rule is amended: the handoff joins meta strings with them
+  on purpose and those stay; the ban was on decoration.
+
+### The role switch, diagnosed again and fixed here
+
+- **Cause, measured on the previous build:** the guest side was a `force-dynamic`
+  server page that waited on the database before sending HTML and then replayed a
+  two-second entrance every time; the waiter side rendered an empty shell and waited on
+  an API that makes seven sequential database round trips. Felt: 1.3s and 2.3 to 3.2s.
+- **Fix:** no page carries server data; the menu, the session's orders and the live
+  list live in the client cache, are preloaded on the landing before either button is
+  pressed and again when a tab is hovered or focused, the menu API is cached for thirty
+  seconds, and every entrance plays once per session.
+- **Measured on this production build, tap to visible content:** landing to menu
+  553ms (the row stagger is most of it), menu to order 57ms, waiter to menu 132ms, back
+  to orders 50ms, the waiter list cold 325ms. The APIs themselves take 1.4 to 1.9
+  seconds from this machine to Neon; the switch no longer waits on them.
