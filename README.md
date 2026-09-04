@@ -55,6 +55,11 @@ built as full clickable walkthroughs at `LIVE_URL/directions-2`, each running th
 story on real data. Their critique is in
 [`docs/directions-2/README.md`](docs/directions-2/README.md).
 
+A third round, at `LIVE_URL/directions-3`, mandates the differences: The Pass repaired,
+The Run and The Placemat, each a full walkthrough, structurally different. Their critique
+and the role-switch diagnosis are in
+[`docs/directions-3/README.md`](docs/directions-3/README.md).
+
 ## Stack
 
 | Layer | Choice |
@@ -228,6 +233,7 @@ authentication, by design; the server-side seam for waiter routes stays behind
 - [`docs/AI-LOG.md`](docs/AI-LOG.md): the AI log, written as the work happened, with every rejection and correction.
 - [`docs/directions/README.md`](docs/directions/README.md): the three art directions and the critique.
 - [`docs/directions-2/README.md`](docs/directions-2/README.md): three more directions as walkthroughs, and the critique.
+- [`docs/directions-3/README.md`](docs/directions-3/README.md): the third round, structurally different, with the critique and the role-switch diagnosis.
 - [`docs/BUILD-PLAN.md`](docs/BUILD-PLAN.md): the order of work, one commit per step.
 - [`CLAUDE.md`](CLAUDE.md): the rulebook the build was held to.
 

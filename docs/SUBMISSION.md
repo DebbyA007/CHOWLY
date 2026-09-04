@@ -11,6 +11,7 @@ order is a thermal ticket under a heat lamp, and the lamp is the clock.
 - The AI log, written as the work happened: [`AI-LOG.md`](AI-LOG.md)
 - The three art directions and their critique: [`directions/README.md`](directions/README.md), and live at `LIVE_URL/directions`
 - Three more directions as clickable walkthroughs and their critique: [`directions-2/README.md`](directions-2/README.md), and live at `LIVE_URL/directions-2`
+- The third round, structurally different, with the critique and the role-switch diagnosis: [`directions-3/README.md`](directions-3/README.md), and live at `LIVE_URL/directions-3`
 - Every screen and state: [`screens/README.md`](screens/README.md)
 
 This document has the four required sections: how it was built, how AI was used, the

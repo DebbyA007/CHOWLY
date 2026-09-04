@@ -1661,3 +1661,45 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   05:29 past the 8 promised, 1 note from the table"; Enter opening "Land CHW-0001";
   landed; "Settle the tray (pretend)"; "Chit. Paid." with the pretend line once. Role
   switch 128 and 103ms, then 63 and 78ms. No console errors.
+
+### Commit: `feat: direction three, the placemat`
+
+- **The two assumptions it breaks, of the four offered:** an illustrated environment
+  in place of a flat ground, and a desktop that changes shape. Your table at a buka
+  seen from above: a wax-print cloth, a kraft placemat the interface is printed on, an
+  enamel bowl with its chip, cutlery, a glass. Time is quantity and wear: the ice in
+  the glass melts through the promised minutes, and once the promise is past the glass
+  sweats a ring into the placemat that spreads. Nothing here is a lamp.
+- **Corrected after the first frames:** the floor's section headings sat directly on
+  the cloth and could not be read (put on slips); the headline overflowed its placemat
+  at 1440 (clamped); the chit's total set the naira sign in Young Serif, which lacks
+  the glyph, so it showed as a struck-through N (totals now in the body face).
+- **Verified at 390 and 1440 in Chromium, clicked through:** slips at 421 of 844; the
+  bowls tapped; the chit sent at ₦5,000; five cubes at first, then none and a ring at
+  0.65 when late; the word sent with a score, four marks; the floor reading "Ice gone,
+  05:31 past the 8 promised, 1 word from the table"; Enter opening the dialog; served;
+  "Pay the chit (pretend)"; "Paid." with the pretend line once. Role switch 124 and
+  280ms, then 70 and 269ms; the Customer figure is the bowls fading in.
+
+### Commit: `feat: index the third round at /directions-3`
+
+- A plain index describing the three and the demo control's limits, linked onward from
+  the directions-2 index, the README and the submission document.
+
+### Commit: `docs: critique the third round and rank the placemat first`
+
+- **Written** to `docs/directions-3/README.md`: what each breaks, what works, what is
+  derivative by name, the bar answered for each, the ranking, and the role-switch
+  diagnosis with the numbers before and after.
+- **The ranking:** The Placemat, then The Pass repaired, then The Run. The Pass repaired
+  is the one to ship as is; The Placemat is the one worth the remaining work. The
+  honest finding against my own work: repairing The Pass walked its palette out of the
+  industrial cliché into the cream, serif and terracotta default that the calibration
+  list names first, and The Run's chalk cards are the neo-brutalist kit of two years ago.
+- **Also corrected during this round, from the desktop frames:** The Run's landing tray
+  was pushed off the right edge at 1440 because the headline's minimum width forced its
+  grid column wide (columns now `minmax(0, 1fr)`).
+- **WebKit is now part of the loop.** Every landing, menu and floor of the three was
+  rendered in the system WebKit at both widths with a small `WKWebView` tool, all
+  stylesheets applied, no console errors, no sideways scroll. The frames sit beside the
+  Chromium ones with `webkit` in the name.
