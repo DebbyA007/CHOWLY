@@ -268,3 +268,32 @@ body {
     animation-duration: 1.4s;
   }
 }
+
+/* Loading: the shape of what is coming, in the surface tone, breathing slowly. */
+:root {
+  --bone: color-mix(in srgb, var(--fg) 10%, var(--bg));
+}
+.bone {
+  display: block;
+  background: var(--bone);
+  border-radius: 6px;
+  animation: breathe 1.6s ease-in-out infinite;
+}
+.bone-round {
+  border-radius: 50%;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bone {
+    animation: none;
+    opacity: 0.8;
+  }
+}

@@ -6,7 +6,8 @@ import type { MenuView } from "@/lib/menu";
 // The menu, read once through the API into the client cache and kept, so switching
 // between the two sides never waits on the database again. Preloaded from the landing
 // before either button is pressed.
-export const MENU_KEY = "/api/menu";
+import { MENU_KEY } from "./keys";
+export { MENU_KEY };
 
 export async function menuFetcher(url: string): Promise<MenuView> {
   const response = await fetch(url);
