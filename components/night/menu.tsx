@@ -41,6 +41,8 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
   const reduce = usePrefersReducedMotion();
   const [category, setCategory] = useState(menu.menus[0]?.name ?? "");
   const [review, setReview] = useState(false);
+  const [tableSheet, setTableSheet] = useState(false);
+  const [tableDraft, setTableDraft] = useState("");
   const section = menu.menus.find((m) => m.name === category) ?? menu.menus[0];
 
   useEffect(() => {
@@ -99,7 +101,18 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
   return (
     <Screen foot={cart.count > 0 ? 150 : 128}>
       <div ref={root as React.RefObject<HTMLDivElement>}>
-        <Header title={menu.restaurant.name} subtitle={menu.restaurant.location.replace(/, Lagos$/, "")} pill={cart.tableNo ? `Table ${cart.tableNo}` : undefined} />
+        <Header title={menu.restaurant.name} subtitle={menu.restaurant.location.replace(/, Lagos$/, "")} pill={cart.hydrated ? (cart.tableNo ? `Table ${cart.tableNo}` : "Which table?") : undefined} onPill={() => { setTableDraft(cart.tableNo); setTableSheet(true); }} />
+        {tableSheet ? (
+          <div className="fixed inset-0 z-30 flex items-end justify-center" role="presentation">
+            <button type="button" className="absolute inset-0 h-full w-full bg-[rgba(20,18,15,0.7)]" aria-label="Close" onClick={() => setTableSheet(false)} />
+            <form className="relative w-full max-w-[430px] rounded-t-[16px] bg-surface fibre px-[22px] pb-[30px] pt-5" aria-label="Your table" onSubmit={(e) => { e.preventDefault(); const v = tableDraft.trim(); if (!/^[A-Za-z0-9-]{1,8}$/.test(v)) return; cart.setTableNo(v); setTableSheet(false); }} noValidate>
+              <h2 className="serif text-[25px] leading-[1.05]">Which table?</h2>
+              <p className="mt-[5px] text-[12.5px] text-fg-muted">The number is on the card on your table.</p>
+              <input value={tableDraft} onChange={(e) => setTableDraft(e.target.value)} inputMode="numeric" maxLength={8} aria-label="Table number" autoFocus className="tabular mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg" />
+              <button type="submit" className="btn-primary press mt-4" data-keep-table>Keep</button>
+            </form>
+          </div>
+        ) : null}
         <div className="flex gap-[9px] overflow-x-auto px-[22px] pb-4" role="tablist" aria-label="Categories">
           {menu.menus.map((m) => (
             <Chip key={m.id} on={m.name === category} onClick={() => setCategory(m.name)}>{m.name}</Chip>
