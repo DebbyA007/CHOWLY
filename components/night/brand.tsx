@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLayoutEffect, useRef } from "react";
 import { animate, utils } from "animejs";
 import { MARK_DOT, MARK_INK, MARK_PATH, MARK_STROKE, MARK_VIEWBOX } from "@/lib/brand";
@@ -28,8 +29,9 @@ export function Wordmark({ size = 12, className = "" }: { size?: number; classNa
   );
 }
 
-// Horizontal for the headers and the waiter chrome; stacked for the landing, where the
-// mark draws in once.
+// Horizontal for the headers and the waiter chrome, where it is the way home: a real
+// link to the door, mark and wordmark together, tall enough to tap. Stacked for the
+// landing, which is home, where the mark draws in once.
 export function Lockup({ variant = "horizontal", className = "" }: { variant?: "horizontal" | "stacked"; className?: string }) {
   if (variant === "stacked") {
     return (
@@ -40,10 +42,10 @@ export function Lockup({ variant = "horizontal", className = "" }: { variant?: "
     );
   }
   return (
-    <div className={`flex items-center gap-[8px] ${className}`} data-lockup="horizontal">
+    <Link href="/" aria-label="CHOWLY, home" className={`home press -my-[14px] inline-flex min-h-[44px] items-center gap-[8px] py-[14px] pr-2 ${className}`} data-lockup="horizontal" data-home>
       <Mark size={16} />
       <Wordmark size={12} className="translate-y-[1px]" />
-    </div>
+    </Link>
   );
 }
 

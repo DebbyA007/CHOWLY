@@ -87,6 +87,13 @@ html[data-warm] [data-splash] {
   display: none;
 }
 
+/* The lockup is the way home; a keyboard sees where it is. */
+.home:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
 /* The wordmark: Newsreader 400, all caps, tracked 0.15em, bone. The only all-caps setting. */
 .wordmark {
   font-family: var(--font-serif);
