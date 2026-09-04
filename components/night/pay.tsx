@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import type { SerializedOrder } from "@/lib/orders";
 import { clockDate, clockTime, shortName } from "@/lib/clock";
@@ -14,6 +14,7 @@ import { selectOrder } from "./selection";
 import { ConnectionBar, useFreshness } from "./connection";
 import { isPending } from "./pending";
 import { PaySkeleton } from "./skeleton";
+import { useArrival } from "./arrival";
 
 type Method = "CARD" | "MOBILE_MONEY" | "CASH";
 const METHODS: { value: Method; label: string; how: string; paid: string }[] = [
@@ -95,20 +96,24 @@ function PayBody({ order, api, fresh }: { order: SerializedOrder; api: ReturnTyp
   const busy = api.busy === "pay";
   const reduce = usePrefersReducedMotion();
   const root = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  const entrance = useArrival();
+  useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
     const parts = [".summary", ".method", ".action"];
+    if (!entrance) {
+      utils.set(parts, { opacity: 1 });
+      return;
+    }
     if (reduce) {
       animate(parts, { opacity: [0, 1], duration: 200 });
       return;
     }
-    utils.set(parts, { opacity: 1 });
     createTimeline({ defaults: { ease: "outQuart" } })
       .add(".summary", { opacity: [0, 1], y: [10, 0], duration: 450 }, 40)
       .add(".method", { opacity: [0, 1], y: [8, 0], duration: 360, delay: stagger(80) }, "-=250")
       .add(".action", { opacity: [0, 1], y: [10, 0], duration: 380 }, "-=200");
-  }, [order.id, reduce]);
+  }, [order.id, reduce, entrance]);
   function choose(value: Method, target: HTMLElement) {
     setMethod(value);
     if (reduce) return;
@@ -185,9 +190,17 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
   const [rating, setRating] = useState(false);
   const payment = order.payment!;
   const method = METHODS.find((m) => m.value === payment.method) ?? METHODS[0]!;
-  useEffect(() => {
+  const entrance = useArrival();
+  useLayoutEffect(() => {
     const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
       const parts = [".receipt", ".line", ".stamp", ".after"];
+      // on a tab press the receipt is simply there, printed
+      if (!entrance) {
+        utils.set(parts, { opacity: 1 });
+        utils.set(".stamp", { opacity: 0.9, rotate: -8 });
+        utils.set(".receipt", { clipPath: "inset(0 0 0 0)" });
+        return;
+      }
       if (self?.matches.reduceMotion) {
         animate(parts, { opacity: [0, 1], duration: 200 });
         utils.set(".receipt", { clipPath: "inset(0 0 0 0)" });
@@ -205,7 +218,7 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
     });
     return () => scope.revert();
     // prints once per payment
-  }, [order.id]);
+  }, [order.id, entrance]);
   useEffect(() => {
     if (!rating) return;
     const el = root.current?.querySelector<HTMLElement>(".sheet");

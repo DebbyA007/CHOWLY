@@ -13,6 +13,7 @@ import { useCart } from "./use-cart";
 import { useMenu } from "./use-menu";
 import { preloadMine } from "./use-order";
 import { ConnectionBar, useOnline } from "./connection";
+import { useArrival } from "./arrival";
 import { MenuSkeleton } from "./skeleton";
 
 // Screen 2. Header, category chips, the dish list, the persistent cart bar, the tabs.
@@ -45,6 +46,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
   const [tableSheet, setTableSheet] = useState(false);
   const [tableDraft, setTableDraft] = useState("");
   const net = useOnline();
+  const entrance = useArrival();
   const section = menu.menus.find((m) => m.name === category) ?? menu.menus[0];
 
   useEffect(() => {
@@ -73,12 +75,12 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
           .add(".sheet li", { opacity: 0, y: -18, duration: 160, ease: "inQuad", delay: stagger(30) })
           .add(".sheet", { y: [0, -44], opacity: [1, 0], duration: 320, ease: "inQuad" }, "-=40");
       });
-      if (soft) return;
+      if (soft || !entrance) return;
       utils.set(".row", { opacity: 0 });
       animate(".row", { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(45, { start: 80 }) });
     });
     return () => scope.current?.revert();
-  }, []);
+  }, [entrance]);
   useEffect(() => {
     if (!review) return;
     const el = root.current?.querySelector<HTMLElement>(".sheet");

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { markTabPress } from "./arrival";
 
 // The chrome every screen shares: the header block, the pill, the bottom tab bar.
 // Text and simple dots only; no icons anywhere, by design.
@@ -50,7 +51,7 @@ export function TabBar({ tabs, active, tone = "accent", onHover }: { tabs: Tab[]
       {tabs.map((tab) => {
         const on = tab.label === active;
         return (
-          <Link key={tab.href} href={tab.href} aria-current={on ? "page" : undefined} onMouseEnter={() => onHover?.(tab.label)} onFocus={() => onHover?.(tab.label)} onTouchStart={() => onHover?.(tab.label)} className={`press tone flex-1 text-center text-[12px] leading-[1.2] ${on ? "font-semibold" : "text-fg-muted"}`} style={on ? { color: colour } : undefined}>
+          <Link key={tab.href} href={tab.href} aria-current={on ? "page" : undefined} onClick={markTabPress} onMouseEnter={() => onHover?.(tab.label)} onFocus={() => onHover?.(tab.label)} onTouchStart={() => onHover?.(tab.label)} className={`press tone flex-1 text-center text-[12px] leading-[1.2] ${on ? "font-semibold" : "text-fg-muted"}`} style={on ? { color: colour } : undefined}>
             {tab.label}
             {on ? <span className="tone mx-auto mt-[6px] block h-[5px] w-[5px] rounded-full" style={{ background: colour }} aria-hidden="true" /> : null}
           </Link>

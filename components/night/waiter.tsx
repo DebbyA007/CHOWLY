@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, createTimeline, stagger, utils } from "animejs";
 import type { SerializedOrder } from "@/lib/orders";
 import { clockTime, mmss, shortName } from "@/lib/clock";
@@ -16,6 +16,7 @@ import { useMenu } from "./use-menu";
 import { useRail, type Rail } from "./use-rail";
 import { preloadWaiterMenu, useWaiterMenu } from "./use-waiter-menu";
 import { readWaiter, writeWaiter } from "./waiter-session";
+import { useArrival } from "./arrival";
 
 const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 const KITCHEN_AFTER_SECONDS = 120;
@@ -74,7 +75,8 @@ export function WaiterPicker({ rail, chosen, onChoose, onClose }: { rail: Rail; 
 // appear later, on a poll or a filter, slide in from the right.
 function useRowEntrance(listRef: React.RefObject<HTMLElement | null>, ids: string, reduce: boolean) {
   const known = useRef<Set<string>>(new Set());
-  useEffect(() => {
+  const entrance = useArrival();
+  useLayoutEffect(() => {
     const list = listRef.current;
     if (!list) return;
     const keyOf = (el: HTMLElement) => el.dataset.orderId ?? el.dataset.tableId ?? "";
@@ -82,13 +84,18 @@ function useRowEntrance(listRef: React.RefObject<HTMLElement | null>, ids: strin
     const firstBatch = known.current.size === 0;
     fresh.forEach((el) => known.current.add(keyOf(el)));
     if (fresh.length === 0) return;
+    // on a tab press the first batch is simply there; rows that come later still slide in
+    if (firstBatch && !entrance) {
+      utils.set(fresh, { opacity: 1 });
+      return;
+    }
     if (reduce) {
       animate(fresh, { opacity: [0, 1], duration: 200 });
       return;
     }
     if (firstBatch) animate(fresh, { opacity: [0, 1], y: [10, 0], duration: 380, ease: "outQuad", delay: stagger(45) });
     else animate(fresh, { opacity: [0, 1], x: [28, 0], duration: 420, ease: "outQuart" });
-  }, [ids, reduce, listRef]);
+  }, [ids, reduce, listRef, entrance]);
 }
 
 function Row({ order, status, time, colour, meta }: { order: SerializedOrder; status: Status; time: string; colour: string; meta: string }) {
@@ -187,22 +194,26 @@ export function WaiterOrder({ id }: { id: string }) {
   const entered = useRef(false);
   const wasServed = useRef(served);
   const fresh = useFreshness(rail.error, rail.seenAt);
+  const entrance = useArrival();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!order || entered.current || !root.current) return;
     entered.current = true;
     const parts = [".card-in", ".line", ".field", ".action"].filter((s) => root.current!.querySelector(s));
+    if (!entrance) {
+      utils.set(parts, { opacity: 1 });
+      return;
+    }
     if (reduce) {
       animate(parts, { opacity: [0, 1], duration: 200 });
       return;
     }
-    utils.set(parts, { opacity: 1 });
     createTimeline({ defaults: { ease: "outQuart" } })
       .add(".card-in", { opacity: [0, 1], y: [10, 0], duration: 450 }, 40)
       .add(".line", { opacity: [0, 1], x: [-6, 0], duration: 320, delay: stagger(50) }, "-=250")
       .add(".field", { opacity: [0, 1], y: [8, 0], duration: 380, delay: stagger(110) }, "-=200")
       .add(".action", { opacity: [0, 1], y: [10, 0], duration: 380 }, "-=200");
-  }, [order, reduce]);
+  }, [order, reduce, entrance]);
 
   useEffect(() => {
     if (served && !wasServed.current) {
@@ -401,13 +412,18 @@ export function WaiterMenu() {
   const entered = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
   const net = useOnline();
-  useEffect(() => {
+  const entrance = useArrival();
+  useLayoutEffect(() => {
     if (!menu || entered.current || !root.current) return;
     const rows = root.current.querySelectorAll(".row");
     if (rows.length === 0) return;
     entered.current = true;
+    if (!entrance) {
+      utils.set(rows, { opacity: 1 });
+      return;
+    }
     animate(rows, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(40, { start: 60 }) });
-  }, [menu, reduce]);
+  }, [menu, reduce, entrance]);
   const off = menu?.menus.flatMap((m) => m.items).filter((i) => !i.available).length ?? 0;
   async function toggle(item: { id: string; available: boolean }, target: HTMLElement) {
     setNotice(null);

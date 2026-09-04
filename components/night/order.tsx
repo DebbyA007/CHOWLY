@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, createTimeline, stagger, utils } from "animejs";
 import type { SerializedOrder } from "@/lib/orders";
 import { clockTime, mmss, promiseLabel } from "@/lib/clock";
@@ -14,6 +14,7 @@ import { ConnectionBar, useFreshness } from "./connection";
 import { abandonPlacement, isPending, retryPlacement, type Pending } from "./pending";
 import { OrderSkeleton } from "./skeleton";
 import { Pot, type PotState } from "./pot";
+import { useArrival } from "./arrival";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
 // Once the promise is spent, the arc closes again and ochre crosses to red over this long.
@@ -74,6 +75,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   // Still on its way to the kitchen, or refused: the same screen, said plainly.
   const sending = isPending(order.id);
   const failed = sending && pending?.status === "failed";
+  const entrance = useArrival();
   const ring = useRef<SVGCircleElement>(null);
   const reduce = usePrefersReducedMotion();
   const [sheet, setSheet] = useState<"report" | "rate" | null>(null);
@@ -151,18 +153,21 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   // Not again when the kitchen's order replaces the provisional one: that is the same
   // screen carrying on, and the pieces are already there.
   const enteredFor = useRef<string | null>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
     const continuing = enteredFor.current !== null && isPending(enteredFor.current) && !isPending(order.id);
     enteredFor.current = order.id;
     if (continuing) return;
     const parts = [".pot-wrap", ".ring-wrap", ".caption", ".late-note", ".late-actions", ".step", ".items"].filter((s) => el.querySelector(s));
+    if (!entrance) {
+      utils.set(parts, { opacity: 1 });
+      return;
+    }
     if (reduce) {
       animate(parts, { opacity: [0, 1], duration: 200 });
       return;
     }
-    utils.set(parts, { opacity: 1 });
     const tl = createTimeline({ defaults: { ease: "outQuart" } })
       .add(".pot-wrap", { opacity: [0, 1], y: [6, 0], duration: 500 }, 40)
       .add(".ring-wrap", { opacity: [0, 1], scale: [0.96, 1], duration: 600 }, "-=380")
@@ -173,7 +178,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
       tl.pause();
     };
     // once per mount of this order, not on every poll
-  }, [order.id, reduce]);
+  }, [order.id, reduce, entrance]);
 
   // Crossing the promise while the screen is open brings the note and the actions in.
   const wasLate = useRef(isLate);
