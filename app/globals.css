@@ -190,6 +190,24 @@ body {
 .struck {
   text-shadow: 0 -1px 0 rgba(240, 235, 225, 0.22);
 }
+/* The receipt's foot is torn. */
+.torn-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9px), 97.5% 100%, 95% calc(100% - 9px), 92.5% 100%, 90% calc(100% - 9px), 87.5% 100%, 85% calc(100% - 9px), 82.5% 100%, 80% calc(100% - 9px), 77.5% 100%, 75% calc(100% - 9px), 72.5% 100%, 70% calc(100% - 9px), 67.5% 100%, 65% calc(100% - 9px), 62.5% 100%, 60% calc(100% - 9px), 57.5% 100%, 55% calc(100% - 9px), 52.5% 100%, 50% calc(100% - 9px), 47.5% 100%, 45% calc(100% - 9px), 42.5% 100%, 40% calc(100% - 9px), 37.5% 100%, 35% calc(100% - 9px), 32.5% 100%, 30% calc(100% - 9px), 27.5% 100%, 25% calc(100% - 9px), 22.5% 100%, 20% calc(100% - 9px), 17.5% 100%, 15% calc(100% - 9px), 12.5% 100%, 10% calc(100% - 9px), 7.5% 100%, 5% calc(100% - 9px), 2.5% 100%, 0 calc(100% - 9px));
+}
+/* The stamp on a paid receipt: lands once, then is simply there. */
+.stamp {
+  display: inline-block;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 3px 9px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  transform: rotate(-8deg);
+  opacity: 0.9;
+}
 /* Keyboard focus. */
 :focus-visible {
   outline: 2px solid var(--accent);

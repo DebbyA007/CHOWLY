@@ -1501,3 +1501,15 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   sizes and short fibres at many angles. The rule is two pixels of uneven weight with
   small breaks. The struck numerals carry a bone hairline above them, ink sitting on the
   surface, in place of a drop shadow that vanished into the ground.
+
+### Correction: `fix: restore the receipt's stamp border and torn foot`
+
+- The paper rewrite replaced the whole paper block of the stylesheet and dropped two
+  rules with it: the stamp's border and the receipt's torn foot. The after-crop of the
+  receipt from production showed "PAID" as bare text. Restored. Found by the crop, not
+  by any check; the gate does not know what a stamp looks like.
+- **Also recorded:** the commit named "the ring, driven from placedAt by one animation"
+  carries the motion changes to the landing, menu, waiter and pay screens as well,
+  because a failed `git add` of an already-deleted file aborted the commit that should
+  have held them, and the next commit swept the staged files up. It is pushed, and
+  `main` is not amended. The paper commit is as named.
