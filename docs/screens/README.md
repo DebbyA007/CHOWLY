@@ -98,3 +98,16 @@ landed door; `motion/*/splash-reduced-*` are the same under reduced motion, a st
 lockup and a cross-fade. Sheets: `chromium-splash.png`, `webkit-splash.png`,
 `chromium-splash-reduced.png`. The warm start that follows, in the same context, shows
 no splash.
+
+## The static door and the way home
+
+From production under iPhone 13 emulation, both engines, on the sheets
+`chromium-home.png` and `webkit-home.png`. `motion/*/cold-*` are the cold start on the
+now static door, frames 120ms apart, the splash filling, parking and handing off.
+`motion/*/home-*` are frames 100ms apart after tapping the lockup on the Order tab while
+the order still read "Sending to the kitchen": the door entering with no splash. Then
+`states/home-back-on-order` is the Order tab afterwards, with the order landed and
+nothing lost, and `states/home-focus` is the header with the lockup focused from the
+keyboard, its ring in ochre. `states/warm-*.png` are the first frames of a warm start,
+the door already there and the splash never displayed; the measurement behind that is in
+the AI log, taken at the first animation frame rather than guessed from a screenshot.

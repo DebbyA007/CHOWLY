@@ -282,12 +282,16 @@ process, not the model, is what kept those from shipping.
 On a cold start `/` opens with the splash: the mark's arc fills as a progress ring
 driven by the fonts, the menu request and the photographs actually loading, the dot rides
 the head of the fill and parks in the gap once the app is ready, and the door rises under
-a cross-dissolve, about 1.8 seconds in all, once per session. Then `/` shows the dining
-room across the top, the CHOWLY lockup (the mark, an open ochre
+a cross-dissolve, about 1.8 seconds in all, once per session: an inline script reads the
+session's cookie before the page paints, so a warm start never sees the splash and the
+door stays a pre-rendered page. Then `/` shows the dining room across the top, the
+CHOWLY lockup (the mark, an open ochre
 ring with a dot in its opening, over the wordmark), the restaurant's name and address,
 "I'm a guest" and "I'm a waiter", and the table. On first arrival the mark's arc draws in
 the way the ring sweeps and the dot lands last, once per session. The identity is
-`docs/BRAND.md`; every header carries the horizontal lockup. When the link carried `?table=12`, as the card
+`docs/BRAND.md`; every header carries the horizontal lockup, which is the way home: a
+real link named "CHOWLY, home", 44px tall, with a focus ring. Going home never replays
+the splash and never loses an order in flight. When the link carried `?table=12`, as the card
 on a real table would, it reads "You're at table 12" with Change. Without one the door
 asks: a small field, "It is on the card on your table", kept for the session on Keep or
 on tapping "I'm a guest", which will not go through without a table and says why. The

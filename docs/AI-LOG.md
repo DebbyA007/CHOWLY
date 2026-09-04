@@ -1994,3 +1994,68 @@ head's rotation and the three signals. Sheets `chromium-splash.png`,
   plain cross-fade: splash 0.97 with the room at 0.33 (Chromium, +1930ms), gone by
   +2760ms. In WebKit the very first frame, +770ms, showed the arc empty for one
   capture before the stylesheet's rule took hold; every frame after was still.
+
+## The static door, and the way home
+
+### Commit: `perf: the door pre-renders; the warm start is decided before first paint`
+
+- Reading the warm-start cookie with `cookies()` made `/` a dynamic route, so every cold
+  start waited on a Vercel function before its first byte. Measured from here before
+  the change, six requests, the first after the function had gone idle: 1.53 s, then
+  0.75, 0.72, 0.70, 0.72, 0.71 s; the static `/menu` alongside answered in 0.46 to
+  0.51 s, which is the round trip to the region itself.
+- The trade taken: the door is pre-rendered again (the build lists `○ /`), splash
+  markup and all, and the warm start is decided by an inline script placed as the first
+  thing in `<body>` in the root layout. A classic parser-blocking script runs before
+  any element after it is parsed, let alone painted, so the check is guaranteed to run
+  before first paint: it reads the cookie and sets `data-warm` on the document, and one
+  stylesheet rule hides the splash. The CSP already carries `script-src 'unsafe-inline'`
+  for Next's own hydration, so nothing changed there. The splash component then unmounts
+  in its first effect, and the landing reads the same mark to decide whether to wait for
+  a handoff. Hydration is told to ignore the attribute on `<html>`.
+- Going home later in the same session is a client-side navigation, which never re-runs
+  the inline script, so the splash marks the document warm itself at the handoff; the
+  same rule hides any later mount of the splash before its first frame.
+- **First byte, measured on production.** Before, six requests with the function idle
+  first: 1.53 s, then 0.75, 0.72, 0.70, 0.72, 0.71 s, every one `x-vercel-cache: MISS`
+  with `cache-control: private, no-cache, no-store`. After, twelve requests: median
+  0.457 s, fastest 0.436 s, slowest 0.973 s, every one `x-vercel-cache: HIT` with
+  `cache-control: public, max-age=0, must-revalidate`; `/menu`, which has always been
+  static, measured 0.436 s median in the same run, so the door now answers at the speed
+  of the static route rather than the function's.
+- **The warm start is measured, not claimed.** An init script installed before any page
+  script records the document at its first animation frame, which is at or before first
+  paint. Production, both engines. Cold: `warm=null`, the splash in the DOM with
+  `display: flex`, visible. Warm reload of the same context: `warm="1"`, the splash in
+  the DOM with `display: none`, not visible, and across the whole first 900ms the probe
+  never once caught it displayed. A fresh context is cold again. The first attempt at
+  this evidence was wrong and was thrown away: it read the DOM at `commit`, before the
+  body had parsed, so it recorded "no splash" on a cold start and then caught the splash
+  on the reload, which is the opposite of what happens. The recorder replaced the guess.
+
+### Commit: `feat: the lockup goes home`
+
+- The horizontal lockup in every header, guest and waiter, is now `<a href="/">`, mark
+  and wordmark together, named "CHOWLY, home", with a 44px tall target (the row is 16px;
+  the link's padding reaches above and below it without moving the layout) and a
+  visible focus ring in ochre for a keyboard. Being a real link it middle-clicks and
+  long-presses as one. The landing's stacked lockup is not a link: the landing is home.
+- **Measured on production, both engines.** The link reports `A href="/"`, accessible
+  name "CHOWLY, home", a box of 98 by 44 (the 44 is the requirement), not nested inside
+  another link or button, and not overlapping the header pill.
+- **The focus ring.** Chromium: Tab from a page with nothing focused reaches the lockup
+  on the first hop, `:focus-visible` matches, and the computed outline is
+  `solid rgb(210, 162, 76) 2px`, the ochre. WebKit: Tab does not reach it in eight
+  hops, because macOS Safari keeps links out of the tab order unless "Press Tab to
+  highlight each item" is switched on; that is the platform's setting, not the app's.
+  When the link does take focus in WebKit, `:focus-visible` matches, so the same rule
+  applies there. The first run of this check was wrong and was redone: it focused the
+  link programmatically first and then pressed Tab, which moved the ring past the link
+  and measured nothing.
+- **An order in flight.** Verified rather than assumed, in both engines: with the
+  placement request held three and a half seconds, the lockup was tapped while the Order
+  tab still read "Sending to the kitchen" and the cart still held the line. The door
+  opened with no splash, the placement kept running from its store outside the screen,
+  and the Order tab afterwards showed "Order #1001", state waiting, with the bottled
+  water line and its total. Nothing is lost by going home. Home from the waiter side
+  reaches the door in both engines too.
