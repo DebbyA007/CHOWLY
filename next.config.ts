@@ -11,6 +11,7 @@ const isDev = process.env.NODE_ENV === "development";
 // - style-src 'unsafe-inline': inline style attributes, which the countdown ring sets
 //   for its stroke offset, and the style tags Next.js injects during development.
 // - connect-src ws: in development only: the Fast Refresh websocket.
+// - upgrade-insecure-requests outside development only: see the note on the directive.
 // next/font needs nothing extra. Fonts are downloaded at build time and served from
 // this origin, so font-src 'self' covers them.
 const csp = [
@@ -24,7 +25,9 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
+  // Production only. WebKit upgrades localhost subresources too, and a plain-http dev
+  // server cannot answer https, so with this on Safari refused every stylesheet in dev.
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 const securityHeaders = [

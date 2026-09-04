@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { createDraggable, createScope } from "animejs";
-import { play } from "@/lib/sound";
 import { useStaffPin } from "../staff-pin";
 import { ServeDialog, type Staff } from "./serve-dialog";
 import { SpikeTicket, type RailOrder } from "./spike-ticket";
@@ -168,7 +167,6 @@ export function Rail() {
           onClose={() => setServing(null)}
           onServed={(updated) => {
             setServing(null);
-            void play("spike");
             setToast(`${updated.reference} served`);
             void mutate((current) => (current ? { ...current, orders: current.orders.map((order) => (order.id === updated.id ? updated : order)) } : current), { revalidate: true });
           }}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { play } from "@/lib/sound";
 
 // A rating punched into the ticket like a rail ticket: five holes, one to five. Punching
 // a number punches every hole up to it. Posts to the rating endpoint, which upserts on
@@ -18,10 +17,7 @@ export function PunchHoles({ value, onChange, name }: { value: number | null; on
             role="radio"
             aria-checked={value === score}
             aria-label={`${score} of 5`}
-            onClick={() => {
-              void play("spike");
-              onChange(score);
-            }}
+            onClick={() => onChange(score)}
             className={`tabular flex h-11 w-11 items-center justify-center rounded-full border-[3px] text-base font-bold ${punched ? "border-soot bg-steel text-paper" : "border-ink bg-paper text-ink"}`}
           >
             {score}

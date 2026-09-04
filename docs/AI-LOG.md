@@ -1226,3 +1226,31 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   are hard offsets; no `rgba(0,0,0,.1)` exists. Forty distinct colour literals, none
   with a hue between 240 and 300 degrees at any saturation above ten percent, and no
   oklch or oklab literal at all. The lamp pools are dots and the steel is lines.
+
+## Phase 5: Night Service, the decided design
+
+### The brief
+
+- **Decided:** the design handoff at `docs/design-ref/design_handoff_chowly_night_service/`,
+  direction 1c, Night Service. High fidelity: colours, type, spacing and radii matched
+  closely, the conventional structure kept. On top of it: paper as surface detail
+  borrowed from The Pass repaired, anime.js throughout but restrained, real photography,
+  warm normal copy. Two corrections to CLAUDE.md. Sound removed wherever it survives.
+  The role switch diagnosed and fixed.
+- **This branch** was cut from main plus the handoff, so it does not carry the
+  directions branch. The server-side pieces that matter to the product come across by
+  file: the fail-closed staff pin flag, the demo endpoint the verification script uses
+  to make an order late, the error class split that lets the tests run under Node, and
+  the CSP fix that keeps `upgrade-insecure-requests` out of development so Safari can
+  load a plain-http dev server.
+- **Photography, decided with the user:** self-hosted licensed photographs, not
+  illustration. The app's own CSP is `img-src 'self' data: blob:`, so every image is
+  downloaded, cropped and served from the repo; the source and licence of each is
+  recorded in `docs/PHOTOGRAPHY.md`.
+
+### Commit: `chore: carry the server fixes over and remove the sound feature`
+
+- The staff pin check is on unless `STAFF_PIN_REQUIRED` is exactly `false`; the demo
+  endpoint answers 404 unless `DEMO_CONTROLS` is exactly `true`; `HttpError` lives in
+  `lib/errors.ts`; the CSP sends `upgrade-insecure-requests` outside development only.
+  The sound module, its tag and its four cue calls are gone.

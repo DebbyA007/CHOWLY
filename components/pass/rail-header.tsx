@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { RoleTags } from "./role-tags";
-import { SoundTag } from "./sound-tag";
 
 // The brass rail runs across the top of every screen. The name hangs from it on a
 // brass plate; the role tags hang beside it.
@@ -14,7 +13,6 @@ export function RailHeader() {
           CHOWLY
         </Link>
         <div className="ml-auto flex flex-wrap items-start justify-end gap-3">
-          <SoundTag />
           <RoleTags />
         </div>
       </div>
