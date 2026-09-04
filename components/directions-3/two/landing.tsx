@@ -49,7 +49,7 @@ export function RunLanding() {
           </div>
         </div>
         <div className="min-w-0 lg:order-1">
-          <h1 className="name syne text-[clamp(3rem,11.5vw,8rem)] leading-[0.9]" style={{ opacity: 0 }}>CHOWLY</h1>
+          <h1 className="name syne text-[clamp(3rem,6.5vw,6rem)] leading-[0.9]" style={{ opacity: 0 }}>CHOWLY</h1>
           <p className="line mt-3 max-w-md text-[15px] leading-snug sm:text-lg" style={{ opacity: 0 }}>
             Turn the tray, pick a bowl, and watch the runner carry it across the room to your table. Settle up when it lands.
           </p>
