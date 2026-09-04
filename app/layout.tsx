@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Newsreader, Space_Grotesk } from "next/font/google";
+import { SPLASH_COOKIE } from "@/lib/splash";
 import "./globals.css";
 
 // Two families and no third. Newsreader for display only: the restaurant name, screen
@@ -34,7 +35,7 @@ export const viewport: Viewport = {
 // Runs while the document is still being parsed, before anything below it can paint:
 // a session that has already had the splash marks the document warm, and the
 // stylesheet keeps the splash from showing. The page itself stays static.
-const WARM_START = "try{if(/(^|; )chowly-splash=1(;|$)/.test(document.cookie))document.documentElement.setAttribute('data-warm','1')}catch(e){}";
+const WARM_START = `try{if(document.cookie.split('; ').indexOf('${SPLASH_COOKIE}=1')>-1)document.documentElement.setAttribute('data-warm','1')}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
