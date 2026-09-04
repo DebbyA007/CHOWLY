@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { RoleTags } from "./role-tags";
 
 // The brass rail runs across the top of every screen of The Pass. The art-direction
-// walkthroughs under /directions-2 bring their own chrome, so it steps aside there.
+// walkthroughs under /directions-2 and /directions-3 bring their own chrome, so it steps aside there.
 export function RailHeader() {
   const pathname = usePathname();
-  if (pathname.startsWith("/directions-2")) return null;
+  if (pathname.startsWith("/directions-2") || pathname.startsWith("/directions-3")) return null;
   return (
     <header className="relative">
       <div className="brass-bar h-[22px]" />

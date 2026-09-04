@@ -9,7 +9,7 @@ with the ticket opened, the chef and bartender recorded and the order served. Th
 `/directions-2/one`, `/directions-2/two` and `/directions-2/three`, indexed at
 `/directions-2`. Every screen was captured at 390 first and then at 1440, into this folder.
 
-The three share one engine (`components/directions-2/shared`): the cart, the order poll,
+The three share one engine (`components/walkthrough`, first written as `components/directions-2/shared`): the cart, the order poll,
 the rail, the drag-to-serve, the demo control and the fourteen dish drawings as geometry.
 Only the material, the type, the layout and the clock differ, which is the point: the
 comparison is of directions, not of feature sets.

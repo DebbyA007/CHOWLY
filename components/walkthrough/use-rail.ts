@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useSWR from "swr";
+import useSWR, { preload } from "swr";
 import type { SerializedOrder } from "@/lib/orders";
 
 export type Staff = {
@@ -14,17 +14,22 @@ type Rail = { now: string; orders: SerializedOrder[]; staff: Staff };
 // The waiter side, presentation-free: the orders polled every three seconds, the staff
 // lists, a ticking clock, and serve(), which records who served, cooked and mixed and
 // moves the ticket from the response before the next poll confirms it.
+export const RAIL_KEY = "/api/waiter/orders";
+
+export async function railFetcher(url: string): Promise<Rail> {
+  const response = await fetch(url);
+  if (response.status === 401) throw new Error("This deployment has locked the waiter side (STAFF_PIN_REQUIRED is on).");
+  if (!response.ok) throw new Error("The orders could not be loaded.");
+  return response.json();
+}
+
+// Warms the client cache before the floor is opened, so the switch shows tickets at once.
+export function preloadRail() {
+  void preload(RAIL_KEY, railFetcher);
+}
+
 export function useRail() {
-  const { data, error, mutate } = useSWR<Rail>(
-    "/api/waiter/orders",
-    async (url: string) => {
-      const response = await fetch(url);
-      if (response.status === 401) throw new Error("This deployment has locked the waiter side (STAFF_PIN_REQUIRED is on).");
-      if (!response.ok) throw new Error("The orders could not be loaded.");
-      return response.json();
-    },
-    { refreshInterval: 3000 },
-  );
+  const { data, error, mutate } = useSWR<Rail>(RAIL_KEY, railFetcher, { refreshInterval: 3000, keepPreviousData: true });
   const [now, setNow] = useState<number>(() => Date.now());
   useEffect(() => {
     const t = window.setInterval(() => setNow(Date.now()), 1000);

@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Dish } from "../shared/dishes";
-import { DemoControls } from "../shared/demo-controls";
-import { useOrder } from "../shared/use-order";
+import { Dish } from "@/components/walkthrough/dishes";
+import { DemoControls } from "@/components/walkthrough/demo-controls";
+import { useOrder } from "@/components/walkthrough/use-order";
 import { GLAZE_PALETTE, GlazeFrame } from "./frame";
 
 const base = "/directions-2/three";

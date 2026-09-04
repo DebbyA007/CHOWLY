@@ -1591,3 +1591,23 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   a feature that is off by default and that nobody asked for is decoration with a
   switch. The rejection is recorded here because it is a design decision the document
   has to own.
+
+### Commit: `refactor: move the walkthrough engine and make the role switch immediate`
+
+- **The cause of the slow role switch, measured on the production build.** Switching
+  to Customer is a full server render of a `force-dynamic` page that waits on the
+  database before sending any HTML (0.41s of server time from this machine), and then
+  the menu replays its whole entrance choreography, so the felt time from tapping the
+  tag to seeing the strips was 2.3s and 3.2s on two consecutive switches. Switching to
+  Waiter renders an empty shell instantly and then waits for the rail API, which makes
+  seven sequential database round trips through Prisma's nested includes (2.5s from this
+  machine, far less from Vercel next to Neon, but every round trip counts on a phone).
+  Felt: 1.3s the first time, 60ms the second, because SWR had it cached by then.
+- **The fix, in the engine every direction-3 walkthrough uses:** the menu is read once
+  through the API into the client cache and kept, the rail is kept with the previous data
+  while it revalidates, both are preloaded when the frame mounts and again when a tag is
+  hovered or focused, the menu API is cached on the server for thirty seconds, and the
+  entrance choreography plays once per session. The pages themselves carry no server
+  data, so a switch is a client navigation of a prefetched static route.
+- **Also:** the engine moves from `components/directions-2/shared` to
+  `components/walkthrough`, since a third round shares it.

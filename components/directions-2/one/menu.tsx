@@ -5,8 +5,8 @@ import { useEffect, useRef } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import type { MenuView } from "@/lib/menu";
 import { formatNaira } from "@/lib/money";
-import { Dish } from "../shared/dishes";
-import { useCart } from "../shared/use-cart";
+import { Dish } from "@/components/walkthrough/dishes";
+import { useCart } from "@/components/walkthrough/use-cart";
 import { LINEN_PALETTE, LinenFrame } from "./frame";
 
 const base = "/directions-2/one";

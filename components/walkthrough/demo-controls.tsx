@@ -1,6 +1,7 @@
 "use client";
 
 // The demo control. Rendered only by the walkthrough routes under /directions-2 and
+// /directions-3, and
 // refused by the server unless DEMO_CONTROLS is exactly true, so it cannot be reached
 // from the real customer flow or from production. Labelled as what it is.
 export function DemoControls({ waitMinutes, busy, onFastForward }: { waitMinutes: number; busy: boolean; onFastForward: (minutes: number) => void }) {

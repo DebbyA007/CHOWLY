@@ -4,9 +4,9 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { SerializedOrder } from "@/lib/orders";
 import { computeHeat, clock } from "@/components/pass/heat";
 import { usePrefersReducedMotion } from "@/components/pass/use-reduced-motion";
-import { Dish } from "../shared/dishes";
-import { attachServeDrag } from "../shared/serve-drag";
-import { useRail } from "../shared/use-rail";
+import { Dish } from "@/components/walkthrough/dishes";
+import { attachServeDrag } from "@/components/walkthrough/serve-drag";
+import { useRail } from "@/components/walkthrough/use-rail";
 import { GLAZE_PALETTE, GlazeFrame } from "./frame";
 
 // The plan of tables on the terrazzo: every waiting order is a plate on its table, each
