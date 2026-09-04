@@ -2,14 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { animate, createScope, stagger, utils } from "animejs";
+import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import { mutate } from "swr";
 import type { MenuItemView, MenuView } from "@/lib/menu";
 import { formatNaira } from "@/lib/money";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Chip, Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
 import { DishPhoto } from "./photo";
-import { firstVisit } from "./once";
 import { useTicker } from "./ticker";
 import { useCart } from "./use-cart";
 import { useMenu } from "./use-menu";
@@ -48,7 +47,29 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
     scope.current = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
       const soft = self?.matches.reduceMotion === true;
       self?.add("sheet", (el: HTMLElement) => animate(el, soft ? { opacity: [0, 1], duration: 150 } : { opacity: [0, 1], y: [28, 0], duration: 240, ease: "outQuad" }));
-      if (soft || !firstVisit("menu")) return;
+      // Placing the order answers the tap at once: the lines leave upward one by one
+      // while the request runs. On success the sheet lifts away and the Order tab opens
+      // with the ring drawing in; on failure the lines come back and the error prints.
+      self?.add("sending", () => {
+        if (soft) return;
+        animate(".sheet li", { opacity: [1, 0.25], y: [0, -10], duration: 260, ease: "inQuad", delay: stagger(45) });
+        animate(".sheet .totals", { opacity: [1, 0.5], duration: 260 });
+      });
+      self?.add("unsend", () => {
+        if (soft) return;
+        animate(".sheet li", { opacity: 1, y: 0, duration: 220, ease: "outQuad" });
+        animate(".sheet .totals", { opacity: 1, duration: 220 });
+      });
+      self?.add("placed", (onDone: () => void) => {
+        if (soft) {
+          animate(".sheet", { opacity: [1, 0], duration: 150, onComplete: onDone });
+          return;
+        }
+        createTimeline({ onComplete: onDone })
+          .add(".sheet li", { opacity: 0, y: -18, duration: 160, ease: "inQuad", delay: stagger(30) })
+          .add(".sheet", { y: [0, -44], opacity: [1, 0], duration: 320, ease: "inQuad" }, "-=40");
+      });
+      if (soft) return;
       utils.set(".row", { opacity: 0 });
       animate(".row", { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(45, { start: 80 }) });
     });
@@ -60,11 +81,19 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
     if (el) scope.current?.methods.sheet?.(el);
   }, [review]);
 
+  const [placedRef, setPlacedRef] = useState<string | null>(null);
   async function place() {
+    scope.current?.methods.sending?.();
     const placed = await cart.place();
-    if (!placed) return;
+    if (!placed) {
+      scope.current?.methods.unsend?.();
+      return;
+    }
+    setPlacedRef(placed.reference);
     void mutate(MINE_KEY, (current: { orders: typeof placed[] } | undefined) => ({ orders: [placed, ...(current?.orders ?? [])] }), { revalidate: true });
-    router.push("/order");
+    const go = () => router.push("/order");
+    if (scope.current?.methods.placed) scope.current.methods.placed(go);
+    else go();
   }
 
   return (
@@ -99,16 +128,18 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
                   </li>
                 ))}
               </ul>
+              <div className="totals">
               <div className="rule mt-2" />
               <div className="flex items-center justify-between py-3 text-[12.5px] text-fg-muted"><span>Subtotal</span><span className="tabular">{formatNaira(cart.subtotalKobo)}</span></div>
               <div className="flex items-center justify-between pb-3 text-[12.5px] text-fg-muted"><span>VAT 7.5%</span><span className="tabular">{formatNaira(cart.totalKobo - cart.subtotalKobo)}</span></div>
               <div className="flex items-baseline justify-between"><span className="text-[13.5px] font-semibold">Total</span><span className="serif struck tabular text-[32px] text-accent">{formatNaira(cart.totalKobo)}</span></div>
+              </div>
               <label className="mt-5 block text-[12.5px] text-fg-muted">
                 Your table
                 <input value={cart.tableNo} onChange={(e) => cart.setTableNo(e.target.value)} inputMode="numeric" maxLength={8} aria-label="Table number" className="tabular mt-[10px] block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg" />
               </label>
               {cart.error ? <p role="alert" className="mt-3 text-[13px] font-semibold text-late">{cart.error}</p> : null}
-              <button type="submit" data-place className="btn-primary press mt-5" disabled={cart.placing || cart.count === 0}>{cart.placing ? "Placing your order" : "Place order"}</button>
+              <button type="submit" data-place className="btn-primary press mt-5" disabled={cart.placing || cart.count === 0 || placedRef !== null}>{placedRef ? `Order #${placedRef} placed` : cart.placing ? "Placing your order" : "Place order"}</button>
               <button type="button" onClick={() => setReview(false)} className="press mt-4 block w-full text-center text-[12.5px] text-fg-muted underline">Keep browsing</button>
             </form>
           </div>

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import { RoomPhoto } from "./photo";
-import { firstVisit } from "./once";
 import { readTable } from "./table";
 import { preloadMenu } from "./use-menu";
 import { preloadMine } from "./use-order";
@@ -23,7 +22,7 @@ export function Landing() {
     preloadRail();
     const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
       const all = [".room", ".name", ".address", ".door", ...(root.current?.querySelector(".table") ? [".table"] : [])];
-      if (self?.matches.reduceMotion || !firstVisit("landing")) {
+      if (self?.matches.reduceMotion) {
         animate(all, { opacity: [0, 1], duration: 200 });
         return;
       }

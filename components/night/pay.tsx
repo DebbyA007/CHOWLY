@@ -8,7 +8,6 @@ import { clockDate, shortName } from "@/lib/clock";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
 import { ActionSheet } from "./order";
-import { firstVisit } from "./once";
 import { preloadMenu } from "./use-menu";
 import { useMyOrders, useOrder } from "./use-order";
 
@@ -27,7 +26,7 @@ export function PayScreen() {
   const order = o.order ?? mine.current;
   return (
     <>
-      {!order ? <NoOrder loaded={mine.loaded} /> : order.payment ? <Receipt order={order} justPaid={o.justPaid} api={o} /> : <PayBody order={order} api={o} />}
+      {!order ? <NoOrder loaded={mine.loaded} /> : order.payment ? <Receipt order={order} api={o} /> : <PayBody order={order} api={o} />}
       <Foot>
         <TabBar tabs={GUEST_TABS} active="Pay" onHover={(label) => { if (label === "Menu") preloadMenu(); }} />
       </Foot>
@@ -70,25 +69,49 @@ function PayBody({ order, api }: { order: SerializedOrder; api: ReturnType<typeo
   const [method, setMethod] = useState<Method>("CARD");
   const served = order.status === "SERVED";
   const busy = api.busy === "pay";
+  const reduce = usePrefersReducedMotion();
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const parts = [".summary", ".method", ".action"];
+    if (reduce) {
+      animate(parts, { opacity: [0, 1], duration: 200 });
+      return;
+    }
+    utils.set(parts, { opacity: 1 });
+    createTimeline({ defaults: { ease: "outQuart" } })
+      .add(".summary", { opacity: [0, 1], y: [10, 0], duration: 450 }, 40)
+      .add(".method", { opacity: [0, 1], y: [8, 0], duration: 360, delay: stagger(80) }, "-=250")
+      .add(".action", { opacity: [0, 1], y: [10, 0], duration: 380 }, "-=200");
+  }, [order.id, reduce]);
+  function choose(value: Method, target: HTMLElement) {
+    setMethod(value);
+    if (reduce) return;
+    const dot = target.querySelector<HTMLElement>(".dot");
+    animate(target, { scale: [1, 1.015, 1], duration: 260, ease: "outQuad" });
+    if (dot) animate(dot, { scale: [0.4, 1], duration: 320, ease: "outBack(2)" });
+  }
   return (
     <Screen>
+      <div ref={root}>
       <Header title="Pay" subtitle={`Order #${order.reference}`} pill={`Table ${order.tableNo}`} />
-      <Summary order={order} />
+      <div className="summary" style={{ opacity: 0 }}><Summary order={order} /></div>
       <div className="px-[22px] pt-6">
         <p className="text-[12.5px] text-fg-muted">How would you like to pay?</p>
         <div role="radiogroup" aria-label="Payment method" className="mt-[11px] flex flex-col gap-[10px]">
           {METHODS.map((m) => {
             const on = m.value === method;
             return (
-              <button key={m.value} type="button" role="radio" aria-checked={on} onClick={() => setMethod(m.value)} className="press flex items-center gap-[13px] rounded-[12px] border p-[17px] text-left" style={{ background: on ? "var(--accent)" : "transparent", color: on ? "var(--bg)" : "var(--fg)", borderColor: on ? "var(--accent)" : "var(--chip-border)" }}>
-                <span className="block h-4 w-4 shrink-0 rounded-full border" style={{ borderColor: on ? "var(--bg)" : "var(--chip-border)", background: on ? "var(--bg)" : "transparent", boxShadow: on ? "inset 0 0 0 3px var(--accent)" : "none" }} aria-hidden="true" />
+              <button key={m.value} type="button" role="radio" aria-checked={on} onClick={(e) => choose(m.value, e.currentTarget)} className="method press flex items-center gap-[13px] rounded-[12px] border p-[17px] text-left" style={{ opacity: 0, background: on ? "var(--accent)" : "transparent", color: on ? "var(--bg)" : "var(--fg)", borderColor: on ? "var(--accent)" : "var(--chip-border)", transition: reduce ? "none" : "background-color 220ms ease, color 220ms ease, border-color 220ms ease" }}>
+                <span className="dot block h-4 w-4 shrink-0 rounded-full border" style={{ borderColor: on ? "var(--bg)" : "var(--chip-border)", background: on ? "var(--bg)" : "transparent", boxShadow: on ? "inset 0 0 0 3px var(--accent)" : "none" }} aria-hidden="true" />
                 <span className={`text-[14.5px] ${on ? "font-semibold" : ""}`}>{m.label}</span>
               </button>
             );
           })}
         </div>
       </div>
-      <div className="px-[22px] pb-[26px] pt-[26px]">
+      <div className="action px-[22px] pb-[26px] pt-[26px]" style={{ opacity: 0 }}>
         {api.notice ? <p role="alert" className="mb-3 text-[13px] font-semibold text-late">{api.notice}</p> : null}
         {busy ? (
           <div className="flex items-center justify-center gap-[10px] rounded-full py-[19px] text-[15.5px] font-semibold" style={{ background: "var(--accent-busy)", color: "var(--fg)" }} aria-live="polite">
@@ -102,6 +125,7 @@ function PayBody({ order, api }: { order: SerializedOrder; api: ReturnType<typeo
         )}
         {!served ? <p className="mt-3 text-center text-[12.5px] text-fg-muted">You can pay once your order has been served.</p> : null}
       </div>
+      </div>
     </Screen>
   );
 }
@@ -110,7 +134,7 @@ function PayBody({ order, api }: { order: SerializedOrder; api: ReturnType<typeo
 // surface, a perforation under the header, ruled lines where a printer rules, the
 // foot torn, the numerals struck in, and a stamp that lands once. On a fresh payment it
 // prints: the card feeds down from the perforation, the lines come in, the stamp lands.
-export function Receipt({ order, justPaid, api }: { order: SerializedOrder; justPaid: boolean; api: ReturnType<typeof useOrder> }) {
+export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnType<typeof useOrder> }) {
   const root = useRef<HTMLDivElement>(null);
   const reduce = usePrefersReducedMotion();
   const [rating, setRating] = useState(false);
@@ -119,8 +143,7 @@ export function Receipt({ order, justPaid, api }: { order: SerializedOrder; just
   useEffect(() => {
     const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
       const parts = [".receipt", ".line", ".stamp", ".after"];
-      const fresh = justPaid || firstVisit(`receipt-${order.id}`);
-      if (self?.matches.reduceMotion || !fresh) {
+      if (self?.matches.reduceMotion) {
         animate(parts, { opacity: [0, 1], duration: 200 });
         utils.set(".receipt", { clipPath: "inset(0 0 0 0)" });
         return;
@@ -137,7 +160,6 @@ export function Receipt({ order, justPaid, api }: { order: SerializedOrder; just
     });
     return () => scope.revert();
     // prints once per payment
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order.id]);
   useEffect(() => {
     if (!rating) return;

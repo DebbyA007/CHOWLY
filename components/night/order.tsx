@@ -2,35 +2,46 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { animate, createScope, createTimeline, stagger, utils } from "animejs";
+import { animate, createTimeline, stagger, utils } from "animejs";
 import type { SerializedOrder } from "@/lib/orders";
 import { clockTime, mmss, promiseLabel } from "@/lib/clock";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
-import { firstVisit } from "./once";
 import { preloadMenu } from "./use-menu";
 import { orderClock, useMyOrders, useOrder, type Clock } from "./use-order";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
 const KITCHEN_AFTER_SECONDS = 120;
+// Once the promise is spent, the arc closes again and ochre crosses to red over this long.
+const CROSS_SECONDS = 120;
+const OCHRE = [210, 162, 76];
+const RED = [201, 72, 47];
+const tone = (k: number) => `rgb(${OCHRE.map((c, i) => Math.round(c + ((RED[i] ?? c) - c) * k)).join(",")})`;
 
-// Screens 3 and 4. The countdown ring is the feature: its arc empties as the promised
-// minutes are used, driven from placedAt so it survives a refresh, and it counts up in
-// late red once the promise is spent. Ochre to red is a slow crossfade on the ring,
-// the numerals, the pill and the tab, never a snap. Then the stepper, then the items.
+// One value drives the ring: t, elapsed over promised. Below 1 the arc empties as the
+// minutes are used, in ochre. From 1 to 1 plus the crossfade the arc closes again while
+// ochre becomes red. Past that it holds, full and red. The tone is one CSS variable the
+// numerals, the pill, the tab and the stepper all read, so nothing on the screen can
+// disagree with the ring.
+function ringAt(t: number, crossT: number): { offset: number; k: number } {
+  if (t <= 1) return { offset: CIRCUMFERENCE * Math.max(0, t), k: 0 };
+  const k = crossT > 0 ? Math.min(1, (t - 1) / crossT) : 1;
+  return { offset: CIRCUMFERENCE * (1 - k), k };
+}
+
+// Screens 3 and 4.
 export function OrderScreen() {
   const mine = useMyOrders();
   const o = useOrder(mine.current?.id ?? null);
   const order = o.order ?? mine.current;
   const clock = order ? orderClock(order, o.now) : null;
-  const tone = clock?.state === "late" ? "late" : "accent";
   return (
-    <>
+    <div className="ring-scope">
       {order && clock ? <OrderBody order={order} clock={clock} api={o} /> : <NoOrder loaded={mine.loaded} />}
       <Foot>
-        <TabBar tabs={GUEST_TABS} active="Order" tone={tone} onHover={(label) => { if (label === "Menu") preloadMenu(); }} />
+        <TabBar tabs={GUEST_TABS} active="Order" tone="ring" onHover={(label) => { if (label === "Menu") preloadMenu(); }} />
       </Foot>
-    </>
+    </div>
   );
 }
 
@@ -50,16 +61,15 @@ type Api = ReturnType<typeof useOrder>;
 
 function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock; api: Api }) {
   const root = useRef<HTMLDivElement>(null);
+  const ring = useRef<SVGCircleElement>(null);
   const reduce = usePrefersReducedMotion();
   const [sheet, setSheet] = useState<"report" | "rate" | null>(null);
   const isLate = clock.state === "late";
   const lateMinutes = Math.floor(clock.lateSeconds / 60);
-  const colour = isLate ? "var(--late)" : "var(--accent)";
-  const arc = clock.state === "waiting" ? clock.fraction : 1;
   const placedAt = new Date(order.placedAt);
-  const kitchenAt = new Date(placedAt.getTime() + KITCHEN_AFTER_SECONDS * 1000);
-  const inKitchen = clock.elapsedSeconds >= KITCHEN_AFTER_SECONDS || !!order.servedAt;
   const served = !!order.servedAt;
+  const kitchenAt = new Date(Math.min(placedAt.getTime() + KITCHEN_AFTER_SECONDS * 1000, served ? new Date(order.servedAt!).getTime() : Infinity));
+  const inKitchen = clock.elapsedSeconds >= KITCHEN_AFTER_SECONDS || served;
   const steps = [
     { name: "Order placed", time: clockTime(placedAt), done: true },
     { name: "In the kitchen", time: inKitchen ? (isLate ? `Since ${clockTime(kitchenAt)}` : clockTime(kitchenAt)) : "Shortly", done: inKitchen },
@@ -67,28 +77,85 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
     { name: "Served", time: served ? clockTime(order.servedAt!) : "At your table", done: served },
   ];
   const doneCount = steps.filter((s) => s.done).length;
-  const current = Math.min(doneCount, steps.length) - 1;
+  const current = doneCount - 1;
   const lastDone = useRef(doneCount);
 
+  // The ring. One animation from real elapsed time against placedAt, so a refresh lands
+  // exactly where the clock is and the arc sweeps continuously from there. Under
+  // reduced motion the arc and the tone are set once per state and the stylesheet steps
+  // them slowly.
   useEffect(() => {
-    const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
-      const all = [".ring-wrap", ".caption", ".step", ".items"];
-      if (self?.matches.reduceMotion || !firstVisit(`order-${order.id}`)) {
-        animate(all, { opacity: [0, 1], duration: 200 });
-        return;
-      }
-      utils.set(all, { opacity: 1 });
-      createTimeline({ defaults: { ease: "outQuart" } })
-        .add(".ring-wrap", { opacity: [0, 1], scale: [0.96, 1], duration: 600 }, 60)
-        .add(".caption", { opacity: [0, 1], duration: 400 }, "-=300")
-        .add(".step", { opacity: [0, 1], x: [-6, 0], duration: 380, delay: stagger(70) }, "-=250")
-        .add(".items", { opacity: [0, 1], y: [10, 0], duration: 450 }, "-=200");
-    });
-    return () => scope.revert();
-    // the entrance runs once per order, not on every poll
-  }, [order.id]);
+    const scope = root.current?.closest<HTMLElement>(".ring-scope");
+    const el = ring.current;
+    if (!scope || !el) return;
+    const promisedS = order.waitMinutes * 60;
+    const crossT = CROSS_SECONDS / promisedS;
+    const apply = (t: number) => {
+      const { offset, k } = ringAt(t, crossT);
+      el.style.strokeDashoffset = String(offset);
+      scope.style.setProperty("--ring-tone", tone(k));
+    };
+    if (order.status !== "PLACED") {
+      el.style.strokeDashoffset = "0";
+      scope.style.setProperty("--ring-tone", "var(--accent)");
+      return;
+    }
+    const tNow = (Date.now() - new Date(order.placedAt).getTime()) / 1000 / promisedS;
+    const tEnd = 1 + crossT;
+    if (reduce) {
+      apply(tNow >= 1 ? tEnd : tNow);
+      return;
+    }
+    if (tNow >= tEnd) {
+      apply(tEnd);
+      return;
+    }
+    const proxy = { t: Math.max(0, tNow) };
+    // The arc draws in from empty to where the clock is, then the sweep takes over.
+    el.style.strokeDashoffset = String(CIRCUMFERENCE);
+    scope.style.setProperty("--ring-tone", tone(ringAt(proxy.t, crossT).k));
+    const draw = animate(el, { strokeDashoffset: [CIRCUMFERENCE, ringAt(proxy.t, crossT).offset], duration: 700, ease: "outQuart" });
+    const sweep = animate(proxy, { t: tEnd, duration: Math.max(0, (tEnd - proxy.t) * promisedS * 1000), ease: "linear", delay: 700, onUpdate: () => apply(proxy.t) });
+    return () => {
+      draw.pause();
+      sweep.pause();
+    };
+  }, [order.id, order.status, order.placedAt, order.waitMinutes, reduce]);
 
-  // A step completing fills its dot: one small swell, then still.
+  // The entrance, every visit: the ring settles, the caption, the steps, the items.
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const parts = [".ring-wrap", ".caption", ".late-note", ".late-actions", ".step", ".items"].filter((s) => el.querySelector(s));
+    if (reduce) {
+      animate(parts, { opacity: [0, 1], duration: 200 });
+      return;
+    }
+    utils.set(parts, { opacity: 1 });
+    const tl = createTimeline({ defaults: { ease: "outQuart" } })
+      .add(".ring-wrap", { opacity: [0, 1], scale: [0.96, 1], duration: 600 }, 60)
+      .add(".caption", { opacity: [0, 1], duration: 400 }, "-=300");
+    if (el.querySelector(".late-note")) tl.add(".late-note, .late-actions", { opacity: [0, 1], y: [6, 0], duration: 400, delay: stagger(90) }, "-=250");
+    tl.add(".step", { opacity: [0, 1], x: [-6, 0], duration: 380, delay: stagger(70) }, "-=250").add(".items", { opacity: [0, 1], y: [10, 0], duration: 450 }, "-=200");
+    return () => {
+      tl.pause();
+    };
+    // once per mount of this order, not on every poll
+  }, [order.id, reduce]);
+
+  // Crossing the promise while the screen is open brings the note and the actions in.
+  const wasLate = useRef(isLate);
+  useEffect(() => {
+    if (!isLate || wasLate.current) {
+      wasLate.current = isLate;
+      return;
+    }
+    wasLate.current = true;
+    const els = root.current?.querySelectorAll<HTMLElement>(".late-note, .late-actions");
+    if (els && els.length) animate(els, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [6, 0], duration: 420, ease: "outQuad", delay: stagger(90) });
+  }, [isLate, reduce]);
+
+  // A step completing swells its dot once.
   useEffect(() => {
     if (doneCount <= lastDone.current) {
       lastDone.current = doneCount;
@@ -96,18 +163,9 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
     }
     lastDone.current = doneCount;
     if (reduce) return;
-    const dots = root.current?.querySelectorAll<HTMLElement>(".dot");
-    const dot = dots?.[doneCount - 1];
+    const dot = root.current?.querySelectorAll<HTMLElement>(".dot")[doneCount - 1];
     if (dot) animate(dot, { scale: [1, 1.35, 1], duration: 500, ease: "outQuad" });
   }, [doneCount, reduce]);
-
-  // Crossing the promise brings the note and the two actions in; they were not there at mount.
-  useEffect(() => {
-    if (!isLate) return;
-    const els = root.current?.querySelectorAll<HTMLElement>(".late-note, .late-actions");
-    if (!els || els.length === 0) return;
-    animate(els, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [6, 0], duration: 420, ease: "outQuad", delay: stagger(90) });
-  }, [isLate, reduce]);
 
   useEffect(() => {
     if (!sheet) return;
@@ -120,16 +178,16 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
   return (
     <Screen>
       <div ref={root}>
-        <Header title={`Order #${order.reference}`} subtitle={isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone={isLate ? "late" : "accent"} />
-        <div className="flex flex-col items-center px-[22px] pb-[26px] pt-[14px]" data-state={clock.state} data-clock={`ring ${Math.round(arc * 100)}%`}>
+        <Header title={`Order #${order.reference}`} subtitle={isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
+        <div className="flex flex-col items-center px-[22px] pb-[26px] pt-[14px]" data-state={clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle className="ring-track" cx="92" cy="92" r="82" fill="none" stroke={isLate ? "var(--track-late)" : "var(--track)"} strokeWidth="9" />
-              <circle className="ring-progress" cx="92" cy="92" r="82" fill="none" stroke={colour} strokeWidth="9" strokeDasharray={CIRCUMFERENCE} strokeDashoffset={CIRCUMFERENCE * (1 - arc)} />
+              <circle ref={ring} className="ring-progress" cx="92" cy="92" r="82" fill="none" strokeWidth="9" strokeDasharray={CIRCUMFERENCE} style={{ strokeDashoffset: CIRCUMFERENCE * Math.min(1, clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)) }} />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="tone text-[11.5px]" style={{ color: isLate ? "var(--late)" : "var(--fg-muted)" }}>{centreLabel}</p>
-              <p data-digits className={`tone tabular mt-[2px] leading-[1.1] ${clock.state === "waiting" || clock.state === "late" ? "text-[40px]" : "text-[30px]"} font-medium tracking-[-0.03em]`} style={{ color: isLate ? "var(--late)" : "var(--fg)" }}>{centreValue}</p>
+              <p className="text-[11.5px]" style={{ color: isLate ? "var(--ring-tone)" : "var(--fg-muted)" }}>{centreLabel}</p>
+              <p data-digits className={`tabular mt-[2px] font-medium leading-[1.1] tracking-[-0.03em] ${clock.state === "waiting" || clock.state === "late" ? "text-[40px]" : "text-[30px]"}`} style={{ color: isLate ? "var(--ring-tone)" : "var(--fg)" }}>{centreValue}</p>
             </div>
           </div>
           <p className="caption mt-4 text-[12px] text-fg-muted" style={{ opacity: 0 }}>{promiseLabel(order.waitMinutes)} · placed {clockTime(placedAt)}</p>
@@ -149,8 +207,8 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
             return (
               <li key={step.name} className="step flex gap-[15px]" style={{ opacity: 0 }}>
                 <div className="flex w-[12px] shrink-0 flex-col items-center">
-                  <span className="dot tone mt-[5px] block h-[11px] w-[11px] rounded-full border" style={{ background: pending ? "transparent" : colour, borderColor: pending ? "var(--pending)" : colour }} aria-hidden="true" />
-                  {i < steps.length - 1 ? <span className="tone w-px flex-1" style={{ background: pending ? "var(--pending)" : colour }} aria-hidden="true" /> : null}
+                  <span className="dot mt-[5px] block h-[11px] w-[11px] rounded-full border" style={{ background: pending ? "transparent" : "var(--ring-tone)", borderColor: pending ? "var(--pending)" : "var(--ring-tone)" }} aria-hidden="true" />
+                  {i < steps.length - 1 ? <span className="w-px flex-1" style={{ background: pending ? "var(--pending)" : "var(--ring-tone)" }} aria-hidden="true" /> : null}
                 </div>
                 <div className="flex-1 pb-6">
                   <p className={`text-[14.5px] ${i === current ? "font-semibold" : ""} ${pending ? "text-fg-muted" : "text-fg"}`} aria-current={i === current ? "step" : undefined}>{step.name}</p>
@@ -188,6 +246,7 @@ export function ActionSheet({ kind, api, order, onClose }: { kind: "report" | "r
   const [score, setScore] = useState<number | null>(order.rating?.score ?? null);
   const [note, setNote] = useState(order.rating?.comment ?? "");
   const [error, setError] = useState<string | null>(null);
+  const reduce = usePrefersReducedMotion();
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -220,7 +279,7 @@ export function ActionSheet({ kind, api, order, onClose }: { kind: "report" | "r
             <p className="mt-[5px] text-[12.5px] text-fg-muted">{order.rating ? `You gave it ${order.rating.score} of 5. Change it if you like.` : "How was it, from 1 to 5?"}</p>
             <div role="radiogroup" aria-label="Score" className="mt-4 flex gap-[9px]">
               {[1, 2, 3, 4, 5].map((n) => (
-                <button key={n} type="button" role="radio" aria-checked={score === n} aria-label={`${n} of 5`} onClick={() => setScore(n)} className="chip press tabular !px-[15px] !py-[11px] !text-[13.5px] !font-semibold">{n}</button>
+                <button key={n} type="button" role="radio" aria-checked={score === n} aria-label={`${n} of 5`} onClick={(e) => { setScore(n); if (!reduce) animate(e.currentTarget, { scale: [1, 1.12, 1], duration: 280, ease: "outQuad" }); }} className="chip press tabular !px-[15px] !py-[11px] !text-[13.5px] !font-semibold">{n}</button>
               ))}
             </div>
             <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} aria-label="A note for the kitchen" placeholder="Anything to add?" className="mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg placeholder:text-fg-muted" />

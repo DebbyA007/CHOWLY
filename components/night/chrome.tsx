@@ -5,9 +5,9 @@ import Link from "next/link";
 // The chrome every screen shares: the header block, the pill, the bottom tab bar.
 // Text and simple dots only; no icons anywhere, by design.
 
-export function Header({ title, subtitle, subtitleTone = "muted", pill, pillTone = "accent", back }: { title: string; subtitle?: string; subtitleTone?: "muted" | "late"; pill?: string; pillTone?: "accent" | "late"; back?: { href: string; label: string } }) {
+export function Header({ title, subtitle, subtitleTone = "muted", pill, pillTone = "accent", back }: { title: string; subtitle?: string; subtitleTone?: "muted" | "late"; pill?: string; pillTone?: "accent" | "late" | "ring"; back?: { href: string; label: string } }) {
   const titleClass = back ? "serif text-[27px] leading-[1.05]" : "serif text-[25px] leading-[1.05]";
-  const pillNode = pill ? <span className="pill" data-tone={pillTone === "late" ? "late" : undefined}>{pill}</span> : null;
+  const pillNode = pill ? <span className="pill" data-tone={pillTone === "late" ? "late" : undefined} style={pillTone === "ring" ? { color: "var(--ring-tone)", borderColor: "color-mix(in srgb, var(--ring-tone) 40%, transparent)", transition: "none" } : undefined}>{pill}</span> : null;
   if (back) {
     return (
       <header className="px-[22px] pb-4 pt-[14px]">
@@ -42,8 +42,8 @@ export const WAITER_TABS: Tab[] = [
   { href: "/waiter/menu", label: "Menu" },
 ];
 
-export function TabBar({ tabs, active, tone = "accent", onHover }: { tabs: Tab[]; active: string; tone?: "accent" | "late"; onHover?: (label: string) => void }) {
-  const colour = tone === "late" ? "var(--late)" : "var(--accent)";
+export function TabBar({ tabs, active, tone = "accent", onHover }: { tabs: Tab[]; active: string; tone?: "accent" | "late" | "ring"; onHover?: (label: string) => void }) {
+  const colour = tone === "ring" ? "var(--ring-tone)" : tone === "late" ? "var(--late)" : "var(--accent)";
   return (
     <nav aria-label="Sections" className="flex border-t border-[color:var(--hairline)] bg-bg pb-[26px] pt-[13px]">
       {tabs.map((tab) => {
