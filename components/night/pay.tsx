@@ -10,6 +10,7 @@ import { Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
 import { ActionSheet } from "./order";
 import { preloadMenu } from "./use-menu";
 import { useMyOrders, useOrder } from "./use-order";
+import { selectOrder } from "./selection";
 
 type Method = "CARD" | "MOBILE_MONEY" | "CASH";
 const METHODS: { value: Method; label: string; paid: string }[] = [
@@ -20,8 +21,11 @@ const METHODS: { value: Method; label: string; paid: string }[] = [
 
 // Screens 7 and 8. The summary, the method, the one button; then, paid, the receipt
 // prints in its place. The button and the receipt say the payment is pretend, once each.
-export function PayScreen() {
+export function PayScreen({ id }: { id?: string } = {}) {
   const mine = useMyOrders();
+  useEffect(() => {
+    if (id) selectOrder(id);
+  }, [id]);
   const o = useOrder(mine.current?.id ?? null);
   const order = o.order ?? mine.current;
   return (
@@ -204,6 +208,7 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
           ) : null}
           <div className="mt-5 flex flex-col gap-[10px] pb-[26px]">
             <button type="button" data-rate-open onClick={() => setRating(true)} className="btn-outline press !py-4 !text-[14.5px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
+            <Link href="/menu" data-go-menu className="btn-outline press !py-4 !text-[14.5px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
           </div>
         </div>
         {api.notice ? <p role="status" className="px-[22px] pb-4 text-[13px] font-semibold text-accent">{api.notice}</p> : null}

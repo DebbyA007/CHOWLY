@@ -9,6 +9,7 @@ import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
 import { preloadMenu } from "./use-menu";
 import { orderClock, useMyOrders, useOrder, type Clock } from "./use-order";
+import { selectOrder } from "./selection";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
 // Once the promise is spent, the arc closes again and ochre crosses to red over this long.
@@ -28,15 +29,18 @@ function ringAt(t: number, crossT: number): { offset: number; k: number } {
   return { offset: CIRCUMFERENCE * (1 - k), k };
 }
 
-// Screens 3 and 4.
-export function OrderScreen() {
+// Screens 3 and 4. With an id, that order is selected for the session first.
+export function OrderScreen({ id }: { id?: string } = {}) {
   const mine = useMyOrders();
+  useEffect(() => {
+    if (id) selectOrder(id);
+  }, [id]);
   const o = useOrder(mine.current?.id ?? null);
   const order = o.order ?? mine.current;
   const clock = order ? orderClock(order, o.now) : null;
   return (
     <div className="ring-scope">
-      {order && clock ? <OrderBody order={order} clock={clock} api={o} /> : <NoOrder loaded={mine.loaded} />}
+      {order && clock ? <OrderBody order={order} clock={clock} api={o} open={mine.open} others={mine.others} /> : <NoOrder loaded={mine.loaded} />}
       <Foot>
         <TabBar tabs={GUEST_TABS} active="Order" tone="ring" onHover={(label) => { if (label === "Menu") preloadMenu(); }} />
       </Foot>
@@ -58,7 +62,7 @@ function NoOrder({ loaded }: { loaded: boolean }) {
 
 type Api = ReturnType<typeof useOrder>;
 
-function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock; api: Api }) {
+function OrderBody({ order, clock, api, open, others }: { order: SerializedOrder; clock: Clock; api: Api; open: SerializedOrder[]; others: SerializedOrder[] }) {
   const root = useRef<HTMLDivElement>(null);
   const ring = useRef<SVGCircleElement>(null);
   const reduce = usePrefersReducedMotion();
@@ -180,6 +184,13 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
     <Screen>
       <div ref={root}>
         <Header title={`Order #${order.reference}`} subtitle={isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
+        {open.length > 1 ? (
+          <div className="flex gap-2 overflow-x-auto px-[22px] pb-3" role="tablist" aria-label="Open orders">
+            {open.map((o) => (
+              <button key={o.id} type="button" role="tab" aria-selected={o.id === order.id} data-switch={o.id} onClick={() => selectOrder(o.id)} className="chip press !px-[14px] !py-2 !text-[12.5px]" aria-pressed={o.id === order.id}>#{o.reference}</button>
+            ))}
+          </div>
+        ) : null}
         <div className="flex flex-col items-center px-[22px] pb-[26px] pt-[14px]" data-state={clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
@@ -239,6 +250,32 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
           </div>
         </section>
         {api.notice ? <p role="status" className="px-[22px] pb-4 text-[13px] font-semibold text-accent">{api.notice}</p> : null}
+        {clock.state === "served" || clock.state === "paid" ? (
+          <div className="items px-[22px] pb-6" style={{ opacity: 0 }}>
+            <div className="flex flex-col gap-[10px]">
+              {clock.state === "served" ? <Link href="/pay" data-go-pay className="btn-primary press">Pay</Link> : <Link href="/pay" data-go-receipt className="btn-outline press">See the receipt</Link>}
+              <Link href="/menu" data-go-menu className="btn-outline press" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
+            </div>
+          </div>
+        ) : null}
+        {others.length > 0 ? (
+          <section className="items px-[22px] pb-8" style={{ opacity: 0 }} aria-labelledby="earlier">
+            <h2 id="earlier" className="text-[12.5px] text-fg-muted">Earlier orders</h2>
+            <ul className="mt-2">
+              {others.map((o) => {
+                const c = orderClock(o, null);
+                return (
+                  <li key={o.id} className="border-t border-[color:var(--hairline)]">
+                    <Link href={`/order/${o.id}`} data-earlier={o.id} className="press flex items-baseline justify-between gap-3 py-3" onClick={() => selectOrder(o.id)}>
+                      <span className="min-w-0"><span className="font-semibold">#{o.reference}</span><span className="ml-2 text-[12.5px] text-fg-muted">{clockTime(o.placedAt)} · {o.items.reduce((n, l) => n + l.quantity, 0)} {o.items.reduce((n, l) => n + l.quantity, 0) === 1 ? "item" : "items"}</span></span>
+                      <span className="tabular shrink-0 text-[13px]"><span className="text-fg-muted">{c.state === "paid" ? "Paid" : c.state === "served" ? "Served" : c.state === "late" ? "Late" : "Placed"}</span><span className="ml-2 font-semibold">{o.total}</span></span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
         {sheet ? <ActionSheet kind={sheet} api={api} order={order} onClose={() => setSheet(null)} /> : null}
       </div>
     </Screen>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import useSWR, { preload } from "swr";
 import type { SerializedOrder } from "@/lib/orders";
 import { useNow } from "@/components/use-now";
+import { useSelectedOrder } from "./selection";
 
 async function fetcher<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -19,13 +20,18 @@ export function preloadMine() {
   void preload(MINE_KEY, fetcher<{ orders: SerializedOrder[] }>);
 }
 
-// The session's own orders, and which one the Order and Pay tabs mean: the newest that
-// is still open, else the newest paid one for its receipt.
+// The session's own orders, and which one the Order and Pay tabs mean: the one the
+// guest chose, else the newest still open, else the newest paid one for its receipt.
+// Every order stays reachable through the list on the Order tab.
 export function useMyOrders() {
   const { data, error } = useSWR<{ orders: SerializedOrder[] }>(MINE_KEY, fetcher, { refreshInterval: 5000, keepPreviousData: true });
+  const selected = useSelectedOrder();
   const orders = data?.orders ?? [];
-  const current = orders.find((o) => o.status !== "PAID") ?? orders[0] ?? null;
-  return { orders, current, loaded: !!data, error };
+  const chosen = selected ? orders.find((o) => o.id === selected) ?? null : null;
+  const current = chosen ?? orders.find((o) => o.status !== "PAID") ?? orders[0] ?? null;
+  const open = orders.filter((o) => o.status !== "PAID");
+  const others = orders.filter((o) => o.id !== current?.id);
+  return { orders, current, open, others, loaded: !!data, error };
 }
 
 export type Clock = {
