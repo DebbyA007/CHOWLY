@@ -1387,3 +1387,50 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   553ms (the row stagger is most of it), menu to order 57ms, waiter to menu 132ms, back
   to orders 50ms, the waiter list cold 325ms. The APIs themselves take 1.4 to 1.9
   seconds from this machine to Neon; the switch no longer waits on them.
+
+### Commit: `feat: swap the share-alike photographs for permissive ones`
+
+- **Asked for:** replace every CC BY-SA photograph with CC0, public domain or CC BY, so a
+  grader never has to think about share-alike; a straight swap under the same
+  treatment; and where no good permissive option exists for a dish, say which rather
+  than settle for a weak image.
+- **Correction first:** the log said seven of the first eleven were share-alike. It was
+  eight: the room, catfish, egusi, jollof, eggs benedict, pepper soup, chapman and zobo.
+- **Swapped, seven of the eight,** after a second search of Wikimedia Commons and
+  Openverse filtered to permissive licences and a contact sheet of thirty-nine
+  candidates: the room is now a restaurant at dusk from Unsplash via Commons (CC0);
+  catfish a grilled tilapia with pepper and onions from Flickr (CC BY 2.0); egusi a
+  close CC0 shot; jollof a dark bowl with grilled chicken and plantain by Fatimah Bello
+  (CC0), which is the best food image in the set; eggs benedict from Flickr (CC BY 2.0);
+  chapman by Eugene Eric Kim (CC BY 2.0); zobo by Fatimah Bello (CC0). Each is cropped
+  and treated exactly as before.
+- **Not swapped, and flagged:** goat pepper soup. The only permissive candidates are a
+  CC BY 4.0 shot where the bowl sits under a plate of yam and reads murky once cropped
+  (the crop was made and looked at), and a CC0 shot that is mostly yam. The share-alike
+  image stays in place with its attribution until the user decides between the three
+  options written in `docs/PHOTOGRAPHY.md`.
+- **Also:** the landing animated a table line that does not exist when the link carries
+  no table, which WebKit reported as a warning; it animates only when present now.
+
+### Commit: `docs: the README and the submission document, against what shipped`
+
+- **Brought onto this branch** from the directions branch, where they were written for
+  The Pass, and rewritten against Night Service and the eleven photographs, with the
+  real production URL, https://chowly-theta.vercel.app, which was given by the user and
+  had never been recorded anywhere in the repository.
+- **README:** a new animated header, the ring emptying and turning late red in SVG with
+  a reduced-motion fallback; the Mermaid ERD of the final schema; the promise and the
+  VAT in LaTeX; collapsible setup, environment and scripts; the video placeholder; the
+  credits pointer; the eight screens with three frames.
+- **Submission document:** the no-authentication section moved to the top and the flag
+  named; the phase table with the side branch; the framework preset caught on the
+  two-file deploy; the eleven deltas as implemented, VAT and the numeric order number
+  included; how AI was used, leading with the rejections and the corrections the brief
+  named (the proxy, the audit fixes, the Prisma pin, the gradient the grep found, the
+  Safari-only CSP failure and the WebKit probe, the double Set-Cookie) and the ones from
+  this phase; every feature step by step with the derived delay, the complaint gate and
+  payment idempotency; the walkthrough on the live URL with the role switch.
+- **Production, checked:** the live menu API already returns Mains, Soups and Drinks
+  with the ten dishes at the handoff's prices and none of the four retired ones, because
+  the seed ran against the shared database. The deployed interface is still The Pass
+  reading that data until this branch is merged and deployed.
