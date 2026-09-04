@@ -2321,3 +2321,19 @@ before being fixed.
   provisional order keeps its food vessel even though what is left is drinks only. The
   kitchen's own order replaces it within a second or two and is right, and recomputing
   it would mean giving the placement store the menu it has no other reason to know.
+
+### The fixes, verified on production
+
+Both engines, iPhone 13 emulation, against https://chowly-theta.vercel.app.
+
+| Case | Chromium | WebKit |
+|---|---|---|
+| The saved file's fibre, colours in an empty band of the card | 183 | 236 |
+| Transparent pixels in that band, and along the foot | 0 and 0 | 0 and 0 |
+| The saved file | 1170 by 1251 at a pixel ratio of 3 | the same |
+| The status region, present before any message is put in it | yes | yes |
+| The button before the image is in hand | waits, then becomes live | the same |
+| What the download says | "Check your downloads for chowly-receipt-0013-order-1042.png." | the same |
+| The share sheet receives | that file, image/png, 176885 bytes | 156187 bytes |
+| Food: the pot, then the lid away and the plate under it | caught mid-transition at lid 0.00, body 0.27, plate 1.00 | caught, the same shape |
+| Drinks: the pour, then the level rising to full | stream 1.00 level 68, then 0.00 and 49 | caught mid-rise at stream 0.75, level 58.7 |
