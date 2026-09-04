@@ -9,18 +9,23 @@ import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Chip, Foot, Header, Screen, TabBar, WAITER_TABS } from "./chrome";
 import { DishPhoto } from "./photo";
 import { orderClock } from "./use-order";
-import { preloadMenu, useMenu } from "./use-menu";
+import { formatNaira } from "@/lib/money";
+import { ConnectionBar, asOf, useFreshness, useOnline } from "./connection";
+import { DishRowsSkeleton, RowsSkeleton, WaiterOrderSkeleton } from "./skeleton";
+import { useMenu } from "./use-menu";
 import { useRail, type Rail } from "./use-rail";
+import { preloadWaiterMenu, useWaiterMenu } from "./use-waiter-menu";
 import { readWaiter, writeWaiter } from "./waiter-session";
 
 const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 const KITCHEN_AFTER_SECONDS = 120;
 const READY_WITHIN_SECONDS = 60;
-type Status = "Ready" | "Late" | "In the kitchen" | "Just placed" | "Served";
+type Status = "Ready" | "Late" | "In the kitchen" | "Just placed" | "Served" | "Paid";
 type Filter = "All" | "Cooking" | "Late" | "Served";
 
 // What a row says about an order, and in which colour.
 function statusOf(order: SerializedOrder, now: number | null): { status: Status; time: string; colour: string } {
+  if (order.status === "PAID") return { status: "Paid", time: `Paid ${clockTime(order.paidAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   if (order.status !== "PLACED") return { status: "Served", time: `Served ${clockTime(order.servedAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   const c = orderClock(order, now);
   if (c.state === "late") return { status: "Late", time: `${Math.max(1, Math.floor(c.lateSeconds / 60))} min late`, colour: "var(--late)" };
@@ -72,9 +77,10 @@ function useRowEntrance(listRef: React.RefObject<HTMLElement | null>, ids: strin
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
-    const fresh = [...list.querySelectorAll<HTMLElement>("[data-order-id]")].filter((el) => !known.current.has(el.dataset.orderId!));
+    const keyOf = (el: HTMLElement) => el.dataset.orderId ?? el.dataset.tableId ?? "";
+    const fresh = [...list.querySelectorAll<HTMLElement>("[data-order-id], [data-table-id]")].filter((el) => !known.current.has(keyOf(el)));
     const firstBatch = known.current.size === 0;
-    fresh.forEach((el) => known.current.add(el.dataset.orderId!));
+    fresh.forEach((el) => known.current.add(keyOf(el)));
     if (fresh.length === 0) return;
     if (reduce) {
       animate(fresh, { opacity: [0, 1], duration: 200 });
@@ -121,7 +127,8 @@ export function LiveOrders() {
   const [filter, setFilter] = useState<Filter>("All");
   const listRef = useRef<HTMLUListElement>(null);
   const drinkIds = new Set(menu?.menus.filter((m) => m.type === "DRINKS").flatMap((m) => m.items.map((i) => i.id)) ?? []);
-  const rows = rail.orders.map((order) => ({ order, ...statusOf(order, rail.now) }));
+  const fresh = useFreshness(rail.error, rail.seenAt);
+  const rows = rail.orders.filter((o) => o.status !== "PAID").map((order) => ({ order, ...statusOf(order, rail.now) }));
   const open = rows.filter((r) => r.status !== "Served").length;
   const drinksPending = rows.filter((r) => r.status !== "Served" && r.order.items.some((l) => drinkIds.has(l.menuItemId))).length;
   const subtitle = `${WORDS[open] ?? open} open · ${(WORDS[drinksPending] ?? String(drinksPending)).toLowerCase()} ${drinksPending === 1 ? "drink" : "drinks"} pending`;
@@ -132,14 +139,16 @@ export function LiveOrders() {
   return (
     <>
       <Screen>
-        <Header title="Live orders" subtitle={rail.data ? subtitle : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
+        <Header title="Live orders" subtitle={rail.data ? (fresh.stale ? `${asOf(fresh.since)} · ${WORDS[open] ?? open} open` : subtitle) : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
         {picking && rail.data ? <WaiterPicker rail={rail.data} chosen={who.chosen} onChoose={who.choose} onClose={() => setPicking(false)} /> : null}
         <div className="flex gap-2 overflow-x-auto px-[22px] pb-[14px]" role="tablist" aria-label="Filter">
           {(["All", "Cooking", "Late", "Served"] as Filter[]).map((f) => (
             <Chip key={f} on={f === filter} onClick={() => setFilter(f)} className="!px-[14px] !py-2 !text-[12.5px]">{f}</Chip>
           ))}
         </div>
-        {rail.error ? <p role="alert" className="px-[22px] pb-3 text-[13px] font-semibold text-late">{rail.error.message}</p> : null}
+        <ConnectionBar stale={fresh.stale} since={fresh.since} what="the orders" />
+        {rail.error && !rail.data ? <p role="alert" className="px-[22px] pb-3 text-[13px] font-semibold text-late">{rail.error.message}</p> : null}
+        {!rail.data && !rail.error ? <RowsSkeleton label="Opening the floor" /> : null}
         <ul ref={listRef} aria-label="Orders">
           {rail.data && shown.length === 0 ? <li className="card mx-[22px] px-[18px] py-4 text-[13px] text-fg-muted" data-empty>{filter === "All" ? "No open orders. New ones appear here within a few seconds." : `Nothing ${filter === "Late" ? "late" : filter === "Served" ? "served" : "cooking"} right now.`}</li> : null}
           {shown.map(({ order, status, time, colour }) => (
@@ -149,7 +158,7 @@ export function LiveOrders() {
         <div className="h-[14px]" />
       </Screen>
       <Foot>
-        <TabBar tabs={WAITER_TABS} active="Orders" onHover={(label) => { if (label === "Menu") preloadMenu(); }} />
+        <TabBar tabs={WAITER_TABS} active="Orders" onHover={(label) => { if (label === "Menu") preloadWaiterMenu(); }} />
       </Foot>
     </>
   );
@@ -177,6 +186,7 @@ export function WaiterOrder({ id }: { id: string }) {
   const c = order ? orderClock(order, rail.now) : null;
   const entered = useRef(false);
   const wasServed = useRef(served);
+  const fresh = useFreshness(rail.error, rail.seenAt);
 
   useEffect(() => {
     if (!order || entered.current || !root.current) return;
@@ -236,8 +246,9 @@ export function WaiterOrder({ id }: { id: string }) {
       <Screen>
         <div ref={root}>
           <Header back={{ href: "/waiter", label: "Live orders" }} title={order ? `Order #${order.reference}` : "Order"} pill={order ? `Table ${order.tableNo}` : undefined} pillTone={c?.state === "late" ? "late" : "accent"} />
+          <ConnectionBar stale={fresh.stale} since={fresh.since} what="this order" />
           {!order ? (
-            <p className="px-[22px] text-[13px] text-fg-muted">{rail.data ? "That order is not on the floor any more." : "Opening the order."}</p>
+            rail.data ? <p className="px-[22px] text-[13px] text-fg-muted">That order is not on the floor any more.</p> : rail.error ? <p role="alert" className="px-[22px] text-[13px] font-semibold text-late">{rail.error.message}</p> : <WaiterOrderSkeleton />
           ) : (
             <>
               <section className="card-in card fibre mx-[22px] p-[18px]" style={{ opacity: 0 }} aria-label="Order">
@@ -317,24 +328,59 @@ export function WaiterOrder({ id }: { id: string }) {
   );
 }
 
-// The Tables tab: the same open orders, one card per table, sorted by table.
+// The Tables tab: the floor by table. Every order of the last twelve hours grouped by
+// table, oldest first, with what each table still has to pay, so a waiter can see at a
+// glance who is waiting, who has been served and who has settled.
 export function Tables() {
   const rail = useRail();
   const reduce = usePrefersReducedMotion();
   const listRef = useRef<HTMLUListElement>(null);
-  const rows = rail.orders.filter((o) => o.status === "PLACED").map((order) => ({ order, ...statusOf(order, rail.now) })).sort((a, b) => a.order.tableNo.localeCompare(b.order.tableNo, undefined, { numeric: true }));
-  useRowEntrance(listRef, rows.map((r) => r.order.id).join(","), reduce);
+  const fresh = useFreshness(rail.error, rail.seenAt);
+  const byTable = new Map<string, SerializedOrder[]>();
+  for (const order of rail.orders) byTable.set(order.tableNo, [...(byTable.get(order.tableNo) ?? []), order]);
+  const tables = [...byTable.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
+    .map(([tableNo, orders]) => ({ tableNo, orders, owing: orders.filter((o) => o.status !== "PAID").reduce((n, o) => n + o.totalKobo, 0) }));
+  const toSettle = tables.filter((t) => t.owing > 0).length;
+  const owing = tables.reduce((n, t) => n + t.owing, 0);
+  const subtitle = `${WORDS[toSettle] ?? toSettle} ${toSettle === 1 ? "table" : "tables"} to settle · ${formatNaira(owing)} outstanding`;
+  useRowEntrance(listRef, tables.map((t) => t.tableNo).join(","), reduce);
   const who = useWaiterChoice(rail.data);
   const [picking, setPicking] = useState(false);
   return (
     <>
       <Screen>
-        <Header title="Tables" subtitle={rail.data ? `${WORDS[rows.length] ?? rows.length} ${rows.length === 1 ? "table" : "tables"} waiting` : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
+        <Header title="Tables" subtitle={rail.data ? (fresh.stale ? asOf(fresh.since) : subtitle) : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
         {picking && rail.data ? <WaiterPicker rail={rail.data} chosen={who.chosen} onChoose={who.choose} onClose={() => setPicking(false)} /> : null}
+        <ConnectionBar stale={fresh.stale} since={fresh.since} what="the tables" />
+        {rail.error && !rail.data ? <p role="alert" className="px-[22px] pb-3 text-[13px] font-semibold text-late">{rail.error.message}</p> : null}
+        {!rail.data && !rail.error ? <RowsSkeleton label="Opening the floor" /> : null}
         <ul ref={listRef} aria-label="Tables">
-          {rail.data && rows.length === 0 ? <li className="card mx-[22px] px-[18px] py-4 text-[13px] text-fg-muted" data-empty>No tables waiting on an order.</li> : null}
-          {rows.map(({ order, status, time, colour }) => (
-            <Row key={order.id} order={order} status={status} time={time} colour={colour} meta={order.items.map((l) => `${l.quantity}× ${l.name}`).join(" · ")} />
+          {rail.data && tables.length === 0 ? <li className="card mx-[22px] px-[18px] py-4 text-[13px] text-fg-muted" data-empty>No one has ordered yet tonight. Tables appear here as orders come in.</li> : null}
+          {tables.map((t) => (
+            <li key={t.tableNo} data-table-id={t.tableNo} className="entry mx-[22px] mb-[10px]" style={{ opacity: 0 }}>
+              <div className="card fibre px-[18px] py-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="serif text-[21px]">Table {t.tableNo}</span>
+                  {t.owing > 0 ? <span className="tabular text-[13px] font-semibold text-accent" data-owing>{formatNaira(t.owing)} to pay</span> : <span className="text-[12.5px] font-semibold" style={{ color: "var(--served-dot)" }}>Settled</span>}
+                </div>
+                <div className="rule-soft mt-1" />
+                <ul className="mt-1">
+                  {t.orders.map((order) => {
+                    const s = statusOf(order, rail.now);
+                    const count = order.items.reduce((n, l) => n + l.quantity, 0);
+                    return (
+                      <li key={order.id}>
+                        <Link href={`/waiter/${order.id}`} className="press flex items-baseline justify-between gap-3 py-[7px]">
+                          <span className="tabular min-w-0 truncate text-[12.5px] text-fg-muted"><span className="font-semibold text-fg">#{order.reference}</span> · {count} {count === 1 ? "item" : "items"} · {order.total}</span>
+                          <span className="tone shrink-0 text-[12.5px] font-semibold" style={{ color: s.colour }}>{s.status === "Paid" || s.status === "Served" ? s.time : s.status}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </li>
           ))}
         </ul>
       </Screen>
@@ -345,35 +391,54 @@ export function Tables() {
   );
 }
 
-// The Menu tab on the waiter side: the same rows, nothing to add. They stagger in.
+// The Menu tab on the waiter side: the 86 board. Every dish with a switch; taking one
+// off removes it from the guests' menu within the minute and refuses any order still
+// carrying it, by name. The change shows at once and comes back if the server refuses.
 export function WaiterMenu() {
-  const { menu, error } = useMenu();
+  const { menu, error, setAvailable } = useWaiterMenu();
   const reduce = usePrefersReducedMotion();
   const root = useRef<HTMLDivElement>(null);
+  const entered = useRef(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const net = useOnline();
   useEffect(() => {
-    if (!menu || !root.current) return;
+    if (!menu || entered.current || !root.current) return;
     const rows = root.current.querySelectorAll(".row");
     if (rows.length === 0) return;
+    entered.current = true;
     animate(rows, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(40, { start: 60 }) });
   }, [menu, reduce]);
+  const off = menu?.menus.flatMap((m) => m.items).filter((i) => !i.available).length ?? 0;
+  async function toggle(item: { id: string; available: boolean }, target: HTMLElement) {
+    setNotice(null);
+    if (!reduce) animate(target, { scale: [1, 1.06, 1], duration: 260, ease: "outQuad" });
+    const problem = await setAvailable(item.id, !item.available);
+    if (problem) setNotice(problem);
+  }
   return (
     <>
       <Screen>
         <div ref={root}>
-          <Header title="Menu" subtitle={menu ? menu.restaurant.location.replace(/, Lagos$/, "") : "Loading the menu"} />
-          {error ? <p role="alert" className="px-[22px] text-[13px] font-semibold text-late">{error.message}</p> : null}
+          <Header title="Menu" subtitle={menu ? (off === 0 ? "Everything is on" : `${WORDS[off] ?? off} sold out`) : "Loading the menu"} />
+          <ConnectionBar stale={!net.online || (!!error && !!menu)} since={net.since} what="the menu" />
+          {notice ? <p role="alert" className="px-[22px] pb-3 text-[13px] font-semibold text-late">{notice}</p> : null}
+          {error && !menu ? <p role="alert" className="px-[22px] text-[13px] font-semibold text-late">{error.message}</p> : null}
+          {!menu && !error ? <DishRowsSkeleton label="Loading the menu" /> : null}
           {menu?.menus.map((section) => (
             <section key={section.id} aria-labelledby={`w-${section.id}`}>
               <h2 id={`w-${section.id}`} className="px-[22px] pb-2 pt-4 text-[12.5px] text-fg-muted">{section.name}</h2>
               <ul>
                 {section.items.map((item) => (
-                  <li key={item.id} className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" style={{ opacity: 0 }}>
-                    <DishPhoto src={item.photo} alt="" size={56} />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="serif text-[20px] leading-[1.2]">{item.name}</h3>
-                      <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
-                      <div className="mt-[10px] flex items-baseline gap-[10px]"><span className="text-[14px] font-semibold text-accent">{item.price}</span><span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span></div>
+                  <li key={item.id} className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" style={{ opacity: 0 }} data-dish={item.id} data-available={item.available}>
+                    <div className={`flex min-w-0 flex-1 items-center gap-[17px] ${item.available ? "" : "opacity-55"}`} style={{ transition: "opacity 300ms" }}>
+                      <DishPhoto src={item.photo} alt="" size={56} />
+                      <div className="min-w-0 flex-1">
+                        <h3 className={`serif text-[20px] leading-[1.2] ${item.available ? "" : "line-through"}`}>{item.name}</h3>
+                        <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
+                        <div className="mt-[10px] flex items-baseline gap-[10px]"><span className="text-[14px] font-semibold text-accent">{item.price}</span><span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span></div>
+                      </div>
                     </div>
+                    <button type="button" role="switch" aria-checked={item.available} aria-label={`${item.name} on the menu`} data-toggle={item.id} onClick={(e) => toggle(item, e.currentTarget)} className="chip press shrink-0 !px-[14px] !py-2 !text-[12.5px]">{item.available ? "On" : "Sold out"}</button>
                   </li>
                 ))}
               </ul>

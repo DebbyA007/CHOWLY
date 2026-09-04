@@ -6,15 +6,18 @@ import { prisma } from "@/lib/prisma";
 import { assertStaffPin } from "@/lib/staff-pin";
 
 // The ticket rail: every order that is placed or served, oldest first, plus the staff
-// lists the waiter picks from when marking an order served. Paid orders have left the
-// floor and are not shown. Gated by the staff PIN, since it lists every table's order.
+// lists the waiter picks from when marking an order served. Orders paid in the last
+// twelve hours come too, for the table board; the live list leaves them out. Behind the
+// staff PIN seam, since it lists every table's order.
+const PAID_KEPT_HOURS = 12;
+
 export function GET(request: Request) {
   return handle(async () => {
     assertStaffPin(request);
     const now = new Date();
     const [orders, waiters, chefs, bartenders] = await Promise.all([
       prisma.order.findMany({
-        where: { status: { in: ["PLACED", "SERVED"] } },
+        where: { OR: [{ status: { in: ["PLACED", "SERVED"] } }, { status: "PAID", paidAt: { gte: new Date(now.getTime() - PAID_KEPT_HOURS * 3_600_000) } }] },
         orderBy: { placedAt: "asc" },
         include: orderInclude,
       }),

@@ -1581,3 +1581,62 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   sentence on the sheet; the rest of the order stays and can be placed. The menu now
   refreshes every thirty seconds and on focus, so a sold-out dish leaves the list
   without a reload. Errors can now carry structured details beside their sentence.
+
+### Commit: `feat: loading shows the shape of the screen`
+
+- Every loading state was a line of text ("Loading the menu.", "Finding your order.",
+  "Opening the floor"). Each screen now shows its own shape in a surface tone that
+  breathes slowly: the menu's chips and dish rows with the round photo and the add
+  circle, the order's ring, three steps and items card, the pay summary with three
+  method rows and the button, the live list's four cards, the open order's card and
+  three fields. Under reduced motion the shapes hold still. The SWR keys moved to one
+  small module so the placement store below could share them without a cycle.
+
+### Commit: `feat: a screen says when it is offline and when it is back`
+
+- The browser's own online and offline events, plus whether the last poll failed after
+  data had arrived, decide whether a screen is stale. A stale screen shows a bar under
+  its header: "Offline since 9:31. Showing the orders as of then." The live list's
+  subtitle stops saying "Five open" on its own and says "As of 9:31 · Five open". When
+  the connection returns every key revalidates and the bar says "Back online.
+  Refreshed." for three seconds, then leaves. The bar is on the menu, the order, the
+  pay screen, the live list, the open order, the table board and the 86 board.
+
+### Commit: `feat: placing and serving answer at once`
+
+- Placing took about three and a half seconds against the live database, and the sheet
+  sat there. Now the tap builds a provisional order on the client, with the promise
+  from the same formula the server uses (the longest prep time, capped), the sheet
+  tears away, and the Order tab opens with the ring already sweeping and a small
+  "Sending to the kitchen" line under the caption. The request runs from a store
+  outside React, so it survives the navigation. When the kitchen's order lands it
+  replaces the provisional one in place: the arc carries on from where it is instead
+  of drawing in again, and the header gains its number.
+- Failure is shown on that same screen: "The kitchen did not get this order", the
+  reason, "Your order is kept on the menu", with Try again and Back to the menu. The
+  kept order is never cleared until the kitchen has it. A dish that sold out under the
+  order is named in the reason and taken off both the kept order and the retry.
+- Marking as served flips the order to served on the rail at once, with the chosen
+  staff, and the pill drains as before; the server's answer replaces it or, on a
+  refusal, the order is put back the way it was and the reason is printed. Verified
+  locally with the request held for two seconds and with a forced 500.
+- Rejected on the way: clearing the cart when the tap happens. It made a refusal lose
+  the order. The store edits the kept order in sessionStorage and the menu re-reads it.
+
+### Commit: `feat: the table board and the 86 board`
+
+- The Tables tab was the live list again, sorted by table. It is now the floor by
+  table: one card per table with every order of the last twelve hours, oldest first,
+  each with its number, count, total and state, and what the table still has to pay,
+  with the night's outstanding total in the subtitle. The waiter API now includes
+  orders paid in the last twelve hours for this; the live list leaves them out.
+- The waiter's Menu tab was the guest menu with nothing to do. It is now the 86 board:
+  every dish on the card with a switch, "On" or "Sold out". Taking a dish off shows at
+  once, is rolled back with the reason if the server refuses, removes the dish from the
+  guests' menu within thirty seconds, and refuses by name any order still carrying it.
+  Retired dishes stay in the database for the orders that name them and are not on
+  the board. New route: `GET` and `PATCH /api/waiter/menu`, strict Zod, behind the
+  same staff seam as the rail.
+- Commits are per concern, but the guest screens carry the loading shapes, the
+  connection bar and the optimistic placement in one file each, so the three commits
+  land the shared modules first and the screens with the placement.
