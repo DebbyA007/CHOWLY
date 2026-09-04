@@ -1816,3 +1816,81 @@ being asked.
   three minutes after placing; no other prep time moved. Photograph: "Bottle of Water"
   by Jiafei Slay Queen on Wikimedia Commons, CC0, cropped square and treated like the
   rest; the credit is in `docs/PHOTOGRAPHY.md`. Seeded on production the same day.
+
+## The tab flicker, and the brand
+
+### Commit: `fix: switching tabs is navigation, not an entrance`
+
+- **Diagnosis, on frames before anything changed.** Under iPhone emulation, with a
+  marker set on the mounted panel and the page scrolled, a tab press was captured at
+  60ms. Every switch mounted a new panel (`main` lost its marker), scrolled to 0, and
+  showed no skeleton (the data was cached), so it was neither a layout shift nor a load.
+  What flickered was the entrance replaying: on Order the ring read opacity 1.00 at
+  +90ms, then 0.10 at +212ms, 0.64, 0.90, 0.98; the steps 0.40 at +697ms, 0.90; the
+  items card 0.57 at +1050ms, 0.91, 0.99: a top-to-bottom fade over 1.3 seconds, with a
+  frame at full opacity before the timeline dropped everything to zero. On Menu the rows
+  went 0.00, 0.26, 0.78, 0.99 over 460ms. That is the glitch: a remount plus an
+  entrance keyed to the mount, plus the one-frame flash from setting the parts to 1
+  before animating them from 0.
+- **Fix.** The tab bar marks a press; a screen that mounts within 1.5 seconds of one
+  reads the mark before its first paint (a layout effect) and sets its parts in place
+  with nothing to animate. Fresh loads, the door and a placed order still get the one
+  entrance. The pre-timeline set to full opacity is gone everywhere. Verified locally in
+  both engines: after the fix every part reads 1.00 from the first frame after the
+  press (+68ms Chromium, +39ms WebKit) on Order to Menu, Menu to Order, Order to Pay,
+  Pay to Order, and Orders to Tables on the waiter side; a reload of Order still enters
+  (ring at 0.69 mid-fade). The scroll still starts at the top, as a new page should.
+
+### Commit: `feat: the mark and the wordmark, in the app`
+
+- The mark is used from the file: `lib/brand.ts` holds the numbers of
+  `public/brand/mark.svg` and `lib/brand.test.mts` reads the file and fails if they
+  differ, so it can never be redrawn by hand. Ochre on the dark ground only; never the
+  ring's tone, because the brand allows no other pairing. The wordmark is a span in
+  Newsreader from next/font, all caps, tracked 0.15em, bone. Horizontal lockup above the
+  title in every header and in the waiter chrome; stacked on the landing between the
+  room and the restaurant's name.
+- **A rule that cannot hold at header size.** The brand says the mark sits at 46
+  percent of the wordmark's cap height, and that the mark is never below 16px. At a
+  12px wordmark the cap height is about 8px, which would put the mark at under 4px. The
+  header lockup keeps the 16px minimum beside a 12px wordmark; the README header, where
+  the wordmark is 118px, follows the 46 percent rule exactly (36px). Both are stated
+  here rather than fudged.
+- The mark animates once, on first arrival at the landing: the arc draws in with the
+  ring's ease and the dot lands last, 1.5 seconds in all; a session flag keeps it from
+  repeating, and reduced motion leaves it still. Frames: `mark-draw-*` under
+  `docs/screens/motion/`.
+
+### Commit: `feat: icons, a social card, titles and a manifest`
+
+- Favicon (`icon.svg` and a 32px PNG), apple-touch-icon at 180 and the manifest's 192
+  and 512, all rendered from `public/icon.svg`. The Open Graph and Twitter card is the
+  stacked lockup with the one-line promise and the restaurant. Before this every route
+  was titled "CHOWLY" with one description; now each names itself under a template,
+  "Menu · CHOWLY", "Your order", "Your bill", "Live orders", "Order", "Tables",
+  "Kitchen menu", with its own line. `manifest.json` carries the name, the icons and
+  `#14120F`.
+
+### Commit: `docs: the mark in the README header`
+
+- The old header set CHOWLY as SVG text in Newsreader, which GitHub renders in Georgia.
+  The wordmark is now outlines, drawn from the Newsreader 400 file with fontTools at
+  118px and 0.15em, beside the mark at 46 percent of its cap height; the ring keeps its
+  animation. The tagline stays as text, since the rule is for the wordmark.
+
+### Commit: `fix: ochre for time and action only, late red for the late state only`
+
+- **The audit.** Every use of ochre and late red outside the tokens was listed. Ochre
+  on prices, totals, the ring, the pot, the active tab, the primary action, the served
+  time, "to pay" on the table board and the mark: all time, money or action, kept.
+  Ochre on the confirmation notices ("Sent. A manager will come over.", "Thanks for
+  rating.") and on the rating scores: neither, changed to bone. Late red on the late
+  state, the report count and the report label: the late state and what it produces,
+  kept. Late red on the offline bar, and ochre on its "Back online": a status, not the
+  late state, changed to bone on the outline. Late red on error messages (a refused
+  order, a failed save, a missing table number): kept, and reported as a judgement
+  call: the brand names the token "the late state only", and an error is the one other
+  thing this app has to be able to shout; if that reading is wrong they become bone in
+  one class. No italics, no tracked-out all-caps labels: the wordmark is the only
+  uppercase setting, and the landing's address is tracked 0.01em, which is not an
+  eyebrow.

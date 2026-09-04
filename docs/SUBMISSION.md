@@ -158,6 +158,14 @@ live URL.
 
 ---
 
+### The identity
+
+The mark, the lockups, the colour rules and the voice are in `docs/BRAND.md`. In the
+app the mark is the file's geometry, checked by a test; the wordmark is Newsreader from
+`next/font`. Every route has its own title and description, the favicon and
+apple-touch-icon come from `public/icon.svg`, a pasted link previews as the stacked
+lockup, and `manifest.json` carries the name and the theme colour.
+
 ## 2. How AI was used
 
 The AI was Claude, working in the terminal as Claude Code, held to the rulebook and the
@@ -263,8 +271,11 @@ process, not the model, is what kept those from shipping.
 
 ### The landing
 
-`/` shows the dining room across the top, the restaurant's name and address, "I'm a
-guest" and "I'm a waiter", and the table. When the link carried `?table=12`, as the card
+`/` shows the dining room across the top, the CHOWLY lockup (the mark, an open ochre
+ring with a dot in its opening, over the wordmark), the restaurant's name and address,
+"I'm a guest" and "I'm a waiter", and the table. On first arrival the mark's arc draws in
+the way the ring sweeps and the dot lands last, once per session. The identity is
+`docs/BRAND.md`; every header carries the horizontal lockup. When the link carried `?table=12`, as the card
 on a real table would, it reads "You're at table 12" with Change. Without one the door
 asks: a small field, "It is on the card on your table", kept for the session on Keep or
 on tapping "I'm a guest", which will not go through without a table and says why. The
@@ -276,9 +287,10 @@ onto a screen that is already there.
 1. `/menu` reads the menu from the client cache, warmed on the landing, and shows Mains,
    Soups and Drinks as chips. Tapping a chip filters in place with no animation. Each
    dish is a 76px round photograph with its name, description, price in naira and the
-   kitchen's minutes. Unavailable items are left out, and the menu refreshes every
-   thirty seconds and on focus, so a dish the kitchen takes off leaves the list without a
-   reload. The rows stagger in on every visit. While the menu loads the screen shows its
+   kitchen's minutes. A dish that has sold out stays on the card, greyed, with a "Sold
+   out" tag where the add circle was, and the menu refreshes every thirty seconds and
+   on focus, so a dish the kitchen takes off greys without a reload. Bottled water,
+   ₦1,000 at one minute, is the fastest way to watch an order run late. The rows stagger in on every visit. While the menu loads the screen shows its
    own shape, the chips and four rows, never a line of text.
 2. Tapping the ochre circle adds the dish; the circle morphs into a stepper pill with
    minus, the count and plus. Decrementing to zero morphs it back.
@@ -334,7 +346,10 @@ replaced. The customer id is never read from a request.
    remaining fraction of the promise, recomputed every second from `placedAt` and
    `waitMinutes`, so a refresh changes nothing and no client-side counter can drift. The
    arc empties as the minutes are used; the numerals inside count down in tabular figures
-   with no reflow. Under the ring: "Promised in 20 minutes · placed 9:04 pm".
+   with no reflow. Above the ring a pot simmers: three wisps of steam on their own
+   periods, never a loop that restarts; late, the pot reddens with the ring and the lid
+   sits ajar; served, the steam thins away. Under reduced motion the pot is still. Under
+   the ring: "Promised in 20 minutes · placed 9:04 pm".
 3. **The derived delay.** Late is `now > placedAt + waitMinutes` while the order is still
    placed. It is computed at read time on the server and on every tick in the browser,
    and never stored. Crossing it flips the screen: the subtitle reads "6 minutes late",
@@ -409,9 +424,14 @@ replaced. The customer id is never read from a request.
 
 ### Pay, and the receipt
 
-1. `/pay` shows the summary card with the lines, the subtotal, VAT and the total, then
-   Card, Bank transfer and Cash at the till, then "Pay ₦18,813 (pretend)". Until the
-   order has been served the button waits, and a line says so.
+1. `/pay` is the bill, where a restaurant puts it: at the end, before the guest leaves.
+   "Your bill", "Served 9:26 pm · settle when you are ready", the bill as it is brought
+   to a table (the table and order number, when it was placed and served, the lines
+   with the price each, the total struck under "To pay", who served, cooked and mixed),
+   then Card, Bank transfer and Cash at the till, each saying what happens next, then
+   "Pay ₦18,813 (pretend)". Until the order has been served the button waits, and a
+   line says so. On Pay the other two ways step back, the bill lifts away, and the
+   receipt prints where it was.
 2. **Payment idempotency.** `POST /api/orders/{id}/pay` carries the method only.
    Ownership is checked inside the query and the order must be served. One transaction
    inserts the payment with `isPretend: true` and the stored total, then flips the status
@@ -453,15 +473,16 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
 1. **Open https://chowly-theta.vercel.app/?table=12.** The dining room, the name, and
    "You're at table 12": the link is what the card on a table would carry. Open it
    without `?table=` and the door asks for the number instead.
-2. **Tap "I'm a guest".** The menu opens on Mains. Tap **Drinks** and add a **Zobo** with
-   the ochre circle; it becomes a stepper. Zobo takes four minutes, and the kitchen's
-   promise is the longest prep time in the order, so an order of only Zobo is late in
-   four minutes, which is short enough to watch the whole story. Add a **Jollof rice**
-   too if you would rather wait twelve.
+2. **Tap "I'm a guest".** The menu opens on Mains. Tap **Drinks** and add a **Bottled
+   water** with the ochre circle; it becomes a stepper. Water takes one minute, and the
+   kitchen's promise is the longest prep time in the order, so an order of only water is
+   late in one minute and fully red two minutes later, which is short enough to watch
+   the whole story. Add a **Zobo** for four minutes, or a **Jollof rice** for twelve.
 3. **View the order.** The cart bar has risen with the count and total. Tap "View order",
    check the table, and tap "Place order". The Order tab opens at once, with "Sending to
    the kitchen" under the ring until the kitchen has it and the number appears.
-4. **Watch the ring.** It empties as the minutes are used, and the numerals count down.
+4. **Watch the pot and the ring.** The pot simmers above the ring; the ring empties as
+   the minutes are used, and the numerals count down.
    Reload the page: the clock is exactly where it was, because it is computed from when
    you placed the order, not from when the page loaded.
 5. **Running late.** When the promise is spent the ring closes and everything ochre has

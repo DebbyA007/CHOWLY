@@ -69,3 +69,20 @@ earlier orders; the 86 board before and after; the sold-out refusal naming Zobo 
 order that went through without it; the guest menu without Zobo; the table board; a late
 order's report as a count on the live row and in full on the open order. `states/crop-*`
 are the element crops of the same.
+
+## The five concerns, the tabs and the brand
+
+From production under iPhone 13 emulation (390 wide, touch, device pixel ratio 3), in
+Chromium and in WebKit; the earlier desktop-viewport captures could not see a phone's
+zoom, which is why the field-size defect got past them.
+
+| Sheet | What it shows |
+|---|---|
+| `five-states.png` | The door with its field in focus at 16px and the scale at 1; bottled water on the card; Zobo greyed with its tag on the card and on the sheet with Remove; the pot cooking, late and settled; the bill; the receipt. WebKit copies prefixed `webkit-` |
+| `chromium-pot.png`, `webkit-pot.png` | The pot: cooking, frames 120ms apart, three wisps at different heights and opacities on every frame; late, the line reddening with the ring and the lid ajar; served, the steam thinning to nothing over seven frames |
+| `chromium-pay-moment.png`, `webkit-pay-moment.png` | Pay: the other ways step back, "Taking payment", the bill lifting away, the receipt printing |
+| `chromium-tabs.png`, `webkit-tabs.png` | Tab switches Order to Menu, Menu to Order, Order to Pay, Pay to Order, frames 60ms apart: every part at full opacity from the first frame after the press, and the same switch before the fix for comparison |
+| `chromium-mark.png`, `webkit-mark.png` | The mark drawing in on first arrival at the landing: the arc sweeping, the dot landing last |
+
+`states/brand-*.png` are the lockups in place: stacked on the landing, horizontal in the
+menu header and the waiter chrome, with element crops `q5-crop-brand-*`.
