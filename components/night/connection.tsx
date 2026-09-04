@@ -64,7 +64,7 @@ export function ConnectionBar({ stale, since, what }: { stale: boolean; since: n
   }, [shown, back, reduce]);
   if (!shown) return null;
   return (
-    <div ref={ref} role="status" data-connection={back ? "back" : "offline"} className={`mx-[22px] mb-3 rounded-[10px] border px-[14px] py-[10px] text-[12.5px] leading-[1.45] ${back ? "border-[color:var(--accent-served-border)] text-accent" : "border-[color:var(--late)] text-late"}`} style={{ opacity: 0 }}>
+    <div ref={ref} role="status" data-connection={back ? "back" : "offline"} className="mx-[22px] mb-3 rounded-[10px] border border-[color:var(--outline)] px-[14px] py-[10px] text-[12.5px] font-semibold leading-[1.45] text-fg" style={{ opacity: 0 }}>
       {back ? "Back online. Refreshed." : `${since ? `Offline since ${clockTime(new Date(since))}` : "Offline"}. Showing ${what} as of then.`}
     </div>
   );

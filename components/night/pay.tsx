@@ -258,14 +258,14 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
         <div className="after px-[22px] pt-5" style={{ opacity: 0 }}>
           {credit ? <p className="text-[12px] leading-[1.6] text-fg-muted">{credit}</p> : null}
           {order.rating ? (
-            <p className="mt-3 text-[13.5px] leading-[1.55]" data-rating>You rated it <span className="font-semibold text-accent">{order.rating.score} of 5</span>{order.rating.comment ? `. ${order.rating.comment}` : "."}</p>
+            <p className="mt-3 text-[13.5px] leading-[1.55]" data-rating>You rated it <span className="font-semibold">{order.rating.score} of 5</span>{order.rating.comment ? `. ${order.rating.comment}` : "."}</p>
           ) : null}
           <div className="mt-5 flex flex-col gap-[10px] pb-[26px]">
             <button type="button" data-rate-open onClick={() => setRating(true)} className="btn-outline press !py-4 !text-[14.5px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
             <Link href="/menu" data-go-menu className="btn-outline press !py-4 !text-[14.5px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
           </div>
         </div>
-        {api.notice ? <p role="status" className="px-[22px] pb-4 text-[13px] font-semibold text-accent">{api.notice}</p> : null}
+        {api.notice ? <p role="status" className="px-[22px] pb-4 text-[13px] font-semibold text-fg">{api.notice}</p> : null}
         {rating ? <ActionSheet kind="rate" api={api} order={order} onClose={() => setRating(false)} /> : null}
       </div>
     </Screen>

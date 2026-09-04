@@ -297,7 +297,7 @@ export function WaiterOrder({ id }: { id: string }) {
                   {order.rating ? (
                     <div className="mt-3">
                       <div className="rule-soft mb-2" />
-                      <p className="text-[14px] leading-[1.5]"><span className="mr-2 font-semibold text-accent">Rated {order.rating.score} of 5</span>{order.rating.comment ?? ""}</p>
+                      <p className="text-[14px] leading-[1.5]"><span className="mr-2 font-semibold">Rated {order.rating.score} of 5</span>{order.rating.comment ?? ""}</p>
                     </div>
                   ) : null}
                 </section>

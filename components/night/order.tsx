@@ -297,7 +297,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
             <span className="serif struck tabular text-[24px]">{order.subtotal}</span>
           </div>
         </section>
-        {api.notice ? <p role="status" className="px-[22px] pb-4 text-[13px] font-semibold text-accent">{api.notice}</p> : null}
+        {api.notice ? <p role="status" className="px-[22px] pb-4 text-[13px] font-semibold text-fg">{api.notice}</p> : null}
         {clock.state === "served" || clock.state === "paid" ? (
           <div className="items px-[22px] pb-6" style={{ opacity: 0 }}>
             <div className="flex flex-col gap-[10px]">
