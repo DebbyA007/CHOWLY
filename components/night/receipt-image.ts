@@ -21,7 +21,6 @@ const SURFACE = "#1d1a16";
 const FG = "#f0ebe1";
 const MUTED = "#9a9287";
 const ACCENT = "#d2a24c";
-const HAIRLINE = "rgba(240,235,225,0.09)";
 const TORN = 9;
 
 // The dashes of the printed rule, taken from the same widths and weights the stylesheet
@@ -100,11 +99,18 @@ function layout(m: CanvasRenderingContext2D, order: SerializedOrder, fonts: Font
   };
   const rule = (y: number, soft = false) => {
     if (!ctx) return;
-    for (const [rx, w, h, o] of RULE) {
-      const scaleX = (x1 - x0) / 240;
-      ctx.fillStyle = `rgba(240,235,225,${soft ? o * 0.72 : o})`;
-      ctx.fillRect(x0 + rx * scaleX, y + (h === 1 ? 0.5 : 0), w * scaleX, h);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0, y, x1 - x0, 2);
+    ctx.clip();
+    // tiled at its own width, the way the stylesheet repeats it, not stretched to fit
+    for (let tile = 0; tile < x1 - x0; tile += 240) {
+      for (const [rx, w, h, o] of RULE) {
+        ctx.fillStyle = `rgba(240,235,225,${soft ? o * 0.72 : o})`;
+        ctx.fillRect(x0 + tile + rx, y + (h === 1 ? 0.5 : 0), w, h);
+      }
     }
+    ctx.restore();
   };
 
   let y = PAD;
@@ -139,7 +145,8 @@ function layout(m: CanvasRenderingContext2D, order: SerializedOrder, fonts: Font
   for (const line of order.items) {
     y += 16;
     text(`${line.quantity}×`, x0, y, "left", font(400, 14, fonts.sans), MUTED);
-    const w = ctx ? (ctx.font = font(400, 14, fonts.sans), ctx.measureText(`${line.quantity}×`).width) : 18;
+    m.font = font(400, 14, fonts.sans);
+    const w = m.measureText(`${line.quantity}×`).width;
     text(line.name, x0 + w + 10, y, "left", font(400, 14, fonts.sans), FG);
     text(line.subtotal, x1, y, "right", font(600, 14, fonts.sans), FG, true);
     y += 8;
@@ -171,8 +178,6 @@ function layout(m: CanvasRenderingContext2D, order: SerializedOrder, fonts: Font
     ctx.globalCompositeOperation = "destination-over";
     ctx.beginPath();
     paperPath(ctx, left, cardTop, CARD_W, cardBottom - cardTop);
-    ctx.fillStyle = SURFACE;
-    ctx.fill();
     ctx.clip();
     for (const f of flecks(120)) {
       ctx.fillStyle = `rgba(240,235,225,${f.o.toFixed(3)})`;
@@ -180,6 +185,10 @@ function layout(m: CanvasRenderingContext2D, order: SerializedOrder, fonts: Font
       ctx.arc(left + f.x * CARD_W, cardTop + f.y * (cardBottom - cardTop), f.r, 0, Math.PI * 2);
       ctx.fill();
     }
+    ctx.beginPath();
+    paperPath(ctx, left, cardTop, CARD_W, cardBottom - cardTop);
+    ctx.fillStyle = SURFACE;
+    ctx.fill();
     ctx.restore();
     // the stamp, over the paper, landed once
     ctx.save();
@@ -200,7 +209,7 @@ function layout(m: CanvasRenderingContext2D, order: SerializedOrder, fonts: Font
     ctx.save();
     ctx.globalCompositeOperation = "destination-over";
     ctx.fillStyle = BG;
-    ctx.fillRect(0, 0, CARD_W + PAD * 2, cardBottom + 60);
+    ctx.fillRect(0, 0, CARD_W + PAD * 2, cardBottom + 400);
     ctx.restore();
   }
 
@@ -214,11 +223,6 @@ function layout(m: CanvasRenderingContext2D, order: SerializedOrder, fonts: Font
   y += 18;
   if (order.rating) text(`Rated ${order.rating.score} of 5`, left, y, "left", font(400, 11.5, fonts.sans), MUTED);
   y += PAD;
-  if (ctx) {
-    ctx.save();
-    ctx.strokeStyle = HAIRLINE;
-    ctx.restore();
-  }
   return y;
 }
 

@@ -2265,3 +2265,59 @@ escape from under the splash reproduced either way; the fix covers both.
   have bitten there: the anchor was being removed in the same tick as its click, which
   cancels the download in some engines, and the image is now prepared ahead of the tap
   rather than during it.
+
+### Commit: `fix: what the review found in the vessel, the bill path and the receipt`
+
+A second adversarial pass over these four changes, four reviewers and three refuting
+verifiers per finding, raised twenty four and confirmed eleven. All were reproduced
+before being fixed.
+
+- **The saved receipt had no fibre in it.** The paper is laid behind the text with
+  `destination-over`, where the last thing drawn ends up furthest back. The card was
+  filled first and the flecks after, so every fleck landed underneath the opaque card.
+  Verified by sampling the file: an empty band of the card held exactly one colour.
+  The flecks are drawn first now and the card after; the same band holds 183.
+- **Two rows of transparent pixels along the foot** of every saved file, because the
+  ground was filled to a height computed before the credit line was added. It now
+  covers the whole canvas.
+- **The printed rule was stretched to fit** rather than tiled at its own width, so it
+  did not match the rule on screen. It is tiled.
+- **"Saved to your downloads." was a claim, not a fact.** Clicking a download link tells
+  you nothing about where the file went, and on iOS it may open a viewer instead. It
+  says "Check your downloads for chowly-receipt-0011-order-1039.png." instead.
+- **The save button was tappable before the image existed**, and that path drew the
+  image inside the tap, which spends the very gesture the pre-render was written to
+  protect: iOS would then refuse the share. The button waits, reading "Preparing the
+  receipt", and only becomes live when the file is in hand.
+- **The status region was mounted together with its first message**, which screen
+  readers routinely miss. It is always in the document now, with `aria-live`, and only
+  its text changes. The kept image is also cleared when the order changes, so a stale
+  receipt cannot be shared as the current one, and the drawing is keyed on what is
+  actually printed rather than on the polled object.
+- **The Pay button and the card under it showed two different amounts**, ₦1,075 and
+  ₦1,000, both presented as what the order costs. The card was labelling the subtotal
+  "Total". It says Subtotal now, with a line saying VAT is added on the bill.
+- **The actions at the foot appeared invisible but reachable** when an order was served
+  with the screen open: they mount at opacity 0 for an entrance that only runs once, on
+  mount. They animate in when they appear, which is the same fault and the same fix as
+  the late note earlier in the build.
+- **Going late restarted the steam.** Every state change rebuilt the five wisps with
+  their staggered delays, so the steam collapsed to a single wisp for over three
+  seconds at exactly the moment a person is watching it. The steam is now its own
+  effect that does not depend on the late state at all: late is carried by the tone and
+  by the lid, which is what was asked for.
+- **Switching orders with the chips replayed the serve transition** for an order served
+  an hour earlier, because the previous state was remembered per component rather than
+  per order. It is keyed on the order now.
+- **A drinks order opened when it was already served drew a pour and faded it out.**
+  It is set straight to a full glass; verified on a fresh visit, the stream reads zero
+  on every frame.
+- Also taken: the id for the glass clip is sanitised to characters a CSS reference
+  accepts, rather than assuming React's format; a dead block that set a colour and drew
+  nothing is gone; the measuring and painting passes now measure through the same
+  context so they cannot disagree; and `pot.tsx`, which the vessel replaced, was still
+  in the tree and is deleted.
+- **Not taken, and said plainly:** when a dish sells out from under a mixed order, the
+  provisional order keeps its food vessel even though what is left is drinks only. The
+  kitchen's own order replaces it within a second or two and is right, and recomputing
+  it would mean giving the placement store the menu it has no other reason to know.

@@ -192,6 +192,19 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
     if (els && els.length) animate(els, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [6, 0], duration: 420, ease: "outQuad", delay: stagger(90) });
   }, [isLate, reduce]);
 
+  // The actions at the foot appear when the order changes under an open screen. The
+  // entrance only runs on mount, so without this they would sit at opacity 0: present,
+  // invisible and still reachable by a keyboard.
+  const settled = clock.state === "served" || clock.state === "paid";
+  const wasSettled = useRef(settled);
+  useEffect(() => {
+    if (settled && !wasSettled.current) {
+      const els = root.current?.querySelectorAll<HTMLElement>(".on-settle");
+      if (els && els.length) animate(els, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [8, 0], duration: 420, ease: "outQuad", delay: stagger(80) });
+    }
+    wasSettled.current = settled;
+  }, [settled, reduce]);
+
   // A step completing swells its dot once.
   useEffect(() => {
     if (doneCount <= lastDone.current) {
@@ -239,7 +252,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           </div>
         ) : null}
         <div className={`flex flex-col items-center px-[22px] pb-[26px] pt-[14px] ${failed ? "hidden" : ""}`} data-state={failed ? "failed" : sending ? "sending" : clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
-          <div className="pot-wrap mb-[2px]" style={{ opacity: 0 }}><Vessel kind={order.kind} state={vesselState} /></div>
+          <div className="pot-wrap mb-[2px]" style={{ opacity: 0 }}><Vessel kind={order.kind} state={vesselState} orderId={order.id} /></div>
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle className="ring-track" cx="92" cy="92" r="82" fill="none" stroke={isLate ? "var(--track-late)" : "var(--track)"} strokeWidth="9" />
@@ -301,13 +314,14 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           ))}
           <div className="rule mt-[10px]" />
           <div className="flex items-baseline justify-between pt-[13px]">
-            <span className="text-[12.5px] text-fg-muted">Total</span>
+            <span className="text-[12.5px] text-fg-muted">Subtotal</span>
             <span className="serif struck tabular text-[24px]">{order.subtotal}</span>
           </div>
+          <p className="mt-[6px] text-[11.5px] text-fg-muted">VAT is added on the bill.</p>
         </section>
         {api.notice ? <p role="status" className="px-[22px] pb-4 text-[13px] font-semibold text-fg">{api.notice}</p> : null}
-        {clock.state === "served" || clock.state === "paid" ? (
-          <div className="items px-[22px] pb-6" style={{ opacity: 0 }}>
+        {settled ? (
+          <div className="items on-settle px-[22px] pb-6" style={{ opacity: 0 }}>
             <div className="flex flex-col gap-[10px]">
               {clock.state === "paid" ? <Link href="/pay" data-go-receipt className="btn-outline press">See the receipt</Link> : null}
               <Link href="/menu" data-go-menu className="btn-outline press" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>

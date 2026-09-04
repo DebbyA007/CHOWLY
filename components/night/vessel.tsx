@@ -36,12 +36,12 @@ const GLASS_INSIDE = "M46.5 45.5 L50.5 87.5 Q50.5 89.5 53 89.5 L67 89.5 Q69.5 89
 const LEVEL_FULL = 49;
 const LEVEL_POURING = 68;
 
-export function Vessel({ kind, state }: { kind: VesselKind; state: VesselState }) {
+export function Vessel({ kind, state, orderId }: { kind: VesselKind; state: VesselState; orderId: string }) {
   const root = useRef<SVGSVGElement>(null);
   const reduce = usePrefersReducedMotion();
   const live = useRef<ReturnType<typeof animate>[]>([]);
-  const was = useRef<VesselState | null>(null);
-  const clipId = useId().replace(/:/g, "");
+  const was = useRef<{ id: string; state: VesselState } | null>(null);
+  const clipId = `glass-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   useEffect(() => {
     const svg = root.current;
@@ -60,8 +60,8 @@ export function Vessel({ kind, state }: { kind: VesselKind; state: VesselState }
     const late = state === "late";
     // The change from cooking to served is the payoff of the wait, so it is played
     // once, when it happens, and not on a screen that simply arrives already served.
-    const arriving = was.current !== null && was.current !== "served" && served;
-    was.current = state;
+    const arriving = was.current !== null && was.current.id === orderId && was.current.state !== "served" && served;
+    was.current = { id: orderId, state };
 
     if (kind === "food") {
       if (!lid || !body || !plate) return;
@@ -98,9 +98,14 @@ export function Vessel({ kind, state }: { kind: VesselKind; state: VesselState }
         return;
       }
       if (served) {
-        live.current.push(animate(stream, { opacity: 0, translateY: -8, duration: 320, ease: "inQuad" }));
-        live.current.push(animate(level, { y: LEVEL_FULL, duration: arriving ? 560 : 0, ease: "outQuad" }));
-        if (arriving) live.current.push(animate(glass, { scale: [1, 1.05, 1], duration: 520, ease: "outQuad", delay: 260 }));
+        if (!arriving) {
+          utils.set(stream, { opacity: 0 });
+          utils.set(level, { y: LEVEL_FULL });
+        } else {
+          live.current.push(animate(stream, { opacity: 0, translateY: -8, duration: 320, ease: "inQuad" }));
+          live.current.push(animate(level, { y: LEVEL_FULL, duration: 560, ease: "outQuad" }));
+          live.current.push(animate(glass, { scale: [1, 1.05, 1], duration: 520, ease: "outQuad", delay: 260 }));
+        }
       } else {
         // a seamless pour: the dash pattern slides by exactly one period, so the flow
         // never shows a seam, and it runs faster when the drink is running late
@@ -110,32 +115,47 @@ export function Vessel({ kind, state }: { kind: VesselKind; state: VesselState }
       }
     }
 
-    // Steam belongs to food: rising from the pot while it cooks, hanging low over the
-    // plate once it is served. A drink does not steam.
-    if (kind === "food") {
-      const rise = served ? SETTLED_RISE : RISE;
-      const peak = served ? 0.5 : late ? 1 : 0.85;
-      const slow = served ? 1.9 : late ? 0.62 : 1;
-      wisps.forEach((wisp, i) => {
-        const w = WISPS[i]!;
-        live.current.push(
-          animate(wisp, {
-            translateY: [0, -rise],
-            translateX: [0, served ? w.drift * 2.2 : w.drift],
-            scaleY: [0.75, served ? 0.9 : 1.3],
-            opacity: [0, peak, peak, peak, 0],
-            duration: w.period * slow,
-            delay: w.delay,
-            loop: true,
-            ease: "linear",
-          }),
-        );
-      });
-    }
     return () => {
       live.current.forEach((a) => a.pause());
     };
-  }, [kind, state, reduce]);
+  }, [kind, state, orderId, reduce]);
+
+  // Steam belongs to food: rising from the pot while it cooks, hanging low over the
+  // plate once it is served. A drink does not steam. It is deliberately not tied to the
+  // late state: going late would restart all five wisps on their staggered delays and
+  // collapse the steam to one for three seconds, at exactly the moment it is being
+  // watched. Late is carried by the tone and by the lid, which is what the brief asks.
+  const steam = useRef<ReturnType<typeof animate>[]>([]);
+  const settled = state === "served";
+  useEffect(() => {
+    const svg = root.current;
+    if (!svg || kind !== "food") return;
+    const wisps = [...svg.querySelectorAll<SVGPathElement>(".wisp")];
+    steam.current.forEach((a) => a.pause());
+    steam.current = [];
+    if (reduce) {
+      utils.set(wisps, { opacity: 0 });
+      return;
+    }
+    const rise = settled ? SETTLED_RISE : RISE;
+    steam.current = wisps.map((wisp, i) => {
+      const w = WISPS[i]!;
+      return animate(wisp, {
+        translateY: settled ? [8, 8 - rise] : [0, -rise],
+        translateX: [0, settled ? w.drift * 1.5 : w.drift],
+        scaleY: [0.75, settled ? 0.9 : 1.3],
+        opacity: [0, settled ? 0.5 : 0.85, settled ? 0.5 : 0.85, settled ? 0.5 : 0.85, 0],
+        duration: w.period * (settled ? 1.9 : 1),
+        delay: w.delay,
+        loop: true,
+        ease: "linear",
+      });
+    });
+    return () => {
+      steam.current.forEach((a) => a.pause());
+    };
+    // the late state is not a dependency on purpose: see the note above
+  }, [kind, settled, reduce]);
 
   return (
     <svg ref={root} width="120" height="96" viewBox="0 0 120 96" className="pot block" style={{ overflow: "visible" }} data-vessel={`${kind}-${state}`} aria-hidden="true">

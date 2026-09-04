@@ -196,47 +196,52 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
   // hand it straight to the share sheet: iOS only accepts a share inside the tap that
   // asked for it, and drawing first would spend that.
   const file = useRef<File | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [notice, setNotice] = useState("");
+  // The receipt only changes when the order it prints does, so the drawing is keyed on
+  // what is actually on the paper rather than on the polled object, which would redraw
+  // the canvas every few seconds for nothing.
+  const printed = `${order.id}:${payment.receiptNo ?? ""}:${order.rating?.score ?? ""}`;
+  const latest = useRef(order);
+  latest.current = order;
   useEffect(() => {
     let dropped = false;
-    void renderReceipt(order).then((blob) => {
-      if (!blob || dropped) return;
-      file.current = new File([blob], receiptFileName(order), { type: "image/png" });
+    file.current = null;
+    setReady(false);
+    void renderReceipt(latest.current).then((blob) => {
+      if (dropped) return;
+      if (!blob) {
+        setNotice("The receipt could not be prepared. Take a screenshot instead.");
+        return;
+      }
+      file.current = new File([blob], receiptFileName(latest.current), { type: "image/png" });
+      setReady(true);
     });
     return () => {
       dropped = true;
     };
-  }, [order]);
+  }, [printed]);
   async function save() {
-    setSaved(null);
-    let ready = file.current;
-    if (!ready) {
-      setSaving(true);
-      const blob = await renderReceipt(order);
-      setSaving(false);
-      if (!blob) {
-        setSaved("The receipt could not be saved. Take a screenshot instead.");
-        return;
-      }
-      ready = new File([blob], receiptFileName(order), { type: "image/png" });
-      file.current = ready;
-    }
+    const image = file.current;
+    if (!image) return;
+    setNotice("");
     // The share sheet is the way a phone saves a picture, and on iOS it is the only one
-    // that reliably puts it in Photos. A browser without it gets a plain download.
+    // that reliably puts it in Photos. A browser without it gets a plain download. The
+    // image is already drawn, so the tap is not spent making it, which is what iOS
+    // needs: it only honours a share inside the gesture that asked for one.
     try {
-      if (navigator.canShare?.({ files: [ready] })) {
-        await navigator.share({ files: [ready], title: `CHOWLY receipt ${payment.receiptNo ?? ""}`.trim() });
+      if (navigator.canShare?.({ files: [image] })) {
+        await navigator.share({ files: [image], title: `CHOWLY receipt ${payment.receiptNo ?? ""}`.trim() });
         return;
       }
     } catch (e) {
       if ((e as Error)?.name === "AbortError") return;
     }
     try {
-      const url = URL.createObjectURL(ready);
+      const url = URL.createObjectURL(image);
       const link = document.createElement("a");
       link.href = url;
-      link.download = ready.name;
+      link.download = image.name;
       link.rel = "noopener";
       document.body.appendChild(link);
       link.click();
@@ -244,9 +249,11 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
       // download in some engines
       window.setTimeout(() => link.remove(), 0);
       window.setTimeout(() => URL.revokeObjectURL(url), 20_000);
-      setSaved("Saved to your downloads.");
+      // What happens next belongs to the browser, so this says where to look rather
+      // than claiming a file landed somewhere it may not have.
+      setNotice(`Check your downloads for ${image.name}.`);
     } catch {
-      setSaved("The receipt could not be saved. Take a screenshot instead.");
+      setNotice("The receipt could not be saved. Take a screenshot instead.");
     }
   }
   useLayoutEffect(() => {
@@ -318,9 +325,11 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
           {order.rating ? (
             <p className="mt-3 text-[13.5px] leading-[1.55]" data-rating>You rated it <span className="font-semibold">{order.rating.score} of 5</span>{order.rating.comment ? `. ${order.rating.comment}` : "."}</p>
           ) : null}
-          {saved ? <p role="status" className="mt-3 text-[12.5px] leading-[1.5] text-fg-muted">{saved}</p> : null}
+          {/* mounted whether or not it has anything to say, so a screen reader is
+              already watching it when it does */}
+          <p role="status" aria-live="polite" className="text-[12.5px] leading-[1.5] text-fg-muted" style={{ marginTop: notice ? 12 : 0 }}>{notice}</p>
           <div className="mt-5 flex flex-col gap-[10px] pb-[26px]">
-            <button type="button" data-save-receipt onClick={save} disabled={saving} className="btn-outline press !py-4 !text-[14.5px]">{saving ? "Preparing the receipt" : "Save the receipt"}</button>
+            <button type="button" data-save-receipt onClick={save} disabled={!ready} className="btn-outline press !py-4 !text-[14.5px]">{ready ? "Save the receipt" : "Preparing the receipt"}</button>
             <button type="button" data-rate-open onClick={() => setRating(true)} className="btn-outline press !py-4 !text-[14.5px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
             <Link href="/menu" data-go-menu className="btn-outline press !py-4 !text-[14.5px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
           </div>
