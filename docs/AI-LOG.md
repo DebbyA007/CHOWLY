@@ -1640,3 +1640,86 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
 - Commits are per concern, but the guest screens carry the loading shapes, the
   connection bar and the optimistic placement in one file each, so the three commits
   land the shared modules first and the screens with the placement.
+
+### Part 4 evidence, from production, Chromium and WebKit
+
+Captured against https://chowly-theta.vercel.app on 2026-09-04 at 390 wide, in headless
+Chromium and in Playwright's WebKit 26.5, with a script that drives a guest tab and a
+waiter tab through every fix. The frames, the states and the crops are in
+`docs/screens` (see its README); the page's own reports at each frame are below. The
+four test orders of each run were deleted afterwards.
+
+**Placing answers at once** (`motion/*/place-optimistic-*`). The POST was held 2.5 s
+by the browser on top of the real latency. Chromium, from the tap: +52ms still on the
+menu with the provisional order already selected; +1208ms on `/order`, state
+`sending`, title "Your order", ring offset 0.37 and sweeping (0.63, 0.90, 1.15, 1.40,
+1.66 ... 3.74 at +5903ms); +6264ms state `waiting`, title "Order #1001", ring 1.41 and
+sweeping on (1.68, 1.93, 2.19, 2.44, 2.69). WebKit: `/order` at +1163ms, the kitchen's
+order at +6582ms, the same shape. The offset steps from 3.74 to 1.41 when the kitchen's
+order lands because its `placedAt` is the server's, two and a half seconds after the
+provisional one; the arc does not redraw from empty, it is corrected by the clock it
+is meant to follow. The failure path, with the POST aborted: the same screen reads "Not
+sent", the card says "The kitchen did not get this order. Check the connection and try
+again. Your order is kept on the menu.", Try again placed it as #1002, and the Order
+tab then showed two chips, #1002 and #1001, switching in place.
+
+**Serving answers at once** (`motion/*/serve-optimistic-*`). The PATCH held 2 s.
+Chromium: +24ms after the press the pill already reads "Served at 7:51 am" and the
+button is gone; it holds through +3107ms and after the server answers. WebKit: the
+same from +21ms. With the server forced to answer 500: no "Served at" was shown during
+the request (the optimistic flip was put back before the alert), the button came back,
+and the alert printed the server's sentence.
+
+**Offline and back** (`states/q-offline-*`, `motion/*/back-online-*`). With the
+browser offline for four and a half seconds: the order screen's bar read "Offline since
+7:50 am. Showing your order as of then."; the live list's subtitle read "As of 7:51 am
+· Two open" and its bar "Offline since 7:51 am. Showing the orders as of then." On
+reconnecting, both showed "Back online. Refreshed." from the first frame (+41ms and
++48ms) through +1.4 s, and the bar was gone by +2.8 s. WebKit: the same.
+
+**The loading shapes** (`states/q-skeleton-*`): the menu, the order, the pay screen,
+the live list and the open order, each caught with its API held 3 s, each showing its
+own shape.
+
+**The door** (`states/q-landing-table*`): without `?table=` the landing asked; tapping
+"I'm a guest" with the field empty printed "Enter the number on the card on your
+table." and stayed at `/`; after Keep it read "You're at table 12" with Change, and the
+menu's pill opened the same question as a sheet.
+
+**The roster** (`motion/chromium/picker-sheet-*`, `states/q-live-*`): the pill read
+"Who's serving?"; the sheet entered over 300ms (opacity 0.39, 0.97, 1); after choosing,
+the pill read "Ada O." on both screens and the open order's waiter chip followed it.
+
+**Rating and the receipt** (`states/q-order-rated`, `q-receipt-rated`): #1002, served
+on time, was rated 4 of 5 from the order screen; the order read "You rated it 4 of 5."
+and so did the receipt, beside "Order something else". The paid order's screen offered
+"See the receipt" and listed #1001 under "Earlier orders" with its time, count, state
+and total.
+
+**The 86 board and the sold-out refusal** (`motion/chromium/86-toggle-*`,
+`states/q-86-*`, `q-place-soldout`, `q-menu-without-zobo`): Zobo switched to "Sold
+out" on the first frame after the tap, the subtitle read "One sold out"; the guest,
+who had Zobo and Chapman on the order from before, placed and got "Zobo has just sold
+out and has been taken off your order." with the kept order reduced to Chapman; Try
+again placed #1003 with Chapman alone; the guest's Drinks then listed Chapman, Mojito
+and Merlot 2018 only. Switched back: "Everything is on".
+
+**The table board** (`states/q-tables`): "One table to settle · ₦9,138 outstanding";
+Table 12 with #1001 Served 7:51 am, #1002 Paid 7:52 am, #1003 Just placed, and
+"₦9,138 to pay". The live list showed two rows, the paid one gone.
+
+**The report reaching the waiter** (`states/q-live-report-count`,
+`q-waiter-order-report`, Chromium only): a four-minute Zobo order, #1004, ran late; the
+guest sent "The zobo has not come and we are about to leave."; the live row read
+"1 report" in red beside "1 min late", and the open order showed it in full under
+"From the table" with its time, 7:56 am.
+
+### Commit: `fix: the order screen does not enter twice when the kitchen's order lands`
+
+- Caught by the placement frames above, not by the walk: at the frame where the
+  kitchen's order replaced the provisional one (place-optimistic-15 in Chromium) the
+  ring, and two frames later the items card, dipped to half opacity and came back. The
+  entrance is keyed on the order id so that it plays once per order, and the id
+  changes from `pending:…` to the real one. The entrance now knows when it is the same
+  screen carrying on, as the ring already did, and leaves the pieces where they are.
+  The placement frames were captured again in both browsers after the fix.

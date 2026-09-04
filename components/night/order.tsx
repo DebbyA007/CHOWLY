@@ -147,9 +147,15 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   }, [order.id, order.status, order.placedAt, order.waitMinutes, reduce]);
 
   // The entrance, every visit: the ring settles, the caption, the steps, the items.
+  // Not again when the kitchen's order replaces the provisional one: that is the same
+  // screen carrying on, and the pieces are already there.
+  const enteredFor = useRef<string | null>(null);
   useEffect(() => {
     const el = root.current;
     if (!el) return;
+    const continuing = enteredFor.current !== null && isPending(enteredFor.current) && !isPending(order.id);
+    enteredFor.current = order.id;
+    if (continuing) return;
     const parts = [".ring-wrap", ".caption", ".late-note", ".late-actions", ".step", ".items"].filter((s) => el.querySelector(s));
     if (reduce) {
       animate(parts, { opacity: [0, 1], duration: 200 });
