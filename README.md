@@ -250,7 +250,7 @@ authentication, by design; the server-side seam for the waiter routes stays behi
 
 Every photograph is served from this repository, because the Content Security Policy
 allows images from its own origin only. Each was downloaded from an openly licensed
-source, cropped square, resized, and given one CSS treatment so eleven sources read as
+source, cropped square, resized, and given one CSS treatment so twelve sources read as
 one shoot. The source, author and licence of every image are in
 [`docs/PHOTOGRAPHY.md`](docs/PHOTOGRAPHY.md).
 
@@ -260,6 +260,7 @@ one shoot. The source, author and licence of every image are in
 - [`docs/AI-LOG.md`](docs/AI-LOG.md): the AI log, written as the work happened, with every rejection and correction.
 - [`docs/screens/README.md`](docs/screens/README.md): every screen and state at 390, in Chromium and in WebKit.
 - [`docs/PHOTOGRAPHY.md`](docs/PHOTOGRAPHY.md): the photographs, their sources and licences.
+- [`docs/BRAND.md`](docs/BRAND.md): the mark, the lockups, the colour rules and the voice.
 - [`docs/design-ref`](docs/design-ref/design_handoff_chowly_night_service/README.md): the design handoff the build follows.
 - [`docs/directions/README.md`](docs/directions/README.md): the first three art directions and their critique, from before the handoff.
 - [`docs/BUILD-PLAN.md`](docs/BUILD-PLAN.md): the order of work, one commit per step.

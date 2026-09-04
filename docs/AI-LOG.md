@@ -1894,3 +1894,29 @@ being asked.
   one class. No italics, no tracked-out all-caps labels: the wordmark is the only
   uppercase setting, and the landing's address is tracked 0.01em, which is not an
   eyebrow.
+
+### Evidence for the tab fix and the brand, from production
+
+Captured against https://chowly-theta.vercel.app under iPhone 13 emulation, in Chromium
+and in WebKit, after the deploy carried "Tables · CHOWLY" and the manifest.
+
+- **Tab switches** (`motion/*/tab-*`, sheets `chromium-tabs.png`, `webkit-tabs.png`).
+  With the page scrolled and the panel marked, each press mounted a new panel at the
+  top, and every part of the new screen read opacity 1.00 on the first frame and every
+  frame after: Order to Menu at +87ms (Chromium) and +66ms (WebKit), Menu to Order at
+  +64ms and +50ms with the pot, the ring, the steps and the items all at 1.00, Order to
+  Pay at +62ms and +49ms with the bill and the methods at 1.00, Pay to Order at +63ms
+  and +50ms; Orders to Tables on the waiter side, ten frames, the first card at 1.00
+  throughout. A reload of Order still entered (the ring caught at 0.62 and 0.97 mid
+  fade). The sheet carries the same switches before the fix, from the dev server, for
+  the comparison: the rows and the ring fading in top to bottom.
+- **The mark** (`motion/*/mark-draw-*`, sheets `chromium-mark.png`, `webkit-mark.png`).
+  First arrival: the arc's dash offset ran 104 at +269ms, 43 at +671ms, 3 at +1050ms,
+  then the dot landed (Chromium); WebKit 37 at +116ms, 11 at +350ms, 2 at +557ms. A
+  reload drew nothing: the mark was simply there.
+- **Out of the app.** `/manifest.json` 200 as JSON, `/opengraph-image.png` 200 as PNG
+  at 1200 by 630, `/apple-icon.png`, `/icon.svg` and `/icon.png` 200; the landing's
+  head carries the manifest link, `og:title`, `og:description`, `og:url`, `og:image`
+  with its size, `og:type` and `twitter:card summary_large_image`; the tables route is
+  titled "Tables · CHOWLY". `states/brand-*` and `q5-crop-brand-*` are the lockups in
+  place on the landing, the menu header and the waiter chrome.
