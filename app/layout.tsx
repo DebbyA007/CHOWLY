@@ -1,43 +1,30 @@
-import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Newsreader, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { RailHeader } from "@/components/pass/rail-header";
-import { StaffPinProvider } from "@/components/staff-pin";
 
-// Two families and no third. Fraunces carries the restaurant name and the big numbers
-// with its soft and wonk axes loaded; IBM Plex Mono carries everything a printer would
-// print, which in this world is everything else. Both self-hosted by next/font.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  axes: ["SOFT", "WONK", "opsz"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const plex = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-plex",
-  display: "swap",
-});
+// Two families and no third. Newsreader for display only: the restaurant name, screen
+// titles, dish names, money totals. Space Grotesk for everything else, and it carries
+// a real naira glyph. Both self-hosted by next/font.
+const newsreader = Newsreader({ subsets: ["latin"], axes: ["opsz"], variable: "--font-newsreader", display: "swap" });
+const grotesk = Space_Grotesk({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-grotesk", display: "swap" });
 
 export const metadata: Metadata = {
   title: "CHOWLY",
-  description: "Order at your table, watch the wait, and pay before you leave.",
+  description: "Order at your table, track your order, and pay before you leave.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+  themeColor: "#14120F",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${plex.variable}`}>
-      <body className="steel antialiased">
-        <StaffPinProvider>
-          <RailHeader />
-          {children}
-        </StaffPinProvider>
+    <html lang="en" className={`${newsreader.variable} ${grotesk.variable}`}>
+      <body>
+        <div className="app">{children}</div>
       </body>
     </html>
   );
