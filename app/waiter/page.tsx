@@ -1,14 +1,6 @@
-import { PinPlate } from "@/components/pass/pin-plate";
-import { Rail } from "@/components/pass/rail";
+import { LiveOrders } from "@/components/night/waiter";
 
-export const metadata = { title: "CHOWLY" };
-
+// Screen 5. Live orders.
 export default function WaiterPage() {
-  return (
-    <main className="mx-auto w-full max-w-6xl px-5 pb-16 pt-6 sm:px-8">
-      <PinPlate>
-        <Rail />
-      </PinPlate>
-    </main>
-  );
+  return <LiveOrders />;
 }
