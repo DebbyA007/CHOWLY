@@ -1656,9 +1656,9 @@ selected; by +1841ms on `/order`, state `sending`, title "Your order", ring offs
 and sweeping (2.77, 3.01, 3.26, 3.49, 3.74 at +5904ms); +6242ms state `waiting`, title
 "Order #1001", ring 1.46 and sweeping on (1.70, 1.95, 2.19, 2.44, 2.68), and the ring
 and the items card logged at opacity 1 on every frame through the change. WebKit,
-captured before that fix: `/order` at +1163ms, the kitchen's order at +6582ms, the
-same shape, with the dip the fix removed; its re-capture waits on the checkpoint noted
-at the end of this entry. The offset steps from 3.74 to 1.41 when the kitchen's
+captured again once the checkpoint noted at the end of this entry had lifted: the
+same shape, the ring and the items card at opacity 1 on every frame through the
+change; the frame reports are in `docs/screens/motion/webkit/`'s sheet. The offset steps from 3.74 to 1.41 when the kitchen's
 order lands because its `placedAt` is the server's, two and a half seconds after the
 provisional one; the arc does not redraw from empty, it is corrected by the clock it
 is meant to follow. The failure path, with the POST aborted: the same screen reads "Not
@@ -1735,9 +1735,9 @@ address (two full runs, each polling the rail every three seconds from several t
 plus a deploy poll). A real browser passes it in about four seconds with a spinner and
 lands on CHOWLY; Chromium passed it once its automation flag was hidden, and the
 Chromium frames above are from after it. Playwright's WebKit did not pass it, with or
-without the cookie from the Chromium pass, so the WebKit placement frames are the ones
-from before the entrance fix. Nothing in the app changed; the checkpoint is at the
-edge, before the app. It should lift on its own once the traffic stops; if it is still
-there when the link is opened for grading, the spinner page is what a visitor sees for
-a few seconds first.
+without the cookie from the Chromium pass. Nothing in the app changed; the checkpoint
+is at the edge, before the app. It lifted on its own about forty minutes after the
+traffic stopped, and the WebKit placement frames were captured again then. If it is
+ever there when the link is opened for grading, the spinner page is what a visitor
+sees for a few seconds first.
 
