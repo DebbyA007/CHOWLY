@@ -74,6 +74,14 @@ proven while the app was two files. That is where the framework preset problem w
 caught: Vercel had detected the wrong preset for the repository, and the fix was one
 dashboard setting made before there was anything to lose.
 
+**One commit that needs explaining.** The zoom fix, the sold-out state on the menu, the
+bill, the pot and the bottled water are all inside `b511fc2`, whose message is "docs: add
+the brand mark, app icon and brand guidelines": that commit was made from the working
+tree while those five were being finished, and it took everything in it, so the commit
+after it, "feat: bottled water, a one-minute dish", carries only their log entries. Main
+was not rewritten. `docs/AI-LOG.md` records each of the five under its own heading in the
+section "Five concerns after the Part 4 repair", with the message each would have had.
+
 ### The stack
 
 Next.js 15.5 with the App Router and strict TypeScript; Tailwind v4 with the handoff's
