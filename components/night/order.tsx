@@ -259,11 +259,18 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
                 <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
               </div>
             </>
-          ) : served ? (
+          ) : served && !paid ? (
+            <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
+              <p className="pretty text-center text-[13.5px] leading-[1.55] text-fg-muted">Settle the bill whenever you are ready.</p>
+              <Link href="/pay" data-go-pay className="btn-primary press !py-[17px] !text-[15px]">Pay {order.total}</Link>
+              {order.rating ? <p className="mt-1 text-center text-[13.5px] leading-[1.55]">You rated it {order.rating.score} of 5.</p> : null}
+              <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
+              {api.late ? <button type="button" data-report onClick={() => setSheet("report")} className="btn-outline press !py-[15px] !text-[14px]">Report a problem</button> : null}
+            </div>
+          ) : paid ? (
             <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
               {order.rating ? <p className="text-center text-[13.5px] leading-[1.55]">You rated it {order.rating.score} of 5.</p> : null}
               <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
-              {api.late ? <button type="button" data-report onClick={() => setSheet("report")} className="btn-outline press !py-[15px] !text-[14px]">Report a problem</button> : null}
             </div>
           ) : null}
         </div>
@@ -301,7 +308,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
         {clock.state === "served" || clock.state === "paid" ? (
           <div className="items px-[22px] pb-6" style={{ opacity: 0 }}>
             <div className="flex flex-col gap-[10px]">
-              {clock.state === "served" ? <Link href="/pay" data-go-pay className="btn-primary press">Pay</Link> : <Link href="/pay" data-go-receipt className="btn-outline press">See the receipt</Link>}
+              {clock.state === "paid" ? <Link href="/pay" data-go-receipt className="btn-outline press">See the receipt</Link> : null}
               <Link href="/menu" data-go-menu className="btn-outline press" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
             </div>
           </div>

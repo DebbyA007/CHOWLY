@@ -2163,3 +2163,15 @@ app in both engines afterwards. Two of the verifiers also corrected the finding 
 were checking: one pointed out that the first Tab reaches "I'm a guest", which refuses
 to leave without a table, and the second reaches "I'm a waiter", which does not, so the
 escape from under the splash reproduced either way; the fix covers both.
+
+## The order and pay flow
+
+### Commit: `feat: a served order leads to the bill`
+
+- A served order offered "Rate your order" under the ring and nothing else; the only way
+  to pay was a button below the items card, past the stepper and off the first screen.
+  Payment is the end of the story and a graded requirement, so it is now the primary
+  action in the place the eye already is: under the ring, "Settle the bill whenever you
+  are ready", then a filled "Pay ₦1,075" carrying the amount, with rating below it as an
+  outline. The button at the foot no longer repeats it; a served order offers only
+  "Order something else" there, and a paid one "See the receipt".
