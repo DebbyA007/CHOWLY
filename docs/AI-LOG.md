@@ -2098,3 +2098,28 @@ found five real defects. All five were reproduced by hand before being fixed.
 - The deferred `data-warm` write that the review also flagged is gone: the document's
   own state now says whether the splash has run, so there is no window in which a
   freshly mounted splash is hidden mid-run.
+
+### Commit: `fix: the lockup does not move the header, and its ring is not clipped`
+
+The same review, on two further dimensions, found four more, all measured before and
+after rather than argued.
+
+- **The link was adding 8px to every header.** `inline-flex` makes the anchor an
+  inline-level box, so the line box around it carries the font's leading. Measured on
+  the menu and the waiter list: header 112.5px tall with the title's top at y=48. With
+  `flex w-fit` instead: 104.5px and y=40, which is the header block the design pins at
+  `14px 22px 16px`. The 8px the review predicted, to the pixel.
+- **The focus ring was clipped off the top of the screen.** The target reaches 44px by
+  padding out from a 16px row and pulling the margin back, so its box starts at the very
+  top of the header; a ring drawn 4px outside it sat at y = -5. The ring is now drawn
+  2px inside the box, which is never clipped and still marks the real target, so what a
+  keyboard sees is the area that is actually tappable.
+- **`pr-2` pushed the lockup off the gutter** in the back-variant header, where the
+  lockup is the right-hand item and the design puts it on the 22px gutter. Removed; the
+  target is 90 by 44, still past the minimum.
+- **The tab-press window outlived the tap.** Pressing a tab and then tapping the lockup
+  within 1.5 seconds left the mark set, so the next screen opened after the door could
+  skip its entrance. The lockup clears it: going home is an arrival, not a tab press.
+- Two more from the review, both taken: the cookie is written with `Secure` over HTTPS,
+  and the stale comment in `lib/splash.ts` claiming the server decides the splash was
+  corrected, since an inline script decides it now.

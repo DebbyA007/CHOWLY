@@ -1,5 +1,5 @@
-// The splash's fixed numbers, shared by the server (which decides whether to show it)
-// and the client (which runs it).
+// The splash's fixed numbers, shared by the inline script in the root layout (which
+// reads the cookie before first paint) and the component that runs the splash.
 export const SPLASH_COOKIE = "chowly-splash";
 export const HANDOFF_EVENT = "chowly:splash-handoff";
 // The mark's arc is 136 user units long in its 100 by 100 viewBox: the dasharray, and

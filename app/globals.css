@@ -88,10 +88,12 @@ html[data-warm] [data-splash] {
 }
 
 /* The lockup is the way home; a keyboard sees where it is. */
+/* The target reaches the top of the header, so the ring is drawn inside its box: an
+   outset ring would be clipped off the top of the viewport. */
 .home:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 4px;
-  border-radius: 6px;
+  outline-offset: -2px;
+  border-radius: 8px;
 }
 
 /* The wordmark: Newsreader 400, all caps, tracked 0.15em, bone. The only all-caps setting. */

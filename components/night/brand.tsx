@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLayoutEffect, useRef } from "react";
+import { clearTabPress } from "./arrival";
 import { animate, utils } from "animejs";
 import { MARK_DOT, MARK_INK, MARK_PATH, MARK_STROKE, MARK_VIEWBOX } from "@/lib/brand";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
@@ -42,7 +43,7 @@ export function Lockup({ variant = "horizontal", className = "" }: { variant?: "
     );
   }
   return (
-    <Link href="/" aria-label="CHOWLY, home" className={`home press -my-[14px] inline-flex min-h-[44px] items-center gap-[8px] py-[14px] pr-2 ${className}`} data-lockup="horizontal" data-home>
+    <Link href="/" aria-label="CHOWLY, home" onClick={clearTabPress} className={`home press -my-[14px] flex w-fit min-h-[44px] items-center gap-[8px] py-[14px] ${className}`} data-lockup="horizontal" data-home>
       <Mark size={16} />
       <Wordmark size={12} className="translate-y-[1px]" />
     </Link>

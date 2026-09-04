@@ -138,7 +138,8 @@ export function Splash() {
         setPhase("handoff");
         window.dispatchEvent(new Event(HANDOFF_EVENT));
         try {
-          document.cookie = `${SPLASH_COOKIE}=1; path=/; SameSite=Lax`;
+          const secure = window.location.protocol === "https:" ? "; Secure" : "";
+          document.cookie = `${SPLASH_COOKIE}=1; path=/; SameSite=Lax${secure}`;
         } catch {
           // then it shows again next time, which is a brand moment, not a fault
         }

@@ -13,6 +13,12 @@ export function markTabPress() {
   pressedAt = Date.now();
 }
 
+// Anything that is an arrival rather than a tab press closes the window again, so a
+// screen opened just after one does not borrow its "no entrance" from it.
+export function clearTabPress() {
+  pressedAt = 0;
+}
+
 export function arrivedByTab(): boolean {
   return Date.now() - pressedAt < TAB_PRESS_WINDOW_MS;
 }
