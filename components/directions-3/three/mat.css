@@ -1,0 +1,116 @@
+/* Direction three: The Placemat. Your table at a buka at dusk, seen from above: a
+   printed cloth, a kraft placemat the interface is printed on, an enamel bowl, and a
+   glass of water whose ice is the clock. The interface sits inside the picture. */
+.placemat {
+  --indigo: #22406b;
+  --indigo-deep: #182f52;
+  --print: #d8a03a;
+  --print-white: #f2e9d8;
+  --kraft: #c9a46e;
+  --kraft-dark: #b98f58;
+  --kraft-line: #8a6a3c;
+  --ink: #26211c;
+  --ink-soft: #5b5145;
+  --enamel: #f1ece0;
+  --enamel-rim: #1f2a3c;
+  --slip: #f7f2e6;
+  --water: #a7c7d6;
+  --ice: #e8f3f7;
+  --glass-line: #3e4a57;
+  --pepper: #b8342a;
+  color: var(--ink);
+  background-color: var(--indigo);
+  /* the cloth: a wax print of rings and diamonds, ochre and off-white on indigo */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect width='72' height='72' fill='%2322406b'/%3E%3Ccircle cx='36' cy='36' r='22' fill='none' stroke='%23f2e9d8' stroke-width='3'/%3E%3Ccircle cx='36' cy='36' r='13' fill='none' stroke='%23d8a03a' stroke-width='4'/%3E%3Cpath d='M36 28l8 8-8 8-8-8z' fill='%23f2e9d8'/%3E%3Cpath d='M0 0l7 7-7 7zM72 0l-7 7 7 7zM0 72l7-7-7-7zM72 72l-7-7 7-7z' fill='%23d8a03a'/%3E%3Ccircle cx='36' cy='4' r='2.5' fill='%23d8a03a'/%3E%3Ccircle cx='36' cy='68' r='2.5' fill='%23d8a03a'/%3E%3Ccircle cx='4' cy='36' r='2.5' fill='%23d8a03a'/%3E%3Ccircle cx='68' cy='36' r='2.5' fill='%23d8a03a'/%3E%3C/svg%3E");
+  font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif;
+}
+.placemat .young {
+  font-family: var(--font-young), "Young Serif", Georgia, serif;
+  font-weight: 400;
+}
+/* Kraft: the placemat, with the fibre of the paper drawn in and a darker torn edge. */
+.placemat .kraft {
+  background-color: var(--kraft);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='30'%3E%3Cg stroke='%238a6a3c' stroke-opacity='0.18' stroke-width='1' fill='none'%3E%3Cpath d='M2 7l18 1M30 4l12 2M55 9l22-1M8 19l14 1M40 17l9 1M66 22l17-1M20 27l30 1'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.16'%3E%3Ccircle cx='14' cy='13' r='1'/%3E%3Ccircle cx='62' cy='4' r='0.8'/%3E%3Ccircle cx='80' cy='26' r='1'/%3E%3C/g%3E%3C/svg%3E");
+  border: 2px solid var(--kraft-dark);
+  border-radius: 6px;
+  color: var(--ink);
+}
+/* A paper slip, clipped on: the chits, the notes, the bill. */
+.placemat .slip {
+  background: var(--slip);
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(38, 33, 28, 0.35);
+  position: relative;
+}
+.placemat .slip.clipped::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  width: 12px;
+  height: 26px;
+  border: 2.5px solid var(--glass-line);
+  border-radius: 6px;
+  background: transparent;
+}
+/* Enamel: a white bowl with a dark rim and one chip, the way every buka bowl has. */
+.placemat .enamel {
+  background: var(--enamel);
+  border: 3px solid var(--enamel-rim);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  position: relative;
+  box-shadow: 3px 4px 0 rgba(24, 47, 82, 0.35);
+}
+.placemat .enamel::after {
+  content: "";
+  position: absolute;
+  top: 12%;
+  left: 14%;
+  width: 6px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--enamel-rim);
+  opacity: 0.85;
+}
+.placemat .btn {
+  font-weight: 800;
+  background: var(--enamel-rim);
+  color: var(--slip);
+  border: 2px solid var(--enamel-rim);
+  padding: 0.7rem 1.2rem;
+  border-radius: 4px;
+}
+.placemat .btn.quiet {
+  background: var(--slip);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.placemat .btn:disabled {
+  opacity: 0.55;
+}
+.placemat .field {
+  font: inherit;
+  background: #fff;
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+}
+.placemat :focus-visible {
+  outline: 3px solid var(--print);
+  outline-offset: 3px;
+}
+/* The water ring spreads on the kraft; the ice melts. Both glide, and step under reduced motion. */
+.placemat .ring-wet,
+.placemat .cube {
+  transition: all 1000ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .placemat .ring-wet,
+  .placemat .cube {
+    transition-duration: 2000ms;
+  }
+}
