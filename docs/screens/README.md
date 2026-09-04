@@ -1,26 +1,38 @@
-# Screens of Night Service
+# Screens and evidence of Night Service
 
-Every screen and state of the app, captured at 390 wide against the dev server on the
-seeded data. The numbered frames are from headless Chromium, clicked through in order;
-the `webkit-` frames are the same screens rendered by the system WebKit, Safari's
-engine, which is the one that caught the CSP fault in an earlier round. Times are the
-machine's local time at capture.
+Everything here was captured against the deployed app at
+https://chowly-theta.vercel.app at 390 wide, in headless Chromium and in Playwright's
+WebKit 26.5. Times in the frames are the machine's local time at capture.
 
-| File | Screen and state |
+## The screens, numbered
+
+The `0x-*-390.png` frames at the top of this folder are the eight screens of the handoff
+and their states, clicked through in order in Chromium on the dev server before the
+repair. The same screens after the repair, from production, are in `after/`.
+
+## Before and after the repair
+
+`before/` holds every screen and the element crops from production before the repair;
+`after/` holds the same from production after it. The pairs that matter are on one sheet,
+`motion/sheets/before-after.png`: the order card, a live-orders row, the waiter's order
+card, the pay summary and the receipt, at two times.
+
+## Motion, as frames
+
+Every sequence below is a real order on production, captured as consecutive frames, in
+`motion/chromium/` and `motion/webkit/`, with a contact sheet of each in `motion/sheets/`.
+
+| Sheet | What it shows |
 |---|---|
-| `01-landing-390.png` | Screen 1. The dining room, the name, the two ways in, the table |
-| `02-menu-390.png` | Screen 2. Mains, the round photographs, the add circles, the empty cart strip |
-| `02b-menu-cart-390.png` | Drinks, with Chapman at 2 on the stepper and the cart bar risen: 4 items, ₦18,813 |
-| `02c-order-review-390.png` | The order sheet: lines with steppers, subtotal, VAT, total, the table, Place order |
-| `03-order-placed-390.png` | Screen 3. The ring emptying, 19:57 of 20 minutes, the stepper, the items |
-| `04-order-late-390.png` | Screen 4. Six minutes late: the ring closed in red, the note, the two actions |
-| `04b-report-390.png` | Report a problem, the sheet |
-| `04c-rate-390.png` | Rate your order, 4 of 5 chosen |
-| `05-waiter-orders-390.png` | Screen 5. Live orders: one open, one drink pending, Ada O., the late row |
-| `06-waiter-order-390.png` | Screen 6. The order open: placed, six minutes late, the lines with their minutes, chef and bartender |
-| `06b-waiter-served-390.png` | Marked as served: the button has become the record of when |
-| `07-pay-390.png` | Screen 7. The summary with VAT, three methods, Pay ₦18,813 (pretend) |
-| `08-receipt-390.png` | Screen 8. The receipt printed: perforation, ruled lines, the stamp, the torn foot, the credit line |
-| `webkit-landing-390.png`, `webkit-menu-390.png`, `webkit-waiter-390.png`, `webkit-waiter-menu-390.png` | The same screens in WebKit |
+| `chromium-sweep.png`, `webkit-sweep.png` | The ring drawing in and then sweeping, ten frames about 300ms apart; the offsets logged before each frame are in the AI log |
+| `chromium-cross.png` | The promise crossing on a four-minute order: twelve frames fifteen seconds apart, the arc emptying, then refilling while ochre becomes red, then closed and red, and the whole screen at the end |
+| `chromium-place.png`, `webkit-place.png` | Placing an order, from the tap through the sheet leaving to the Order tab with the ring drawing in |
+| `chromium-serve.png`, `webkit-serve.png` | Mark as served, from the press through the wait to the pill draining into the record |
+| `chromium-print.png`, `webkit-print.png` | The receipt printing: the card feeding down from the perforation, the lines, the stamp landing, the credit and the button |
 
-The earlier set, of The Pass, is in the history of this folder at the merge of phase 4b.
+## States
+
+`states/` holds what a stranger meets off the happy path, from production: the landing
+without a table on the link, the Order and Pay tabs with no order, a waiter order that
+does not exist, the 404, the three loading states caught early, placing an order while
+offline, and the live list seven seconds after going offline.
