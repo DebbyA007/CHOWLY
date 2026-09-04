@@ -19,6 +19,6 @@ export function preloadMenu() {
 }
 
 export function useMenu() {
-  const { data, error } = useSWR<MenuView>(MENU_KEY, menuFetcher, { revalidateOnFocus: false, dedupingInterval: 60_000 });
+  const { data, error } = useSWR<MenuView>(MENU_KEY, menuFetcher, { revalidateOnFocus: true, refreshInterval: 30_000, dedupingInterval: 10_000 });
   return { menu: data ?? null, error };
 }

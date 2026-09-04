@@ -44,14 +44,19 @@ export function POST(request: Request) {
       wanted.set(line.menuItemId, quantity);
     }
 
-    const menuItems = await prisma.menuItem.findMany({
-      where: { id: { in: [...wanted.keys()] }, available: true },
-    });
-    if (menuItems.length !== wanted.size) {
-      const found = new Set(menuItems.map((m) => m.id));
-      const missing = [...wanted.keys()].filter((id) => !found.has(id));
-      throw new HttpError(400, `Not on the menu right now: ${missing.join(", ")}. Reload the menu and order again.`);
+    // Every requested dish is read, available or not, so a dish that sold out while it
+    // sat on the order is refused by name, with its id in the body so the client can
+    // take it off the order and say what changed.
+    const requested = await prisma.menuItem.findMany({ where: { id: { in: [...wanted.keys()] } } });
+    const soldOut = requested.filter((m) => !m.available);
+    const known = new Set(requested.map((m) => m.id));
+    const unknown = [...wanted.keys()].filter((id) => !known.has(id));
+    if (soldOut.length > 0 || unknown.length > 0) {
+      const names = soldOut.map((m) => m.name);
+      const message = names.length > 0 ? `${names.join(" and ")} ${names.length === 1 ? "has" : "have"} just sold out and ${names.length === 1 ? "has" : "have"} been taken off your order.` : "Something on your order is no longer on the menu and has been taken off it.";
+      throw new HttpError(409, message, { unavailable: [...soldOut.map((m) => m.id), ...unknown], names });
     }
+    const menuItems = requested;
 
     // Lines in the order the guest added them, which is the order they read back in.
     const byId = new Map(menuItems.map((m) => [m.id, m]));

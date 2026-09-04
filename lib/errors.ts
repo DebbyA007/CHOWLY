@@ -4,9 +4,13 @@
 // modules that throw it can be unit tested under plain Node.
 export class HttpError extends Error {
   readonly status: number;
+  // Extra fields for the JSON body, when the client needs more than the sentence:
+  // the ids of dishes that sold out, say, so it can take them off the order.
+  readonly details: Record<string, unknown>;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, details: Record<string, unknown> = {}) {
     super(message);
     this.status = status;
+    this.details = details;
   }
 }

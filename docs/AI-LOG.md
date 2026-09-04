@@ -1551,3 +1551,33 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   paid and nothing between. The stepper is those three now, each with its real time or
   what it waits for. The handoff drew four; a fabricated state in a graded app is worse
   than three honest ones.
+
+### Commit: `feat: every order of the session stays reachable`
+
+- **Order history and two open orders.** The Order and Pay tabs mean the order the guest
+  chose, kept for the session, else the newest still open, else the newest paid. With
+  more than one open order the Order tab shows a chip per order to switch between them.
+  Every other order of the session is listed under "Earlier orders" with its time, its
+  count, its state and its total, and opens by its own address, `/order/{id}`, which the
+  API answers only for the session's own orders. A paid order and its receipt stay one
+  tap away for as long as the session lasts.
+- **After paying** the receipt offers "Order something else" beside "Rate your order",
+  and the Order tab of a served order offers "Pay", of a paid one "See the receipt" and
+  "Order something else". The handoff's "Email receipt" stays unbuilt: no email exists.
+
+### Commit: `feat: the table, asked at the door`
+
+- With no `?table=` on the link the landing asks for the table under the two buttons: a
+  small field, "It is on the card on your table", kept for the session on Keep or on
+  tapping "I'm a guest", which refuses to leave without one and says why. Once known it
+  reads "You're at table 12" with Change. The menu's table pill opens the same question
+  as a sheet, and the order sheet still shows the table before placing.
+
+### Commit: `feat: a dish that sold out is named and taken off the order`
+
+- The server reads every requested dish whether available or not, refuses a sold-out
+  one by name ("Zobo has just sold out and has been taken off your order.") with the ids
+  in the body, and the client removes those lines, refreshes the menu, and prints the
+  sentence on the sheet; the rest of the order stays and can be placed. The menu now
+  refreshes every thirty seconds and on focus, so a sold-out dish leaves the list
+  without a reload. Errors can now carry structured details beside their sentence.

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { MAX_PER_ITEM, cartCount, cartLines, cartTotalKobo, type Cart } from "@/lib/cart";
 import type { MenuItemView, MenuView } from "@/lib/menu";
 import { vatKobo } from "@/lib/money";
+import { mutate } from "swr";
+import { MENU_KEY } from "./use-menu";
 import type { SerializedOrder } from "@/lib/orders";
 import { readTable, writeTable } from "./table";
 
@@ -82,8 +84,15 @@ export function useCart(menu: MenuView | null) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ tableNo: tableNo.trim(), items: lines.map((l) => ({ menuItemId: l.item.id, quantity: l.quantity })) }),
       });
-      const json = (await response.json().catch(() => null)) as (SerializedOrder & { error?: string }) | null;
+      const json = (await response.json().catch(() => null)) as (SerializedOrder & { error?: string; unavailable?: string[] }) | null;
       if (!response.ok || !json) {
+        // A dish that sold out while it sat on the order comes off the order here, by
+        // id, and the message names it; the menu is refreshed so the row is gone too.
+        if (json?.unavailable && json.unavailable.length > 0) {
+          const gone = new Set(json.unavailable);
+          setCart((c) => Object.fromEntries(Object.entries(c).filter(([id]) => !gone.has(id))));
+          void mutate(MENU_KEY);
+        }
         setError(json?.error ?? "The order could not be placed. Check the connection and try again.");
         return null;
       }
