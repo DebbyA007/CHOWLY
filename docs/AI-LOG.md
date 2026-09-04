@@ -1611,3 +1611,53 @@ plates on a terrazzo table. They do not share a clock: sun, candle, dusk.
   data, so a switch is a client navigation of a prefetched static route.
 - **Also:** the engine moves from `components/directions-2/shared` to
   `components/walkthrough`, since a third round shares it.
+
+### Commit: `feat: direction one, the pass repaired`
+
+- **What changed and what did not.** Same structure: the rail across the top, the name
+  on a sign, two tags for the two sides, lamps over a counter, thermal paper for every
+  ticket, the lamp as the clock, the ticket as the through-line from menu to rail to
+  receipt, the five moments. Different substance: the room is lamplit plaster drawn as
+  stipple, the rail is wood with its grain drawn, the served shelf is worn stone, the
+  name sits on a ceramic sign, every dish is gouache on a ceramic plate, and the tickets
+  hang from wooden pegs, not spikes. Text on the room is ink, not paper on steel.
+- **The ordering screen, rebuilt around the task.** A plain list: plate, name, two lines
+  of description, price and minutes, one plus per row, a minus once a row is on the
+  ticket. The ticket is a strip along the bottom edge of the counter that says what is
+  on it and opens the ticket as a sheet only when asked, so nothing sits over the list.
+  On the phone the lamps stay off the ordering screen entirely; they hang over the
+  header on wider screens where no pool falls on a line.
+- **Corrected after the first frames:** the pool was too faint on plaster (a deeper
+  amber and a bigger dot); the phone menu's lamp spilled its pool behind the Waiter
+  tag (removed); the rail's heading wrapped into its hint (allowed to wrap cleanly).
+- **Verified at 390 in Chromium, clicked through:** the entrances at 466 and 723 of 844;
+  no pretend wording on the landing or the menu, one on the served ticket's button, one
+  on the receipt; Zobo and Chapman fired at ₦5,000; the lamp at heat 0.99 and 0.19 with
+  the reach shrinking from 0.99 to 0.55; the slip sent with a score, four punched; the
+  rail showing "+05:27 past 8'" and "1 SLIP"; Enter opening the dialog; served;
+  settled; the receipt with the stamp. Role switch 111 and 116ms, then 63 and 86ms.
+  Reduced motion: both entrances visible at once, a char focus ring. WebKit renders the
+  landing and the menu with all three sheets and no console errors.
+
+### Commit: `feat: direction two, the run`
+
+- **The two assumptions it breaks, of the four offered:** not a scrolling list, and
+  time as something other than light. The menu is a lacquer tray with every bowl on
+  its rim; turning it brings one bowl to the front, large, and the single action is
+  to put it on your tray. Time is distance: the room is drawn in chalk on a raffia mat,
+  and a runner carries your bowl along the route from the pass to your table, its
+  position the fraction of the promised minutes used. Past the promise the runner is on
+  a lap round the room, and the lap count says how far past. The floor shows every run
+  on one plan. Nothing here is a lamp and nothing here is a feed.
+- **Materials:** a woven raffia mat drawn as a tile, lacquer trays in deep green with a
+  turned rim, terracotta bowls with the food glazed into them, chalk cards. Syne for
+  the display and Hanken Grotesk for the rest.
+- **Desktop changes shape:** the tray and its text sit side by side, the room and the
+  cards sit side by side, and the landing puts the tray beside the name.
+- **Verified at 390 in Chromium, clicked through:** the discs at 515 of 844; the ring
+  of fourteen bowls turned to Zobo and then Chapman, each put on the tray; "My tray"
+  sent to the kitchen at ₦5,000; the runner 1% along at first, then 65% along lap 2
+  when made late; the note sent with a score, four marks; the floor reading "Lap 2,
+  05:29 past the 8 promised, 1 note from the table"; Enter opening "Land CHW-0001";
+  landed; "Settle the tray (pretend)"; "Chit. Paid." with the pretend line once. Role
+  switch 128 and 103ms, then 63 and 78ms. No console errors.

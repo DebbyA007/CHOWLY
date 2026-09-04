@@ -1,0 +1,100 @@
+/* Direction one: The Pass, repaired. Same structure, different substance. The room is
+   lamplit plaster, the rail is wood, the served shelf is worn stone, the plates are
+   ceramic, and everything printed is still thermal paper under the heat lamp. */
+.pass3 {
+  --plaster: #d8c3a0;
+  --plaster-deep: #c6ac86;
+  --wood: #7a5236;
+  --wood-dark: #4f3320;
+  --wood-light: #9c7047;
+  --stone: #8e8577;
+  --stone-dark: #6f675b;
+  --ceramic: #f5f0e4;
+  --ceramic-rim: #e6dcc7;
+  --linen: #eadfc9;
+  /* on plaster the pool needs a deeper amber to read, and a cool that reads as shade */
+  --lamp-warm: #e08a1e;
+  --lamp-cool: #8f8f80;
+  color: var(--ink);
+  background-color: var(--plaster);
+  /* plaster is stipple: two dots per tile, soot and lime, never even */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Ccircle cx='3' cy='4' r='0.9' fill='%231b1a18' fill-opacity='0.09'/%3E%3Ccircle cx='10' cy='11' r='0.8' fill='%23ffffff' fill-opacity='0.28'/%3E%3Ccircle cx='11' cy='3' r='0.5' fill='%231b1a18' fill-opacity='0.06'/%3E%3C/svg%3E");
+  font-family: var(--font-print);
+}
+/* Wood: grain drawn as slightly wavy lines, light and dark, on the rail's face. */
+.pass3 .rail3,
+.pass3 .wood3 {
+  background-color: var(--wood);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='40'%3E%3Cg fill='none' stroke-width='1'%3E%3Cpath d='M0 6 Q 65 4 130 7 T 260 6' stroke='%23ffffff' stroke-opacity='0.12'/%3E%3Cpath d='M0 14 Q 65 16 130 13 T 260 15' stroke='%23000000' stroke-opacity='0.22'/%3E%3Cpath d='M0 21 Q 80 19 150 22 T 260 20' stroke='%23ffffff' stroke-opacity='0.07'/%3E%3Cpath d='M0 29 Q 60 31 120 28 T 260 30' stroke='%23000000' stroke-opacity='0.16'/%3E%3Cpath d='M0 36 Q 90 34 170 37 T 260 35' stroke='%23000000' stroke-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
+}
+.pass3 .rail3 {
+  border-top: 2px solid var(--wood-light);
+  border-bottom: 4px solid var(--wood-dark);
+}
+/* Stone: the served shelf and the dialog, a cooler speckle. */
+.pass3 .stone3 {
+  background-color: var(--stone);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='4' cy='5' r='1.1' fill='%231b1a18' fill-opacity='0.16'/%3E%3Ccircle cx='12' cy='12' r='0.9' fill='%23ffffff' fill-opacity='0.2'/%3E%3Ccircle cx='13' cy='3' r='0.6' fill='%231b1a18' fill-opacity='0.1'/%3E%3C/svg%3E");
+  color: var(--paper-fresh);
+}
+/* The name on a ceramic sign, and every plate a dish sits on. */
+.pass3 .sign3 {
+  background: var(--ceramic);
+  color: var(--ink);
+  border: 2px solid var(--soot);
+  box-shadow: 3px 3px 0 var(--soot);
+}
+.pass3 .plate3 {
+  background: var(--ceramic);
+  border: 2px solid var(--soot);
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 var(--soot);
+  display: grid;
+  place-items: center;
+}
+/* A paper tag hanging from the rail by a punched hole. The active one is stamped. */
+.pass3 .tag3 {
+  position: relative;
+  background: var(--paper-fresh);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  padding: 14px 12px 7px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  margin-top: -2px;
+}
+.pass3 .tag3::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  border: 2px solid var(--soot);
+  background: var(--plaster);
+}
+.pass3 .tag3[aria-current="page"] {
+  background: var(--soot);
+  color: var(--paper-fresh);
+}
+.pass3 .heat {
+  --lamp-opacity: calc(0.3 + var(--heat) * 0.55);
+}
+.pass3 .heat[data-state="paid"] {
+  --lamp-opacity: 0.08;
+}
+.pass3 :focus-visible {
+  outline: 3px solid var(--char-ink);
+  outline-offset: 3px;
+}
+.pass3 .paper :focus-visible,
+.pass3 .paper:focus-visible {
+  outline-color: var(--char);
+}
+/* The text on plaster is ink; the big name gets a hard paper offset like a painted sign. */
+.pass3 .sign-text {
+  text-shadow: 3px 3px 0 var(--paper-fresh);
+}
