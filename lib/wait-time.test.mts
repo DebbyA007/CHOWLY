@@ -7,34 +7,25 @@ test("one item waits its own prep time", () => {
   assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 4, quantity: 1 }]), 4);
 });
 
-test("the slowest item sets the floor and each extra unit adds three minutes", () => {
-  // steak 22 and a mojito 6: max 22, two units, 22 + 3 * 1
+test("the promise is the longest prep time in the order", () => {
+  // the design's sample order: jollof 12, catfish 20, two chapman 4: promised in 20
   assert.equal(
     calculateWaitMinutes([
-      { prepTimeMinutes: 22, quantity: 1 },
-      { prepTimeMinutes: 6, quantity: 1 },
+      { prepTimeMinutes: 12, quantity: 1 },
+      { prepTimeMinutes: 20, quantity: 1 },
+      { prepTimeMinutes: 4, quantity: 2 },
     ]),
-    25,
-  );
-  // two steaks and three zobo: max 22, five units, 22 + 3 * 4
-  assert.equal(
-    calculateWaitMinutes([
-      { prepTimeMinutes: 22, quantity: 2 },
-      { prepTimeMinutes: 4, quantity: 3 },
-    ]),
-    34,
+    20,
   );
 });
 
-test("quantity counts as units, not lines", () => {
-  assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 12, quantity: 4 }]), 21);
+test("quantity does not lengthen the promise", () => {
+  assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 12, quantity: 4 }]), 12);
 });
 
 test("the wait is capped", () => {
-  // 22 + 3 * 39 = 139, which the cap brings down to 90
-  assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 22, quantity: 40 }]), WAIT_CAP_MINUTES);
-  // just under the cap is left alone: 22 + 3 * 19 = 79
-  assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 22, quantity: 20 }]), 79);
+  assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 200, quantity: 1 }]), WAIT_CAP_MINUTES);
+  assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 22, quantity: 20 }]), 22);
 });
 
 test("bad input is rejected rather than guessed", () => {

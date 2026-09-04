@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { handle, HttpError } from "@/lib/http";
+import { byDesignOrder, photoFor } from "@/lib/menu-order";
 import { formatNaira } from "@/lib/money";
 import { prisma } from "@/lib/prisma";
 
@@ -10,7 +11,7 @@ export function GET() {
     const restaurant = await prisma.restaurant.findFirst({
       include: {
         menus: {
-          orderBy: { type: "asc" },
+          orderBy: [{ type: "asc" }, { name: "asc" }],
           include: {
             items: {
               where: { available: true },
@@ -29,13 +30,14 @@ export function GET() {
         id: menu.id,
         name: menu.name,
         type: menu.type,
-        items: menu.items.map((item) => ({
+        items: byDesignOrder(menu.items).map((item) => ({
           id: item.id,
           name: item.name,
           description: item.description,
           priceKobo: item.priceKobo,
           price: formatNaira(item.priceKobo),
           prepTimeMinutes: item.prepTimeMinutes,
+          photo: photoFor(item.id),
         })),
       })),
     });

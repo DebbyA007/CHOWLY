@@ -1,5 +1,6 @@
 import type { MenuType } from "@prisma/client";
 import { HttpError } from "./http";
+import { byDesignOrder, photoFor } from "./menu-order";
 import { formatNaira } from "./money";
 import { prisma } from "./prisma";
 
@@ -12,6 +13,7 @@ export type MenuItemView = {
   priceKobo: number;
   price: string;
   prepTimeMinutes: number;
+  photo: string;
 };
 
 export type MenuView = {
@@ -23,7 +25,7 @@ export async function getMenu(): Promise<MenuView> {
   const restaurant = await prisma.restaurant.findFirst({
     include: {
       menus: {
-        orderBy: { type: "asc" },
+        orderBy: [{ type: "asc" }, { name: "asc" }],
         include: { items: { where: { available: true }, orderBy: { name: "asc" } } },
       },
     },
@@ -37,13 +39,14 @@ export async function getMenu(): Promise<MenuView> {
       id: menu.id,
       name: menu.name,
       type: menu.type,
-      items: menu.items.map((item) => ({
+      items: byDesignOrder(menu.items).map((item) => ({
         id: item.id,
         name: item.name,
         description: item.description,
         priceKobo: item.priceKobo,
         price: formatNaira(item.priceKobo),
         prepTimeMinutes: item.prepTimeMinutes,
+        photo: photoFor(item.id),
       })),
     })),
   };

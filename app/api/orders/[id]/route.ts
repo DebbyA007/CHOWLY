@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { handle, HttpError } from "@/lib/http";
-import { orderInclude, presentOrder } from "@/lib/orders";
+import { orderInclude, presentWithReceipt } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 import { orderIdSchema } from "@/lib/schemas";
 import { requireCustomer } from "@/lib/session";
@@ -25,6 +25,6 @@ export function GET(_request: Request, context: Context) {
     if (!order) {
       throw new HttpError(404, "No order with that id for this table. Orders belong to the browser that placed them.");
     }
-    return NextResponse.json(presentOrder(order));
+    return NextResponse.json(await presentWithReceipt(order));
   });
 }
