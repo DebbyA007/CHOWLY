@@ -32,27 +32,37 @@ in [`docs/screens`](docs/screens/README.md).
 </p>
 
 1. **Landing.** The dining room, the name and address, "I'm a guest", "I'm a waiter", and
-   the table the link carried.
+   the table: the one the link carried, or the door asks for it.
 2. **Menu.** Mains, Soups and Drinks as chips; each dish a 76px round photograph with its
    name, description, price and the kitchen's minutes; an add circle that morphs into a
    quantity stepper; a cart bar that never disappears.
 3. **Order placed.** The ring, driven from real elapsed time against the promise, the
-   stepper from placed to served, the items.
+   steps from placed to served to paid, the items. The tab opens the moment the order is
+   placed and the kitchen's number lands on it; every order of the session stays
+   reachable from here.
 4. **Running late.** The same screen once the promise is spent: everything ochre has
    crossed slowly to red, the ring is closed, the time counts up, and two actions appear.
-5. **Live orders.** Every open order as a card with its status and its clock, filtered by
-   All, Cooking, Late and Served.
-6. **Order open.** The lines with their minutes, chef and bartender as chips, "Mark as
-   served", which becomes the record of when.
+5. **Live orders.** Every open order as a card with its status, its clock and the count
+   of reports from the table, filtered by All, Cooking, Late and Served; the pill asks
+   who is serving and keeps the answer for the session.
+6. **Order open.** The lines with their minutes, the reports from the table in full,
+   waiter, chef and bartender as chips, "Mark as served", which becomes the record of
+   when at once.
 7. **Pay.** The summary with VAT, three ways to pay, one button.
-8. **Receipt.** Printed: perforation, ruled lines, the stamp, the torn foot, and who served,
-   cooked and mixed.
+8. **Receipt.** Printed: perforation, ruled lines, the stamp, the torn foot, the rating,
+   and who served, cooked and mixed.
+
+The waiter's other two tabs are the **table board**, the floor by table with what each
+still has to pay, and the **86 board**, every dish with a switch that takes it off the
+guests' menu and refuses by name any order still carrying it. Every screen shows its own
+shape while it loads, says since when it has been offline, and says once when it is
+back.
 
 Three things sit on top of the handoff. **Paper as surface detail**, borrowed from an
 earlier direction: fibre at very low contrast on the cards, a rule that reads as printed
 rather than drawn, numerals struck into the surface, and on the receipt the perforation,
 the torn foot and the stamp. **anime.js throughout, restrained**: one entrance per screen,
-once per session; everything else answers an action. Every scope degrades to a fade under
+every visit; everything else answers an action. Every scope degrades to a fade under
 reduced motion. **Real photography**, licensed and served from this repository; the
 credits are below.
 

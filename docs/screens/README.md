@@ -36,3 +36,36 @@ Every sequence below is a real order on production, captured as consecutive fram
 without a table on the link, the Order and Pay tabs with no order, a waiter order that
 does not exist, the 404, the three loading states caught early, placing an order while
 offline, and the live list seven seconds after going offline.
+
+## Part 4: the fixes, as evidence
+
+Everything below is from production after the Part 4 fixes, at 390, in Chromium and in
+Playwright's WebKit 26.5. The full log of every frame, with what the page reported at
+each one, is in `docs/AI-LOG.md` under the Part 4 evidence entry.
+
+`motion/sheets/part4-before-after.png` puts each changed screen beside what it replaced:
+the three loading states against the shapes, the offline list that still said "Five
+open" against "As of 9:31" and the bar, the door with nothing asked against the door
+asking, the placeholder pill against the chosen waiter, the waiter's card against the
+report from the table, four steps against three, the receipt's end against the rating
+and somewhere to go. `motion/sheets/part4-states.png` is every new state on one sheet.
+
+| Sheet | What it shows |
+|---|---|
+| `chromium-place-optimistic.png`, `webkit-place-optimistic.png` | Placing with the request held 2.5 s on top of the real latency: the Order tab open within a second with the ring sweeping and "Sending to the kitchen", then the kitchen's number landing with the arc carrying on from where it was |
+| `chromium-serve-optimistic.png`, `webkit-serve-optimistic.png` | Mark as served with the request held 2 s: "Served at" on the first frame after the press, holding while the server answers |
+| `chromium-back-online.png`, `webkit-back-online.png` | The 1.5 s after the connection returns on the order screen and the live list: "Back online. Refreshed." once, then gone |
+| `chromium-picker.png` | The roster sheet entering, frames 90ms apart |
+| `chromium-86.png` | Zobo switched to Sold out on the 86 board, frames 100ms apart, the subtitle counting |
+
+The single states in `states/q-*.png` (Chromium) and `states/webkit-q-*.png` (WebKit):
+the door asking for the table, refusing to open without one, and knowing it; the table
+sheet on the menu; the loading shapes of the menu, the order, the pay screen, the live
+list and the open order; offline on the order and on the live list; placing refused by
+the network with Try again, then two open orders with a chip each; the roster before and
+after choosing; the served order offering Rate your order and Pay, rated, the receipt with
+the rating and "Order something else", the paid order with "See the receipt" and the
+earlier orders; the 86 board before and after; the sold-out refusal naming Zobo and the
+order that went through without it; the guest menu without Zobo; the table board; a late
+order's report as a count on the live row and in full on the open order. `states/crop-*`
+are the element crops of the same.

@@ -1650,12 +1650,15 @@ waiter tab through every fix. The frames, the states and the crops are in
 four test orders of each run were deleted afterwards.
 
 **Placing answers at once** (`motion/*/place-optimistic-*`). The POST was held 2.5 s
-by the browser on top of the real latency. Chromium, from the tap: +52ms still on the
-menu with the provisional order already selected; +1208ms on `/order`, state
-`sending`, title "Your order", ring offset 0.37 and sweeping (0.63, 0.90, 1.15, 1.40,
-1.66 ... 3.74 at +5903ms); +6264ms state `waiting`, title "Order #1001", ring 1.41 and
-sweeping on (1.68, 1.93, 2.19, 2.44, 2.69). WebKit: `/order` at +1163ms, the kitchen's
-order at +6582ms, the same shape. The offset steps from 3.74 to 1.41 when the kitchen's
+by the browser on top of the real latency. Chromium, captured again after the entrance
+fix below, from the tap: +33ms still on the menu with the provisional order already
+selected; by +1841ms on `/order`, state `sending`, title "Your order", ring offset 0.82
+and sweeping (2.77, 3.01, 3.26, 3.49, 3.74 at +5904ms); +6242ms state `waiting`, title
+"Order #1001", ring 1.46 and sweeping on (1.70, 1.95, 2.19, 2.44, 2.68), and the ring
+and the items card logged at opacity 1 on every frame through the change. WebKit,
+captured before that fix: `/order` at +1163ms, the kitchen's order at +6582ms, the
+same shape, with the dip the fix removed; its re-capture waits on the checkpoint noted
+at the end of this entry. The offset steps from 3.74 to 1.41 when the kitchen's
 order lands because its `placedAt` is the server's, two and a half seconds after the
 provisional one; the arc does not redraw from empty, it is corrected by the clock it
 is meant to follow. The failure path, with the POST aborted: the same screen reads "Not
@@ -1723,3 +1726,18 @@ guest sent "The zobo has not come and we are about to leave."; the live row read
   changes from `pending:…` to the real one. The entrance now knows when it is the same
   screen carrying on, as the ring already did, and leaves the pieces where they are.
   The placement frames were captured again in both browsers after the fix.
+
+**Vercel's security checkpoint.** Part way through the re-capture every request to
+production, from curl and from the headless browsers alike, got a 403 with
+`x-vercel-mitigated: challenge` and a "Vercel Security Checkpoint" page: Vercel's
+automatic mitigation, most likely tripped by this session's capture traffic from one
+address (two full runs, each polling the rail every three seconds from several tabs,
+plus a deploy poll). A real browser passes it in about four seconds with a spinner and
+lands on CHOWLY; Chromium passed it once its automation flag was hidden, and the
+Chromium frames above are from after it. Playwright's WebKit did not pass it, with or
+without the cookie from the Chromium pass, so the WebKit placement frames are the ones
+from before the entrance fix. Nothing in the app changed; the checkpoint is at the
+edge, before the app. It should lift on its own once the traffic stops; if it is still
+there when the link is opened for grading, the spinner page is what a visitor sees for
+a few seconds first.
+

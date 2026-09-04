@@ -264,36 +264,51 @@ process, not the model, is what kept those from shipping.
 ### The landing
 
 `/` shows the dining room across the top, the restaurant's name and address, "I'm a
-guest" and "I'm a waiter", and "You're at table 12" when the link carried
-`?table=12`, as the card on a real table would. The menu, the guest's orders and the live
-list are preloaded here, so either button opens onto a screen that is already there.
+guest" and "I'm a waiter", and the table. When the link carried `?table=12`, as the card
+on a real table would, it reads "You're at table 12" with Change. Without one the door
+asks: a small field, "It is on the card on your table", kept for the session on Keep or
+on tapping "I'm a guest", which will not go through without a table and says why. The
+menu, the guest's orders and the live list are preloaded here, so either button opens
+onto a screen that is already there.
 
 ### The menu
 
 1. `/menu` reads the menu from the client cache, warmed on the landing, and shows Mains,
    Soups and Drinks as chips. Tapping a chip filters in place with no animation. Each
    dish is a 76px round photograph with its name, description, price in naira and the
-   kitchen's minutes. Unavailable items are left out. On the first visit of a session the
-   rows stagger in; after that they simply appear.
+   kitchen's minutes. Unavailable items are left out, and the menu refreshes every
+   thirty seconds and on focus, so a dish the kitchen takes off leaves the list without a
+   reload. The rows stagger in on every visit. While the menu loads the screen shows its
+   own shape, the chips and four rows, never a line of text.
 2. Tapping the ochre circle adds the dish; the circle morphs into a stepper pill with
    minus, the count and plus. Decrementing to zero morphs it back.
 3. The cart bar never disappears. Empty, it says "Your order is empty" in the same
    slot; with items, it rises once and shows the count and the total, which tick rather
    than jump, and "View order".
 4. "View order" opens the order sheet: the lines with their steppers, the subtotal, VAT
-   at 7.5%, the total, and the table, pre-filled from the link and editable. "Place
-   order" posts `{ tableNo, items: [{ menuItemId, quantity }] }` and nothing else to
+   at 7.5%, the total, and the table, pre-filled from the door and editable; the table
+   pill in the header opens the same question as a sheet. "Place order" posts `{ tableNo, items: [{ menuItemId, quantity }] }` and nothing else to
    `POST /api/orders`. The strict schema rejects any other key and names it, so a
    client posting a price gets "Unknown field: priceKobo".
-5. On the server the items are read by id with `available: true`. A missing or
-   unavailable id is refused with a message to reload. Unit price and prep time are
+5. On the server the requested dishes are read by id whether available or not. A dish
+   that has sold out is refused by name, "Zobo has just sold out and has been taken off
+   your order", with its id in the body so the client takes it off the kept order and
+   the retry; a dish that no longer exists is refused too. Unit price and prep time are
    snapshotted onto each line in the order they were added, the subtotal is the sum of
    the lines, VAT is 7.5% rounded to whole naira, the total is their sum, and the
    promise is the longest prep time. A sequential order number from 1001 is written and
    retried on the unique constraint if two orders collide. The order and the guest's
    latest table are written in one transaction. Five orders per session per ten minutes;
    the sixth is a 429.
-6. On 201 the Order tab opens with the new order already in the cache.
+6. The tap is answered at once. The client builds a provisional order with the promise
+   from the same formula the server uses, the sheet tears away, and the Order tab opens
+   with the ring already sweeping and "Sending to the kitchen" under the caption. The
+   request runs from a store outside React, so it survives the navigation, and the
+   kitchen's order replaces the provisional one in place: the arc carries on from where
+   it is and the header gains its number. If the kitchen did not get it, the same screen
+   says so with the reason, keeps the order on the menu, and offers Try again and Back to
+   the menu. Placing took about three and a half seconds against the live database
+   before this; now the wait is spent looking at the order.
 
 ### The session
 
@@ -307,9 +322,14 @@ replaced. The customer id is never read from a request.
 
 ### Tracking the order: the ring is the clock
 
-1. `/order` finds the session's current order through `GET /api/orders/mine`, which
-   returns only that customer's rows: the newest still open, else the newest paid one
-   for its receipt. With no order it says so and offers the menu.
+1. `/order` shows the order the guest chose, else the newest still open, else the
+   newest paid one for its receipt, from `GET /api/orders/mine`, which returns only that
+   customer's rows. With two open orders a chip per order switches between them. Every
+   other order of the session is listed under "Earlier orders" with its time, count,
+   state and total, and opens at `/order/{id}`, which the API answers only for the
+   session's own orders, so a paid order and its receipt stay one tap away. With no
+   order it says so and offers the menu; while it looks, it shows the ring, the steps
+   and the card as shapes.
 2. The header reads "Order #1042" and the table. The ring is 184px, its arc the
    remaining fraction of the promise, recomputed every second from `placedAt` and
    `waitMinutes`, so a refresh changes nothing and no client-side counter can drift. The
@@ -322,13 +342,19 @@ replaced. The customer id is never read from a request.
    to late red over two seconds, never a snap and never a flash, and the ring closes
    while the numerals count up. Under reduced motion the crossfade stays, slower, because
    it is a colour, not a movement.
-4. The stepper below shows Order placed, In the kitchen (done two minutes after
-   placing), Ready to serve ("About 9:24 pm", then "Any moment" once late) and Served,
-   the current step in bold; a step completing swells its dot once. Then the items and
-   the subtotal on a card.
+4. The stepper below shows the three steps the data can vouch for: Order placed with
+   the time and the promise, Served ("About 9:24 pm", then "Any moment" once late, then
+   the time), and Paid, the current step in bold; a step completing swells its dot once.
+   An earlier "In the kitchen" step was invented from nothing the database records and
+   was removed. Then the items and the subtotal on a card.
 5. The view polls `GET /api/orders/{id}` every three seconds, so when the waiter marks
    the order served the ring reads "Served" with the time, the stepper completes, and
-   the Pay tab is ready.
+   the screen offers Pay and Rate your order. Once paid it offers See the receipt and
+   Order something else, and the receipt does the same, so nothing dead-ends.
+6. When the browser is offline, or a poll fails after the order had arrived, a bar under
+   the header says "Offline since 9:31. Showing your order as of then." The ring keeps
+   its own time. When the connection returns everything revalidates and the bar says
+   "Back online. Refreshed." once, then leaves. The same bar is on every screen.
 
 ### Report a problem, rate your order
 
@@ -336,32 +362,50 @@ replaced. The customer id is never read from a request.
    still placed past the promise, or served after it. The server enforces the same rule
    on `POST /api/orders/{id}/complaints` and answers 409 otherwise, so a hand-made
    request cannot complain about an order that is on time. Ownership is checked inside
-   the query. Sent reports show on the waiter's card as a count. Five per session per ten
+   the query. Sent reports show on the waiter's live row as a count in red and, on the
+   open order, in full with their time under "From the table". Five per session per ten
    minutes.
 2. "Rate your order" opens a sheet with 1 to 5 as chips and an optional note.
    `POST /api/orders/{id}/rating` upserts on the unique `orderId`, so rating again
    changes the score rather than adding a row. Zod bounds the score first; the check
-   constraint in the database is the last line, proven to reject 0 and 6. Rating is also
-   offered on the receipt.
+   constraint in the database is the last line, proven to reject 0 and 6. Any served
+   order can be rated, late or not: the offer is on the order screen once served and on
+   the receipt, and the rating shows on both.
 
 ### Live orders, the waiter's side
 
 1. `/waiter` opens with one tap and no prompt. It polls `GET /api/waiter/orders` every
    three seconds and keeps the previous list while it revalidates, so nothing blinks.
-   The header counts the open orders and how many of them include a drink; the pill is
-   the first waiter on the roster.
+   The header counts the open orders and how many of them include a drink. The pill
+   asks "Who's serving?" and opens the roster as a sheet; the choice is kept for the
+   session and the pill shows the name. While the list loads it shows four cards as
+   shapes; when the browser is offline or a poll fails the subtitle reads "As of 9:31 ·
+   Five open" and a bar under the chips says since when.
 2. Each order is a card: the table and order number, "3 items · ₦17,500", and a status
    with its dot and time: Just placed, In the kitchen with "mm:ss left", Ready in the
    last minute of the promise, Late with the minutes over in red, Served with the time.
    All, Cooking, Late and Served filter the list. New orders slide in on the poll; a
    status change recolours in place; nothing pulses.
 3. Tapping a card opens `/waiter/{id}`: placed at, the clock, the lines with their
-   minutes, the subtotal, then Chef and Bartender as chips with the first of each
-   selected. "Mark as served" sends `PATCH /api/orders/{id}/assign` with the pill's
-   waiter, the chef and the bartender. Only a placed order can be served; serving twice is
-   a 409. The button becomes "Served at 9:26 pm" and stays that way; there is no revert.
-4. The Tables tab groups the same open orders by table; the Menu tab shows the menu
-   without add controls.
+   minutes, the subtotal, the reports and rating from the table if there are any, then
+   Waiter, Chef and Bartender as chips. The waiter chip follows the session's choice,
+   and until someone is chosen the button reads "Choose who is serving". "Mark as
+   served" flips the order to served on screen at once and sends
+   `PATCH /api/orders/{id}/assign` with the three ids; if the server refuses, the order
+   is put back the way it was and the reason is printed. Only a placed order can be
+   served; serving twice is a 409. The button becomes "Served at 9:26 pm" and stays that
+   way; there is no revert.
+4. **The table board.** The Tables tab is the floor by table: one card per table with
+   every order of the last twelve hours, oldest first, each with its number, count, total
+   and state, and what the table still has to pay, with the night's outstanding total in
+   the subtitle. The waiter API includes orders paid in the last twelve hours for this;
+   the live list leaves them out.
+5. **The 86 board.** The Menu tab is every dish on the card with a switch, "On" or
+   "Sold out". Taking a dish off shows at once, is rolled back with the reason if the
+   server refuses, removes the dish from the guests' menu on their next refresh, and
+   refuses by name any order still carrying it. Retired dishes stay in the database for
+   the orders that name them and are not on the board. `GET` and `PATCH
+   /api/waiter/menu`, strict Zod, behind the same seam as the rail.
 
 ### Pay, and the receipt
 
@@ -393,7 +437,9 @@ replaced. The customer id is never read from a request.
 | `/api/orders/{id}/complaints` | POST | Ownership; must be late; rate limited |
 | `/api/orders/{id}/rating` | POST | Ownership; upsert; score 1 to 5; rate limited |
 | `/api/orders/{id}/pay` | POST | Ownership; must be served; one transaction; idempotent |
-| `/api/waiter/orders` | GET | Open by design; the seam behind `STAFF_PIN_REQUIRED` |
+| `/api/waiter/orders` | GET | Open by design; the seam behind `STAFF_PIN_REQUIRED`; includes orders paid in the last twelve hours |
+| `/api/waiter/menu` | GET | Every dish on the card with whether it is on; the same seam |
+| `/api/waiter/menu` | PATCH | `{ id, available }`, strict; takes a dish off or puts it back; the same seam |
 | `/api/orders/{id}/assign` | PATCH | Placed only; staff ids verified; the same seam |
 | `/api/demo` | POST | 404 unless `DEMO_CONTROLS` is exactly `true`; moves one of the session's own orders' clocks for verification |
 
@@ -405,14 +451,16 @@ You need a phone or a browser and the live link. Nothing to install, nothing to 
 to. Keep two tabs: one is the guest at the table, the other is the waiter.
 
 1. **Open https://chowly-theta.vercel.app/?table=12.** The dining room, the name, and
-   "You're at table 12": the link is what the card on a table would carry.
+   "You're at table 12": the link is what the card on a table would carry. Open it
+   without `?table=` and the door asks for the number instead.
 2. **Tap "I'm a guest".** The menu opens on Mains. Tap **Drinks** and add a **Zobo** with
    the ochre circle; it becomes a stepper. Zobo takes four minutes, and the kitchen's
    promise is the longest prep time in the order, so an order of only Zobo is late in
    four minutes, which is short enough to watch the whole story. Add a **Jollof rice**
    too if you would rather wait twelve.
 3. **View the order.** The cart bar has risen with the count and total. Tap "View order",
-   check the table, and tap "Place order". The Order tab opens.
+   check the table, and tap "Place order". The Order tab opens at once, with "Sending to
+   the kitchen" under the ring until the kitchen has it and the number appears.
 4. **Watch the ring.** It empties as the minutes are used, and the numerals count down.
    Reload the page: the clock is exactly where it was, because it is computed from when
    you placed the order, not from when the page loaded.
@@ -424,21 +472,29 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
    tap **"I'm a waiter"**, or open https://chowly-theta.vercel.app/waiter directly.
    There is no PIN and no prompt. Your table is in the list, marked Late with the
    minutes over, and a count of your report.
-7. **Serve it.** Tap the card. Choose a chef and a bartender and tap **"Mark as served"**.
-   The button becomes the time it happened. The waiter's other tabs are Tables and Menu;
-   the Menu tab shows the same menu without the add controls, which is the waiter's way
-   back to the guest's side of the menu.
-8. **Back at the table.** Within three seconds and with no reload, the guest tab reads
-   "Served" with the time and the stepper is complete. Tap **Pay**.
-9. **Pay.** The summary shows the subtotal, VAT and total. Pick a method and tap
+7. **Serve it.** Tap the pill, "Who's serving?", and pick yourself from the roster; it
+   is kept for the session. Tap the card: your report is there under "From the table".
+   Choose a chef and a bartender and tap **"Mark as served"**. The button becomes the time
+   it happened before the server has even answered.
+8. **The other two tabs.** **Tables** is the floor by table with what each still has to
+   pay. **Menu** is the 86 board: switch **Zobo** to "Sold out", go back to the guest tab,
+   add a Zobo and place it, and the order comes back refused by name with Zobo taken
+   off; switch it back on afterwards.
+9. **Back at the table.** Within three seconds and with no reload, the guest tab reads
+   "Served" with the time and the stepper is complete. Rate it here if you like, late or
+   not. Tap **Pay**.
+10. **Pay.** The summary shows the subtotal, VAT and total. Pick a method and tap
    **"Pay ₦… (pretend)"**. The receipt prints: the perforation, the lines, the stamp, the
    torn foot, and who served, cooked and mixed. Tap it twice if you like; the record is
    one payment.
-10. **The role switch** is the front door: two buttons, one tap each, and the tab bars on
+11. **The role switch** is the front door: two buttons, one tap each, and the tab bars on
     each side. Both sides are open to anyone with the link; that is the assignment's
     rule.
-11. **One more thing to try.** Turn on Reduce Motion in your system settings and reload:
+12. **One more thing to try.** Turn on Reduce Motion in your system settings and reload:
     every entrance becomes a fade, and the late crossfade still happens, slower.
-12. **The first directions.** https://chowly-theta.vercel.app/directions shows the three
+13. **The first directions.** Also try turning the connection off: every screen says
+    since when it has been offline and what it shows is as of then, and says once when
+    it is back.
+14. **The first directions.** https://chowly-theta.vercel.app/directions shows the three
     art directions built before The Pass was chosen and, in turn, replaced; each is a
     working menu screen.
