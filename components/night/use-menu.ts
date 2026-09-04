@@ -15,8 +15,8 @@ export async function menuFetcher(url: string): Promise<MenuView> {
   return response.json();
 }
 
-export function preloadMenu() {
-  void preload(MENU_KEY, menuFetcher);
+export function preloadMenu(): Promise<MenuView> {
+  return preload(MENU_KEY, menuFetcher);
 }
 
 export function useMenu() {

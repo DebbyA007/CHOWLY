@@ -280,6 +280,13 @@ select {
   animation: spin 0.7s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
+  /* the splash: a still lockup in its resting state, then a plain cross-fade */
+  .splash-arc {
+    stroke-dashoffset: 0 !important;
+  }
+  .splash-head {
+    transform: rotate(305deg) !important;
+  }
   .ring-progress,
   .ring-track,
   .tone {

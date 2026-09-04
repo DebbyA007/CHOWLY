@@ -9,11 +9,12 @@ import { readTable, writeTable } from "./table";
 import { preloadMenu } from "./use-menu";
 import { preloadMine } from "./use-order";
 import { preloadRail } from "./use-rail";
+import { HANDOFF_EVENT } from "@/lib/splash";
 
 // Screen 1. The dining room across the top, the name, the address, and the two ways
 // in pushed to the bottom. The menu, the guest's orders and the live list are all
 // preloaded here so either button opens onto a screen that is already there.
-export function Landing() {
+export function Landing({ afterSplash = false }: { afterSplash?: boolean } = {}) {
   const root = useRef<HTMLElement>(null);
   const [table, setTable] = useState("");
   const [editing, setEditing] = useState(false);
@@ -36,10 +37,14 @@ export function Landing() {
   }
   useEffect(() => {
     setTable(readTable());
-    preloadMenu();
+    void preloadMenu();
     preloadMine();
     preloadRail();
-    const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
+    // On a cold start the splash covers this screen; the entrance waits for its handoff
+    // and rises under the dissolve.
+    let scope: ReturnType<typeof createScope> | null = null;
+    const start = () => {
+      scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
       const all = [".room", ".lockup", ".name", ".address", ".door", ".table"];
       if (self?.matches.reduceMotion) {
         animate(all, { opacity: [0, 1], duration: 200 });
@@ -54,9 +59,15 @@ export function Landing() {
         .add(".door", { opacity: [0, 1], y: [12, 0], duration: 450, delay: stagger(90) }, "-=200")
         .add(".door", { opacity: 1, duration: 1 }, "-=1");
       if (root.current?.querySelector(".table")) animate(".table", { opacity: [0, 1], duration: 300, delay: 900 });
-    });
-    return () => scope.revert();
-  }, []);
+      });
+    };
+    if (afterSplash) window.addEventListener(HANDOFF_EVENT, start, { once: true });
+    else start();
+    return () => {
+      window.removeEventListener(HANDOFF_EVENT, start);
+      scope?.revert();
+    };
+  }, [afterSplash]);
   return (
     <main ref={root} className="flex min-h-dvh flex-col">
       <div className="room shrink-0" style={{ opacity: 0 }}>

@@ -5,5 +5,7 @@ export const MARK_VIEWBOX = "0 0 100 100";
 export const MARK_PATH = "M 67.78 75.39 A 31 31 0 1 1 67.78 24.61";
 export const MARK_STROKE = 11;
 export const MARK_DOT = { cx: 81, cy: 50, r: 5.5 };
+// Where the arc begins, 55 degrees below the right; it sweeps 250 degrees clockwise.
+export const MARK_ARC_START = { x: 67.78, y: 75.39 };
 export const MARK_OCHRE = "#D2A24C";
 export const MARK_INK = "#14120F";
