@@ -1254,3 +1254,7 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   endpoint answers 404 unless `DEMO_CONTROLS` is exactly `true`; `HttpError` lives in
   `lib/errors.ts`; the CSP sends `upgrade-insecure-requests` outside development only.
   The sound module, its tag and its four cue calls are gone.
+- **Correction:** that commit went in with lint red. ESLint had started scanning the
+  handoff's generated `support.js` under `docs/design-ref`, which is a reference bundle,
+  not code. The next commit ignores `docs/**` in the lint config. Recorded because the
+  rule is gate green before each commit and this one was not.
