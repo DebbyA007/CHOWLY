@@ -199,7 +199,7 @@ are there. Open `http://localhost:3000/?table=12` to arrive as a guest at table 
 | `DIRECT_URL` | Neon's direct connection string, used by Prisma migrations |
 | `SESSION_SECRET` | Signs the guest's session cookie. `openssl rand -hex 32` |
 | `STAFF_PIN` | The staff PIN the server-side seam compares, in constant time |
-| `STAFF_PIN_REQUIRED` | The seam's switch. Off only when exactly `false`; absent or anything else keeps it on. The demo sets `false` |
+| `STAFF_PIN_REQUIRED` | The seam's switch. On only when exactly `true`; absent, `false` or anything else leaves the waiter routes open. The demo sets `false` |
 | `DEMO_CONTROLS` | Enables the endpoint the verification script uses to make an order late. Only exactly `true` enables it; production leaves it unset and the endpoint is a 404 |
 
 No secret is ever prefixed `NEXT_PUBLIC_`.
@@ -234,7 +234,7 @@ constraint, so a double tap records once. Order creation, reports and ratings ar
 limited per session, counted in the database. The response headers carry a Content
 Security Policy, `nosniff`, a referrer policy and `X-Frame-Options: DENY`. There is no
 authentication, by design; the server-side seam for the waiter routes stays behind
-`STAFF_PIN_REQUIRED`, on unless the flag is exactly `false`.
+`STAFF_PIN_REQUIRED`, off unless the flag is exactly `true`.
 
 ## Photography
 

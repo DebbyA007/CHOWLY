@@ -35,11 +35,13 @@ The assignment forbids logins and requires the live link to be usable by anyone.
   Payment is idempotent. Order creation, reports and ratings are rate limited per
   session, counted in the database.
 - **The flag that turns the server-side staff check on for a real deployment is
-  `STAFF_PIN_REQUIRED`.** When it is on, every waiter route requires the staff PIN in the
-  `x-staff-pin` header, compared with `crypto.timingSafeEqual` against `STAFF_PIN`. It is
-  off only when the variable is exactly `false`; absent, empty or malformed keeps it on,
-  because an absent variable meaning allow-everything would silently open a future
-  environment that forgot to set it. Its unit tests cover every shape of the flag.
+  `STAFF_PIN_REQUIRED=true`.** When it is on, every waiter route requires the staff PIN
+  in the `x-staff-pin` header, compared with `crypto.timingSafeEqual` against
+  `STAFF_PIN`. It is on only when the variable is exactly `true`; absent, empty, `false`
+  or anything else leaves the waiter routes open, which is the product's rule. The first
+  version of this seam was the other way round, on unless the variable was exactly
+  `false`, and it locked the waiter side of the production deployment, where the
+  variable had never been set. Its unit tests cover every shape of the flag.
 
 ---
 
@@ -147,7 +149,7 @@ handoff's "Bank transfer" maps as `MOBILE_MONEY`. The schema was not simplified 
 Vercel imports the repository with the install command set to `npm ci --ignore-scripts`.
 Neon is attached through the marketplace integration, which injects `DATABASE_URL`
 (pooled) and the direct string used as `DIRECT_URL`. `SESSION_SECRET`, `STAFF_PIN` and
-`STAFF_PIN_REQUIRED=false` are set in the dashboard; `DEMO_CONTROLS` is not, so the
+`STAFF_PIN_REQUIRED=false` are set in the dashboard, though the last is no longer needed now that the seam is off by default; `DEMO_CONTROLS` is not, so the
 endpoint the verification script uses to make an order late is a 404 in production.
 Migrations were applied with Prisma against the direct connection, and the seed was run
 against production and confirmed by querying the rows back through the live menu API.

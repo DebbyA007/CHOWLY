@@ -51,10 +51,18 @@ Security review is part of every change, not a phase at the end.
 - **Ownership checks.** A customer may only read, complain about, rate or pay an order
   whose `customerId` matches their session. Verify server-side on every one of those
   routes. Never take the customer ID from the request body.
-- **The role switch is not a security boundary.** It is UI convenience, since the
-  assignment forbids logins. Waiter mutations are therefore additionally gated by a staff
-  PIN held in `STAFF_PIN` and compared with `crypto.timingSafeEqual`. State this honestly
-  in the document rather than pretending the switch is auth.
+- **There is no authentication, by design, and no gate anywhere.** The assignment
+  forbids logins and requires the live link to be usable by anyone, so "I'm a guest" and
+  "I'm a waiter" are view switches and every waiter route is open. State this honestly
+  in the document rather than pretending a PIN was security.
+- **The server-side authorization seam stays, off by default.** `lib/staff-pin.ts`
+  compares an `x-staff-pin` header against `STAFF_PIN` with `crypto.timingSafeEqual`,
+  behind `STAFF_PIN_REQUIRED`. The seam is on only when the flag is exactly `true`;
+  absent, empty, `false` or anything else leaves every waiter route open, because a
+  deployment that never set the variable must not lock its own waiter side. It did once:
+  the first version was on unless the flag was exactly `false`, and production, where
+  the variable was never set, locked. `.env` and `.env.example` set it to `false` so the
+  intent is written down. Its tests stay so the compare stays proven.
 - Payment is idempotent: a unique constraint on `Payment.orderId`, plus the insert and the
   status update inside one `prisma.$transaction`. A double-clicked button records once.
 - Rate limit order creation, complaints and ratings per session.
