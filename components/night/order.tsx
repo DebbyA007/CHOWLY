@@ -13,7 +13,7 @@ import { selectOrder } from "./selection";
 import { ConnectionBar, useFreshness } from "./connection";
 import { abandonPlacement, isPending, retryPlacement, type Pending } from "./pending";
 import { OrderSkeleton } from "./skeleton";
-import { Pot, type PotState } from "./pot";
+import { Vessel, type VesselState } from "./vessel";
 import { useArrival } from "./arrival";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
@@ -211,9 +211,10 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   }, [sheet, reduce]);
 
   const centreLabel = clock.state === "waiting" ? "Ready in" : clock.state === "late" ? "Elapsed" : clock.state === "served" ? "Served" : "Paid";
-  // The pot simmers while the order cooks, comes to the boil when it is late, and
-  // settles once it is served.
-  const potState: PotState = clock.state === "late" ? "late" : clock.state === "waiting" ? "cooking" : "settled";
+  // The vessel matches the order: a pot for food, a glass for a drinks-only order. It
+  // simmers or pours while the order is being made, comes to the boil when it is late,
+  // and turns into the plated dish or the full glass once it has been served.
+  const vesselState: VesselState = clock.state === "late" ? "late" : clock.state === "waiting" ? "cooking" : "served";
   const centreValue = clock.state === "waiting" ? mmss(clock.remainingSeconds) : clock.state === "late" ? mmss(clock.elapsedSeconds) : clockTime(clock.state === "served" ? order.servedAt! : order.paidAt!);
   return (
     <Screen>
@@ -238,7 +239,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           </div>
         ) : null}
         <div className={`flex flex-col items-center px-[22px] pb-[26px] pt-[14px] ${failed ? "hidden" : ""}`} data-state={failed ? "failed" : sending ? "sending" : clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
-          <div className="pot-wrap mb-[2px]" style={{ opacity: 0 }}><Pot state={potState} /></div>
+          <div className="pot-wrap mb-[2px]" style={{ opacity: 0 }}><Vessel kind={order.kind} state={vesselState} /></div>
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle className="ring-track" cx="92" cy="92" r="82" fill="none" stroke={isLate ? "var(--track-late)" : "var(--track)"} strokeWidth="9" />

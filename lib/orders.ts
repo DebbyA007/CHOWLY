@@ -6,7 +6,7 @@ import { dueAt, isOrderDelayed } from "./wait-time";
 // Everything a route returns about an order, in one shape. Delay is derived here at read
 // time from placedAt and waitMinutes (delta 4), never read from a column.
 export const orderInclude = {
-  items: { include: { menuItem: { select: { name: true } } }, orderBy: { id: "asc" } },
+  items: { include: { menuItem: { select: { name: true, menu: { select: { type: true } } } } }, orderBy: { id: "asc" } },
   waiter: { select: { id: true, name: true } },
   chef: { select: { id: true, name: true } },
   bartender: { select: { id: true, name: true } },
@@ -19,11 +19,15 @@ export type OrderWithRelations = Prisma.OrderGetPayload<{ include: typeof orderI
 
 export function presentOrder(order: OrderWithRelations, now: Date = new Date()) {
   const subtotalKobo = order.items.reduce((sum, line) => sum + line.subtotalKobo, 0);
+  // What the guest is waiting on, which decides the vessel the order screen draws. A
+  // mixed order counts as food: the drink is usually down long before the kitchen is.
+  const kind: "food" | "drinks" = order.items.some((line) => line.menuItem.menu.type === "FOOD") ? "food" : "drinks";
   return {
     id: order.id,
     reference: order.reference,
     status: order.status,
     tableNo: order.tableNo,
+    kind,
     placedAt: order.placedAt,
     waitMinutes: order.waitMinutes,
     dueAt: dueAt(order),

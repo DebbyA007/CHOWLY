@@ -2192,3 +2192,35 @@ escape from under the splash reproduced either way; the fix covers both.
   rise, a small sideways drift each, and periods of 3.2 to 4.6 seconds so it is calm.
   Each fades in low and out at the top, and the five are out of phase, so there is no
   moment where the loop restarts. Late: fuller and about a third faster.
+
+### Commit: `feat: the vessel matches the order and changes when it is served`
+
+- The pot stayed a pot after serving, which says the food is still cooking. The vessel
+  now matches what was ordered and changes when the order does.
+- **Food**: a pot simmering, and on serving the lid lifts and swings away while the pot
+  fades, and a plated dish arrives underneath with a slight overshoot; the steam stops
+  climbing and settles into a low, slow drift over the food. It is a sequence, not a
+  swap: four hundred and sixty milliseconds of lid, four hundred of pot, five hundred
+  and twenty of plate, overlapping.
+- **Drinks**: a glass being poured. The pour is a dashed line whose dash offset slides
+  by exactly one period, so the flow never shows a seam, and it runs faster when the
+  drink is late. On serving the pour stops, the level rises to full and the glass gives
+  one small bob.
+- **A mixed order takes the food vessel**, which I agree with: the drink is usually down
+  long before the kitchen is done, so the food is what the guest is actually waiting on.
+  The rule is one line on the server, where the order is presented, rather than a guess
+  on the client: an order is food if any of its lines belongs to a menu of type FOOD.
+  `orderInclude` now reads each line's menu type and `presentOrder` returns `kind`, so
+  the screen is told what it is looking at. The provisional order the client builds
+  while a placement is in flight uses the same rule against the menu it already has, so
+  the vessel does not change when the real order lands.
+- The footprint is unchanged: the same 120 by 96 box above the ring, so the layout does
+  not move. Late still reddens, because the line is the ring's tone. Under reduced
+  motion there is no steam, no pour and no transition, just the vessel in the state the
+  order is in; verified for both kinds in both states.
+- **The transition would not reproduce in the test harness at first, and the cause was
+  the harness, not the app.** Driving the waiter's button from a second page left the
+  guest's window unfocused, and an unfocused window has its timers throttled, so the
+  guest never polled the change in. The evidence now serves over the same open route
+  the waiter's button calls, from the guest's own page, so the guest stays focused and
+  the transition is captured as it really runs.
