@@ -79,6 +79,9 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
   const doneCount = steps.filter((s) => s.done).length;
   const current = doneCount - 1;
   const lastDone = useRef(doneCount);
+  // The arc's first value, set once per order: React never writes the offset again,
+  // because the animation owns it and a per-tick rewrite would step it backwards.
+  const [firstOffset] = useState(() => (reduce ? CIRCUMFERENCE * Math.min(1, clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)) : CIRCUMFERENCE));
 
   // The ring. One animation from real elapsed time against placedAt, so a refresh lands
   // exactly where the clock is and the arc sweeps continuously from there. Under
@@ -183,7 +186,7 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle className="ring-track" cx="92" cy="92" r="82" fill="none" stroke={isLate ? "var(--track-late)" : "var(--track)"} strokeWidth="9" />
-              <circle ref={ring} className="ring-progress" cx="92" cy="92" r="82" fill="none" strokeWidth="9" strokeDasharray={CIRCUMFERENCE} style={{ strokeDashoffset: CIRCUMFERENCE * Math.min(1, clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)) }} />
+              <circle ref={ring} className="ring-progress" cx="92" cy="92" r="82" fill="none" strokeWidth="9" strokeDasharray={CIRCUMFERENCE} style={{ strokeDashoffset: firstOffset }} />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p className="text-[11.5px]" style={{ color: isLate ? "var(--ring-tone)" : "var(--fg-muted)" }}>{centreLabel}</p>

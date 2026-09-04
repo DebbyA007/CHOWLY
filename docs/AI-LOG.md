@@ -1513,3 +1513,15 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   because a failed `git add` of an already-deleted file aborted the commit that should
   have held them, and the next commit swept the staged files up. It is pushed, and
   `main` is not amended. The paper commit is as named.
+
+### Correction: `fix: the ring's offset is written once, then owned by the animation`
+
+- The frame logs from production showed it: in Chromium the offset at one-second
+  samples was never a multiple of the per-second step, so anime was sweeping, but React
+  was also rewriting the inline offset every second from its own clock, a small step
+  backwards on every tick. In a WKWebView, where the ticker did not run at all, the
+  offset moved only in those per-second steps. React now writes the offset once per
+  order and the animation owns it from there.
+- The WKWebView finding also invalidates my earlier WebKit motion frames: they were
+  taken in a view whose animation frames never ran. The WebKit evidence is redone in
+  Playwright's WebKit build, where they do.
