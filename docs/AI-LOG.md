@@ -2337,3 +2337,26 @@ Both engines, iPhone 13 emulation, against https://chowly-theta.vercel.app.
 | The share sheet receives | that file, image/png, 176885 bytes | 156187 bytes |
 | Food: the pot, then the lid away and the plate under it | caught mid-transition at lid 0.00, body 0.27, plate 1.00 | caught, the same shape |
 | Drinks: the pour, then the level rising to full | stream 1.00 level 68, then 0.00 and 49 | caught mid-rise at stream 0.75, level 58.7 |
+
+### What the second review actually proved, and a fault in how I ran it
+
+The panel raised twenty four findings and confirmed three: the fibre missing from the
+saved receipt, the live region mounted with its own first message, and the provisional
+order keeping a food vessel after its only food line sold out. The third is now fixed
+too: the ids of the food on the order travel with the placement, so when a dish comes
+off, what is left is judged again.
+
+**The fault is mine and it matters for reading the numbers above.** I began fixing while
+the verifiers were still running, against the same working tree they were reading. One
+verifier says so in its own words, noting that the reordering it was asked to judge was
+already staged in the tree. So most of the twenty one dismissals are not evidence that
+those findings were wrong: several were dismissed because they had already been fixed by
+the time a verifier looked. A review and the repair of what it finds have to be
+sequential, or the verification measures the repair rather than the defect.
+
+What the fixes rest on is not the panel's vote but reproduction I did myself, before
+each change and after it: the empty band of the saved card went from one colour to a
+hundred and eighty three; the Pay button read ₦1,075 while the card under it read
+₦1,000; the foot actions were measured at opacity zero and are now measured animating in
+from 0.81 to 1.00; a served drinks order opened fresh was measured drawing a pour and now
+reads zero on every frame. Those measurements stand on their own.

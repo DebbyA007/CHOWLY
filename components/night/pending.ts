@@ -10,7 +10,10 @@ import { selectOrder } from "./selection";
 // same formula the server uses, goes to the Order tab while the request is in flight,
 // and the kitchen's real order replaces it when it lands. A failure is shown on that
 // same screen, with the order kept on the menu so nothing is typed twice.
-export type Payload = { tableNo: string; items: { menuItemId: string; quantity: number }[] };
+// foodIds is carried so that when a dish sells out from under a mixed order and comes
+// off it, what is left can be judged again: an order that was food and is now drinks
+// only should show the glass, not go on holding a pot until the kitchen's order lands.
+export type Payload = { tableNo: string; items: { menuItemId: string; quantity: number }[]; foodIds: string[] };
 export type Pending = { order: SerializedOrder; status: "sending" | "failed"; message: string | null; payload: Payload };
 
 export const PENDING_PREFIX = "pending:";
@@ -92,7 +95,9 @@ function fail(message: string, unavailable: string[]) {
   const gone = new Set(unavailable);
   if (gone.size > 0) editCart((cart) => Object.fromEntries(Object.entries(cart).filter(([id]) => !gone.has(id))));
   const items = pending.payload.items.filter((l) => !gone.has(l.menuItemId));
-  const order = { ...pending.order, items: pending.order.items.filter((l) => !gone.has(l.menuItemId)) };
+  const food = new Set(pending.payload.foodIds);
+  const lines = pending.order.items.filter((l) => !gone.has(l.menuItemId));
+  const order = { ...pending.order, items: lines, kind: lines.some((l) => food.has(l.menuItemId)) ? ("food" as const) : ("drinks" as const) };
   pending = { ...pending, status: "failed", message, payload: { ...pending.payload, items }, order };
   emit();
 }
