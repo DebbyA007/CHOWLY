@@ -1744,6 +1744,15 @@ sees for a few seconds first.
 
 ## Five concerns after the Part 4 repair
 
+**Where the code of these five actually landed.** While the five were being finished
+in the working tree, the brand assets were committed from the same tree with
+everything in it, as `b511fc2 docs: add the brand mark, app icon and brand guidelines`.
+That commit therefore carries the code of all five concerns below, and the commit
+named `feat: bottled water, a one-minute dish` carries only this log. The headings
+below keep the messages the five commits would have had, so the concerns stay
+readable one by one; `main` is not rewritten, because that is not done here without
+being asked.
+
 ### Commit: `fix: fields at 16px so Mobile Safari does not zoom the page`
 
 - **Diagnosis before the change.** The viewport meta is right:
