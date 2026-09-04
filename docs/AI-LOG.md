@@ -1741,3 +1741,69 @@ traffic stopped, and the WebKit placement frames were captured again then. If it
 ever there when the link is opened for grading, the spinner page is what a visitor
 sees for a few seconds first.
 
+
+## Five concerns after the Part 4 repair
+
+### Commit: `fix: fields at 16px so Mobile Safari does not zoom the page`
+
+- **Diagnosis before the change.** The viewport meta is right:
+  `width=device-width, initial-scale=1, viewport-fit=cover`. Under real device
+  emulation in both engines (iPhone 13 at 390, iPhone SE at 320, Pixel 5 at 393, with
+  touch and the device pixel ratio), no element sits past the right edge and the
+  document is never wider than the viewport on the landing, the menu, the order or the
+  live list, and `visualViewport.scale` is 1 throughout. What is wrong is the fields:
+  the table number at the door was 14px, the table fields on the menu and the order
+  sheet 14.5px, the report and the rating note 14.5px. Mobile Safari zooms the page in
+  when a field under 16px takes focus and does not zoom back out on blur, which leaves
+  the page wider than the screen and draggable: the stray tap that zooms is the tap on a
+  field. Fix: every field at 16px, with a floor in the stylesheet so a future field
+  cannot drift, `touch-action: manipulation` on the body so a double tap on a control
+  is a tap and not a zoom (pinch zoom stays), and `overflow-x: hidden` as a belt.
+  `maximum-scale=1` was not used: it would also stop a person zooming on purpose.
+- **Why the 390 screenshots did not catch it.** They were taken in a desktop viewport
+  resized to 390, which ignores the viewport meta and has no touch, so nothing about a
+  phone's zoom behaviour was in the frame. And the trigger lives only in Mobile Safari:
+  Playwright's WebKit with iPhone emulation, used from here on, shares the engine but
+  not that heuristic, so it cannot reproduce the zoom either. What it can verify is the
+  trigger's absence: every field reports a computed 16px, and the scale stays 1 after
+  a field is tapped.
+
+### Commit: `feat: a sold-out dish stays on the card, greyed`
+
+- The menu API left an unavailable dish out, so a dish taken off on the 86 board
+  vanished from the guests' list. Now every dish on the card is returned with
+  `available`, and the row stays: greyed to 45 percent, the price and minutes still
+  there, a "Sold out" tag where the add circle was, nothing to tap. Retired dishes
+  still stay off the card. A line already on the order when the kitchen runs out shows
+  "Sold out" on the sheet with Remove, and the add path refuses the dish. The API route
+  now reads through the same `getMenu()` the earlier direction pages use.
+
+### Commit: `feat: the bill, settled at the table`
+
+- Payment stays where the assignment puts it, at the end, before the guest leaves; what
+  changed is the screen. "Your bill", "Served 9:26 pm · settle when you are ready", and
+  the bill as it is brought to a table: the table and the order number, when it was
+  placed and served, the lines with the price each when there is more than one, the
+  total struck into the paper under "To pay", and who served, cooked and mixed. The
+  three ways to settle each say what happens next. On Pay the other two step back while
+  the payment is taken, then the bill lifts away and the receipt prints where it was.
+
+### Commit: `feat: the pot above the ring`
+
+- A pot in the ring's tone above the ring: a body, two handles, a lid with a knob, drawn
+  as lines in SVG. Three wisps of steam rise on their own periods (3.4, 4.3 and 5.1
+  seconds), each fading in at the bottom and out at the top, so no loop is ever seen to
+  restart. The ring keeps the time; the pot is what makes the wait feel alive. Late, the
+  pot's line reddens with the ring's tone, the lid sits ajar, and the steam comes
+  fuller and faster. Served, the steam thins away over a second and a half and the lid
+  settles. Under reduced motion the pot is still and there is no steam. No shake, no
+  pulse, no glow; the lid ajar is a state, not a rattle.
+
+### Commit: `feat: bottled water, a one-minute dish`
+
+- Bottled water, ₦1,000, one minute, under Drinks: a real menu item, seeded like the
+  others, on the card in the design order after Zobo. The promise is the longest prep
+  time in the order, so an order of only water is late in one minute and fully red
+  three minutes after placing; no other prep time moved. Photograph: "Bottle of Water"
+  by Jiafei Slay Queen on Wikimedia Commons, CC0, cropped square and treated like the
+  rest; the credit is in `docs/PHOTOGRAPHY.md`. Seeded on production the same day.
