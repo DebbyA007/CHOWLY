@@ -43,7 +43,8 @@ export default function DirectionsTwoIndex() {
       </ul>
       <p className="mt-8 max-w-prose text-[14px] text-[#4d5054]">
         The first three directions, from which The Pass was chosen, are at <Link href="/directions" className="underline">/directions</Link>.
-        The critique that ranks these three is in the repository at docs/directions-2/README.md.
+        The critique that ranks these three is in the repository at docs/directions-2/README.md. A third round, with the
+        differences mandated, is at <Link href="/directions-3">/directions-3</Link>.
       </p>
     </main>
   );
