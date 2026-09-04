@@ -49,8 +49,18 @@ export function useCart(menu: MenuView | null) {
   }, [cart, hydrated]);
 
   const add = (item: MenuItemView) => {
+    if (!item.available) return;
     setError(null);
     setCart((c) => ({ ...c, [item.id]: Math.min(MAX_PER_ITEM, (c[item.id] ?? 0) + 1) }));
+  };
+  // a line for a dish that sold out after it was added comes off whole
+  const drop = (item: MenuItemView) => {
+    setError(null);
+    setCart((c) => {
+      const next = { ...c };
+      delete next[item.id];
+      return next;
+    });
   };
   const remove = (item: MenuItemView) => {
     setError(null);
@@ -126,5 +136,5 @@ export function useCart(menu: MenuView | null) {
   }
 
   const shownError = error ?? (pending?.status === "failed" ? pending.message : null);
-  return { cart, hydrated, add, remove, clear, lines, count, subtotalKobo, totalKobo, tableNo, setTableNo, error: shownError, setError, placing, place };
+  return { cart, hydrated, add, remove, drop, clear, lines, count, subtotalKobo, totalKobo, tableNo, setTableNo, error: shownError, setError, placing, place };
 }

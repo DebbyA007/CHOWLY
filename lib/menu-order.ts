@@ -11,6 +11,7 @@ export const DISH_ORDER = [
   "item_mojito",
   "item_merlot_2018",
   "item_zobo",
+  "item_bottled_water",
 ];
 export const STAFF_ORDER = ["chef_adaeze", "chef_tunde", "chef_ngozi", "bartender_emeka", "bartender_funke", "waiter_kemi", "waiter_chidi", "waiter_amaka"];
 

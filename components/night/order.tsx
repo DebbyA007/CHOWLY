@@ -13,6 +13,7 @@ import { selectOrder } from "./selection";
 import { ConnectionBar, useFreshness } from "./connection";
 import { abandonPlacement, isPending, retryPlacement, type Pending } from "./pending";
 import { OrderSkeleton } from "./skeleton";
+import { Pot, type PotState } from "./pot";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
 // Once the promise is spent, the arc closes again and ochre crosses to red over this long.
@@ -156,14 +157,15 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
     const continuing = enteredFor.current !== null && isPending(enteredFor.current) && !isPending(order.id);
     enteredFor.current = order.id;
     if (continuing) return;
-    const parts = [".ring-wrap", ".caption", ".late-note", ".late-actions", ".step", ".items"].filter((s) => el.querySelector(s));
+    const parts = [".pot-wrap", ".ring-wrap", ".caption", ".late-note", ".late-actions", ".step", ".items"].filter((s) => el.querySelector(s));
     if (reduce) {
       animate(parts, { opacity: [0, 1], duration: 200 });
       return;
     }
     utils.set(parts, { opacity: 1 });
     const tl = createTimeline({ defaults: { ease: "outQuart" } })
-      .add(".ring-wrap", { opacity: [0, 1], scale: [0.96, 1], duration: 600 }, 60)
+      .add(".pot-wrap", { opacity: [0, 1], y: [6, 0], duration: 500 }, 40)
+      .add(".ring-wrap", { opacity: [0, 1], scale: [0.96, 1], duration: 600 }, "-=380")
       .add(".caption", { opacity: [0, 1], duration: 400 }, "-=300");
     if (el.querySelector(".late-note")) tl.add(".late-note, .late-actions", { opacity: [0, 1], y: [6, 0], duration: 400, delay: stagger(90) }, "-=250");
     tl.add(".step", { opacity: [0, 1], x: [-6, 0], duration: 380, delay: stagger(70) }, "-=250").add(".items", { opacity: [0, 1], y: [10, 0], duration: 450 }, "-=200");
@@ -204,6 +206,9 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   }, [sheet, reduce]);
 
   const centreLabel = clock.state === "waiting" ? "Ready in" : clock.state === "late" ? "Elapsed" : clock.state === "served" ? "Served" : "Paid";
+  // The pot simmers while the order cooks, comes to the boil when it is late, and
+  // settles once it is served.
+  const potState: PotState = clock.state === "late" ? "late" : clock.state === "waiting" ? "cooking" : "settled";
   const centreValue = clock.state === "waiting" ? mmss(clock.remainingSeconds) : clock.state === "late" ? mmss(clock.elapsedSeconds) : clockTime(clock.state === "served" ? order.servedAt! : order.paidAt!);
   return (
     <Screen>
@@ -228,6 +233,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           </div>
         ) : null}
         <div className={`flex flex-col items-center px-[22px] pb-[26px] pt-[14px] ${failed ? "hidden" : ""}`} data-state={failed ? "failed" : sending ? "sending" : clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
+          <div className="pot-wrap mb-[2px]" style={{ opacity: 0 }}><Pot state={potState} /></div>
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle className="ring-track" cx="92" cy="92" r="82" fill="none" stroke={isLate ? "var(--track-late)" : "var(--track)"} strokeWidth="9" />
@@ -353,7 +359,7 @@ export function ActionSheet({ kind, api, order, onClose }: { kind: "report" | "r
         {kind === "report" ? (
           <>
             <p className="mt-[5px] text-[12.5px] text-fg-muted">We promised {order.waitMinutes} minutes. Tell us what went wrong and a manager will come over.</p>
-            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} maxLength={500} aria-label="What went wrong" className="mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg" />
+            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} maxLength={500} aria-label="What went wrong" className="mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[16px] text-fg" />
           </>
         ) : (
           <>
@@ -363,7 +369,7 @@ export function ActionSheet({ kind, api, order, onClose }: { kind: "report" | "r
                 <button key={n} type="button" role="radio" aria-checked={score === n} aria-label={`${n} of 5`} onClick={(e) => { setScore(n); if (!reduce) animate(e.currentTarget, { scale: [1, 1.12, 1], duration: 280, ease: "outQuad" }); }} className="chip press tabular !px-[15px] !py-[11px] !text-[13.5px] !font-semibold">{n}</button>
               ))}
             </div>
-            <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} aria-label="A note for the kitchen" placeholder="Anything to add?" className="mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg placeholder:text-fg-muted" />
+            <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} aria-label="A note for the kitchen" placeholder="Anything to add?" className="mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[16px] text-fg placeholder:text-fg-muted" />
           </>
         )}
         {error ? <p role="alert" className="mt-3 text-[13px] font-semibold text-late">{error}</p> : null}

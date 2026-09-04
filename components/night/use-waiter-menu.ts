@@ -7,7 +7,7 @@ import { MENU_KEY, WAITER_MENU_KEY } from "./keys";
 // The waiter's menu: every dish, including the ones sold out, with a switch each. The
 // change shows at once and is rolled back if the server refuses it; the guests' menu
 // is refreshed after, so a sold-out dish leaves their list on the next poll.
-export type WaiterMenuView = Omit<MenuView, "menus"> & { menus: (Omit<MenuView["menus"][number], "items"> & { items: (MenuView["menus"][number]["items"][number] & { available: boolean })[] })[] };
+export type WaiterMenuView = MenuView;
 
 async function fetcher(url: string): Promise<WaiterMenuView> {
   const response = await fetch(url);

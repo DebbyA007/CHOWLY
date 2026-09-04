@@ -45,6 +45,7 @@ const items: SeedItem[] = [
   { id: "item_mojito", menuId: "menu_drinks", name: "Mojito", description: "Lime and mint", priceKobo: 400000, prepTimeMinutes: 5 },
   { id: "item_merlot_2018", menuId: "menu_drinks", name: "Merlot 2018", description: "French red, by the glass", priceKobo: 600000, prepTimeMinutes: 3 },
   { id: "item_zobo", menuId: "menu_drinks", name: "Zobo", description: "Hibiscus with ginger", priceKobo: 150000, prepTimeMinutes: 4 },
+  { id: "item_bottled_water", menuId: "menu_drinks", name: "Bottled water", description: "Still, chilled, 75cl", priceKobo: 100000, prepTimeMinutes: 1 },
 ];
 
 // On the first menu, not on this one. Old orders reference them, so they stay as rows.

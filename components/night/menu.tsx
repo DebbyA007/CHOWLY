@@ -110,7 +110,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
             <form className="relative w-full max-w-[430px] rounded-t-[16px] bg-surface fibre px-[22px] pb-[30px] pt-5" aria-label="Your table" onSubmit={(e) => { e.preventDefault(); const v = tableDraft.trim(); if (!/^[A-Za-z0-9-]{1,8}$/.test(v)) return; cart.setTableNo(v); setTableSheet(false); }} noValidate>
               <h2 className="serif text-[25px] leading-[1.05]">Which table?</h2>
               <p className="mt-[5px] text-[12.5px] text-fg-muted">The number is on the card on your table.</p>
-              <input value={tableDraft} onChange={(e) => setTableDraft(e.target.value)} inputMode="numeric" maxLength={8} aria-label="Table number" autoFocus className="tabular mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg" />
+              <input value={tableDraft} onChange={(e) => setTableDraft(e.target.value)} inputMode="numeric" maxLength={8} aria-label="Table number" autoFocus className="tabular mt-4 block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[16px] text-fg" />
               <button type="submit" className="btn-primary press mt-4" data-keep-table>Keep</button>
             </form>
           </div>
@@ -134,12 +134,21 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
               <h2 className="serif text-[25px] leading-[1.05]">Your order</h2>
               <ul className="mt-2">
                 {cart.lines.map((line) => (
-                  <li key={line.item.id} className="flex items-center justify-between gap-3 py-[9px] text-[14px]">
-                    <span className="min-w-0"><span className="mr-[10px] text-fg-muted">{line.quantity}×</span>{line.item.name}</span>
-                    <span className="flex items-center gap-3">
-                      <span className="tabular font-semibold">{formatNaira(line.item.priceKobo * line.quantity)}</span>
-                      <Stepper quantity={line.quantity} onAdd={() => cart.add(line.item)} onRemove={() => cart.remove(line.item)} reduce={reduce} name={line.item.name} small />
-                    </span>
+                  <li key={line.item.id} className="flex items-center justify-between gap-3 py-[9px] text-[14px]" data-line={line.item.id}>
+                    {line.item.available ? (
+                      <>
+                        <span className="min-w-0"><span className="mr-[10px] text-fg-muted">{line.quantity}×</span>{line.item.name}</span>
+                        <span className="flex items-center gap-3">
+                          <span className="tabular font-semibold">{formatNaira(line.item.priceKobo * line.quantity)}</span>
+                          <Stepper quantity={line.quantity} onAdd={() => cart.add(line.item)} onRemove={() => cart.remove(line.item)} reduce={reduce} name={line.item.name} small />
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="min-w-0 text-fg-muted"><span className="mr-[10px]">{line.quantity}×</span>{line.item.name}<span className="ml-2 text-[11.5px] font-semibold">Sold out</span></span>
+                        <button type="button" onClick={() => cart.drop(line.item)} className="press text-[12.5px] font-semibold text-fg underline" data-drop={line.item.id}>Remove</button>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -151,7 +160,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
               </div>
               <label className="mt-5 block text-[12.5px] text-fg-muted">
                 Your table
-                <input value={cart.tableNo} onChange={(e) => cart.setTableNo(e.target.value)} inputMode="numeric" maxLength={8} aria-label="Table number" className="tabular mt-[10px] block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg" />
+                <input value={cart.tableNo} onChange={(e) => cart.setTableNo(e.target.value)} inputMode="numeric" maxLength={8} aria-label="Table number" className="tabular mt-[10px] block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[16px] text-fg" />
               </label>
               {cart.error ? <p role="alert" className="mt-3 text-[13px] font-semibold text-late">{cart.error}</p> : null}
               <button type="submit" data-place className="btn-primary press mt-5" disabled={cart.placing || cart.count === 0 || placedRef !== null}>{placedRef || cart.placing ? "Sending to the kitchen" : "Place order"}</button>
@@ -177,20 +186,25 @@ function ReviewTrigger({ onOpen, disabled }: { onOpen: () => void; disabled: boo
   return null;
 }
 
+// A dish that has sold out stays on the card, greyed, with the tag where the add
+// control was, so a guest sees the restaurant has it and that it has run out.
 function DishRow({ item, quantity, onAdd, onRemove, reduce }: { item: MenuItemView; quantity: number; onAdd: () => void; onRemove: () => void; reduce: boolean }) {
+  const off = !item.available;
   return (
-    <li className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5">
-      <DishPhoto src={item.photo} alt="" size={76} />
-      <div className="min-w-0 flex-1">
-        <h3 className="serif text-[20px] leading-[1.2]">{item.name}</h3>
-        <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
-        <div className="mt-[10px] flex items-baseline gap-[10px]">
-          <span className="text-[14px] font-semibold text-accent">{item.price}</span>
-          <span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span>
+    <li className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" data-dish={item.id} data-available={item.available}>
+      <div className={`flex min-w-0 flex-1 items-center gap-[17px] ${off ? "opacity-45" : ""}`} style={{ transition: "opacity 300ms" }}>
+        <DishPhoto src={item.photo} alt="" size={76} />
+        <div className="min-w-0 flex-1">
+          <h3 className="serif text-[20px] leading-[1.2]">{item.name}</h3>
+          <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
+          <div className="mt-[10px] flex items-baseline gap-[10px]">
+            <span className="text-[14px] font-semibold text-accent">{item.price}</span>
+            <span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span>
+          </div>
         </div>
       </div>
       <div className="flex shrink-0 items-center">
-        <Stepper quantity={quantity} onAdd={onAdd} onRemove={onRemove} reduce={reduce} name={item.name} />
+        {off ? <span className="rounded-full border px-[12px] py-[7px] text-[12px] font-semibold text-fg-muted" style={{ borderColor: "var(--chip-border)" }} data-sold-out>Sold out</span> : <Stepper quantity={quantity} onAdd={onAdd} onRemove={onRemove} reduce={reduce} name={item.name} />}
       </div>
     </li>
   );

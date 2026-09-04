@@ -87,7 +87,7 @@ export function Landing() {
           ) : (
             <form className="flex items-center justify-center gap-3" onSubmit={(e) => { e.preventDefault(); keep(); }} noValidate>
               <label htmlFor="table-number" className="text-[12px] text-fg-muted">Your table</label>
-              <input id="table-number" ref={field} value={draft} onChange={(e) => { setDraft(e.target.value); setNeedTable(false); }} inputMode="numeric" maxLength={8} placeholder="12" aria-label="Table number" aria-invalid={needTable || undefined} className="tabular w-[72px] rounded-full border bg-transparent px-3 py-2 text-center text-[14px] text-fg placeholder:text-fg-muted" style={{ borderColor: needTable ? "var(--late)" : "var(--chip-border)" }} />
+              <input id="table-number" ref={field} value={draft} onChange={(e) => { setDraft(e.target.value); setNeedTable(false); }} inputMode="numeric" maxLength={8} placeholder="12" aria-label="Table number" aria-invalid={needTable || undefined} className="tabular w-[72px] rounded-full border bg-transparent px-3 py-2 text-center text-[16px] text-fg placeholder:text-fg-muted" style={{ borderColor: needTable ? "var(--late)" : "var(--chip-border)" }} />
               <button type="submit" className="chip press !py-2 !text-[12.5px]" data-keep-table>Keep</button>
             </form>
           )}

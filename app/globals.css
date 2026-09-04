@@ -60,6 +60,17 @@ body {
   font-family: var(--font-sans);
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  /* A tap is a tap: no double-tap zoom, no 300ms wait. Pinch zoom stays. */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+/* Mobile Safari zooms the page when a focused field is set below 16px and does not
+   zoom back out on blur, which leaves the page too wide and draggable. The floor. */
+input,
+textarea,
+select {
+  font-size: 16px;
 }
 
 /* The app is a phone column. On a wider screen it sits centred on the same ground. */

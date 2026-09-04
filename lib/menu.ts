@@ -1,11 +1,13 @@
 import type { MenuType } from "@prisma/client";
 import { HttpError } from "./http";
-import { byDesignOrder, photoFor } from "./menu-order";
+import { DISH_ORDER, byDesignOrder, photoFor } from "./menu-order";
 import { formatNaira } from "./money";
 import { prisma } from "./prisma";
 
 // The menu as a page or an API reads it: grouped by menu type, kitchen before bar,
-// unavailable items left out, prices formatted once here.
+// prices formatted once here. A dish that has sold out stays on the card, marked, so
+// a guest sees the restaurant has it and that it has run out; retired dishes stay in
+// the database for the orders that name them and are not on the card.
 export type MenuItemView = {
   id: string;
   name: string;
@@ -14,6 +16,7 @@ export type MenuItemView = {
   price: string;
   prepTimeMinutes: number;
   photo: string;
+  available: boolean;
 };
 
 export type MenuView = {
@@ -26,7 +29,7 @@ export async function getMenu(): Promise<MenuView> {
     include: {
       menus: {
         orderBy: [{ type: "asc" }, { name: "asc" }],
-        include: { items: { where: { available: true }, orderBy: { name: "asc" } } },
+        include: { items: { orderBy: { name: "asc" } } },
       },
     },
   });
@@ -39,7 +42,7 @@ export async function getMenu(): Promise<MenuView> {
       id: menu.id,
       name: menu.name,
       type: menu.type,
-      items: byDesignOrder(menu.items).map((item) => ({
+      items: byDesignOrder(menu.items.filter((item) => DISH_ORDER.includes(item.id))).map((item) => ({
         id: item.id,
         name: item.name,
         description: item.description,
@@ -47,6 +50,7 @@ export async function getMenu(): Promise<MenuView> {
         price: formatNaira(item.priceKobo),
         prepTimeMinutes: item.prepTimeMinutes,
         photo: photoFor(item.id),
+        available: item.available,
       })),
     })),
   };

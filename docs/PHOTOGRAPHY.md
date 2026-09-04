@@ -4,7 +4,7 @@ Every photograph in CHOWLY is served from this repository under `public/photos/`
 the app's Content Security Policy allows images from its own origin only. Each one was
 downloaded from the source below, cropped square and centre-weighted (the room to
 390 by 452 at two times), resized with `sips`, and re-encoded as JPEG. One CSS treatment
-sits over all of them so eleven sources read as one shoot: a touch warmer and a touch
+sits over all of them so twelve sources read as one shoot: a touch warmer and a touch
 darker (`sepia(0.18) saturate(1.05) contrast(1.05) brightness(0.9)`). No other edits.
 
 The set is CC0, public domain or CC BY throughout, so nothing here asks a reader to
@@ -23,6 +23,7 @@ links to. One exception is marked below and waits on a decision.
 | `item_chapman.jpg` | Chapman | [Flickr](https://www.flickr.com/photos/63669472@N00/2627562660) | Eugene Eric Kim (eekim), "Chapman" | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
 | `item_mojito.jpg` | Mojito | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Mojito_made_with_rum,_lime,_sugar,_mint,_club_soda,_served_in_a_tall_glass_-_Evan_Swigart.jpg) | Evan Swigart | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
 | `item_merlot_2018.jpg` | Merlot 2018 | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Wine_glass_with_red_wine_(1).jpg) | Paolo Neo | Public domain |
+| `item_bottled_water.jpg` | Bottled water | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Bottle_of_Water.jpg) | Jiafei Slay Queen | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
 | `item_zobo.jpg` | Zobo | [Wikimedia Commons](https://commons.wikimedia.org/w/index.php?curid=186815307) | Fatimah Bello, "Zobo drink on Eid" | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
 
 ## Goat pepper soup, pending

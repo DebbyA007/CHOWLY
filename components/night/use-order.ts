@@ -116,13 +116,15 @@ export function useOrder(id: string | null) {
       setBusy(null);
     }
   }
-  async function pay(method: "CARD" | "MOBILE_MONEY" | "CASH") {
+  // The screen may animate the bill away before the receipt takes its place.
+  async function pay(method: "CARD" | "MOBILE_MONEY" | "CASH", before?: () => Promise<void>) {
     if (!id) return null;
     setBusy("pay");
     setNotice(null);
     try {
       const updated = await post(`/api/orders/${id}/pay`, { method });
       setJustPaid(true);
+      if (before) await before();
       replace(updated);
       return updated;
     } catch (e) {
