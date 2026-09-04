@@ -82,6 +82,16 @@ select {
   position: relative;
 }
 
+/* The wordmark: Newsreader 400, all caps, tracked 0.15em, bone. The only all-caps setting. */
+.wordmark {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--fg);
+  line-height: 1;
+}
+
 /* Display type: Newsreader, weight 400 only. */
 @utility serif {
   font-family: var(--font-serif);

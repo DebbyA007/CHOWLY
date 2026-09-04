@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
+import { Lockup } from "./brand";
 import { RoomPhoto } from "./photo";
 import { readTable, writeTable } from "./table";
 import { preloadMenu } from "./use-menu";
@@ -39,7 +40,7 @@ export function Landing() {
     preloadMine();
     preloadRail();
     const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
-      const all = [".room", ".name", ".address", ".door", ".table"];
+      const all = [".room", ".lockup", ".name", ".address", ".door", ".table"];
       if (self?.matches.reduceMotion) {
         animate(all, { opacity: [0, 1], duration: 200 });
         return;
@@ -47,7 +48,8 @@ export function Landing() {
       utils.set(all, { opacity: 1 });
       createTimeline({ defaults: { ease: "outQuart" } })
         .add(".room", { opacity: [0, 1], duration: 700 }, 0)
-        .add(".name", { opacity: [0, 1], y: [10, 0], duration: 600 }, 250)
+        .add(".lockup", { opacity: [0, 1], duration: 500 }, 150)
+        .add(".name", { opacity: [0, 1], y: [10, 0], duration: 600 }, 450)
         .add(".address", { opacity: [0, 1], duration: 400 }, "-=300")
         .add(".door", { opacity: [0, 1], y: [12, 0], duration: 450, delay: stagger(90) }, "-=200")
         .add(".door", { opacity: 1, duration: 1 }, "-=1");
@@ -60,7 +62,8 @@ export function Landing() {
       <div className="room shrink-0" style={{ opacity: 0 }}>
         <RoomPhoto src="/photos/room.jpg" alt="The dining room at The Golden Gate in the evening" />
       </div>
-      <div className="flex flex-1 flex-col px-[26px] pb-8 pt-9">
+      <div className="flex flex-1 flex-col px-[26px] pb-8 pt-7">
+        <div className="lockup mb-7" style={{ opacity: 0 }}><Lockup variant="stacked" /></div>
         <h1 className="name serif text-[44px] leading-none tracking-[-0.015em]" style={{ opacity: 0 }}>
           The Golden
           <br />

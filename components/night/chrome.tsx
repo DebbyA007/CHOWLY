@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { markTabPress } from "./arrival";
+import { Lockup } from "./brand";
 
 // The chrome every screen shares: the header block, the pill, the bottom tab bar.
 // Text and simple dots only; no icons anywhere, by design.
@@ -13,7 +14,10 @@ export function Header({ title, subtitle, subtitleTone = "muted", pill, pillTone
   if (back) {
     return (
       <header className="px-[22px] pb-4 pt-[14px]">
-        <Link href={back.href} className="press block text-[11.5px] text-fg-muted">{back.label}</Link>
+        <div className="flex items-center justify-between gap-3">
+          <Link href={back.href} className="press block text-[11.5px] text-fg-muted">{back.label}</Link>
+          <Lockup />
+        </div>
         <div className="mt-[7px] flex items-end justify-between gap-3">
           <h1 className={titleClass}>{title}</h1>
           {pillNode}
@@ -22,12 +26,15 @@ export function Header({ title, subtitle, subtitleTone = "muted", pill, pillTone
     );
   }
   return (
-    <header className="flex items-end justify-between gap-3 px-[22px] pb-4 pt-[14px]">
-      <div className="min-w-0">
-        <h1 className={titleClass}>{title}</h1>
-        {subtitle ? <p className={`tone mt-[5px] text-[11.5px] ${subtitleTone === "late" ? "font-semibold text-late" : "text-fg-muted"}`}>{subtitle}</p> : null}
+    <header className="px-[22px] pb-4 pt-[14px]">
+      <Lockup />
+      <div className="mt-[10px] flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className={titleClass}>{title}</h1>
+          {subtitle ? <p className={`tone mt-[5px] text-[11.5px] ${subtitleTone === "late" ? "font-semibold text-late" : "text-fg-muted"}`}>{subtitle}</p> : null}
+        </div>
+        {pillNode}
       </div>
-      {pillNode}
     </header>
   );
 }
