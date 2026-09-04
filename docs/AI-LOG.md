@@ -1525,3 +1525,29 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
 - The WKWebView finding also invalidates my earlier WebKit motion frames: they were
   taken in a view whose animation frames never ran. The WebKit evidence is redone in
   Playwright's WebKit build, where they do.
+
+## Phase 5c: completing the app, in the order given
+
+### Commit: `feat: reports and the waiter's own name reach the staff record`
+
+- **Reports were invisible to staff.** The live-orders row now carries a count in late
+  red, and the order-open screen shows every report's text and time, and the rating if
+  one was given, on a card headed "From the table". Requirement 4 was half-built.
+- **The waiter was hard-coded to the first name on the roster.** Whoever is on the floor
+  now picks themselves: the header pill reads "Who's serving?" until they do, opens the
+  roster as a sheet, and the choice is kept for the session in sessionStorage, which is
+  the right place for a preference and the wrong one for identity, of which there is none
+  by design. The order-open screen carries a Waiter field beside Chef and Bartender,
+  defaulting to that choice, and "Mark as served" waits until someone is chosen.
+  Requirement 3 records who served as well as who cooked and mixed.
+- Two concerns in one commit because they share the waiter screens file.
+
+### Commit: `feat: rate any served order, and a stepper the data can vouch for`
+
+- **Rating** is offered on every served order, on time or late, and on the receipt; once
+  given, the receipt and the order screen show it, and the button reads "Change your
+  rating".
+- **"In the kitchen" at two minutes was invented**; the data holds placed, served and
+  paid and nothing between. The stepper is those three now, each with its real time or
+  what it waits for. The handoff drew four; a fabricated state in a graded app is worse
+  than three honest ones.

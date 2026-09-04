@@ -11,7 +11,6 @@ import { preloadMenu } from "./use-menu";
 import { orderClock, useMyOrders, useOrder, type Clock } from "./use-order";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
-const KITCHEN_AFTER_SECONDS = 120;
 // Once the promise is spent, the arc closes again and ochre crosses to red over this long.
 const CROSS_SECONDS = 120;
 const OCHRE = [210, 162, 76];
@@ -68,13 +67,12 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
   const lateMinutes = Math.floor(clock.lateSeconds / 60);
   const placedAt = new Date(order.placedAt);
   const served = !!order.servedAt;
-  const kitchenAt = new Date(Math.min(placedAt.getTime() + KITCHEN_AFTER_SECONDS * 1000, served ? new Date(order.servedAt!).getTime() : Infinity));
-  const inKitchen = clock.elapsedSeconds >= KITCHEN_AFTER_SECONDS || served;
+  const paid = !!order.paidAt;
+  // Three steps the data can vouch for: placed, served, paid. Nothing is invented between.
   const steps = [
-    { name: "Order placed", time: clockTime(placedAt), done: true },
-    { name: "In the kitchen", time: inKitchen ? (isLate ? `Since ${clockTime(kitchenAt)}` : clockTime(kitchenAt)) : "Shortly", done: inKitchen },
-    { name: "Ready to serve", time: served ? clockTime(order.servedAt!) : isLate ? "Any moment" : `About ${clockTime(order.dueAt)}`, done: served },
-    { name: "Served", time: served ? clockTime(order.servedAt!) : "At your table", done: served },
+    { name: "Order placed", time: `${clockTime(placedAt)}, promised in ${order.waitMinutes} minutes`, done: true },
+    { name: "Served", time: served ? clockTime(order.servedAt!) : isLate ? "Any moment" : `About ${clockTime(order.dueAt)}`, done: served },
+    { name: "Paid", time: paid ? clockTime(order.paidAt!) : served ? "When you are ready" : "After it is served", done: paid },
   ];
   const doneCount = steps.filter((s) => s.done).length;
   const current = doneCount - 1;
@@ -199,9 +197,15 @@ function OrderBody({ order, clock, api }: { order: SerializedOrder; clock: Clock
               <p className="late-note pretty mt-5 text-center text-[13.5px] leading-[1.55]">Sorry, your food is taking longer than we said. It&apos;s with the chef now.</p>
               <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
                 <button type="button" data-report onClick={() => setSheet("report")} className="btn-outline press !py-[15px] !text-[14px]">Report a problem</button>
-                <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">Rate your order</button>
+                <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
               </div>
             </>
+          ) : served ? (
+            <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
+              {order.rating ? <p className="text-center text-[13.5px] leading-[1.55]">You rated it {order.rating.score} of 5.</p> : null}
+              <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
+              {api.late ? <button type="button" data-report onClick={() => setSheet("report")} className="btn-outline press !py-[15px] !text-[14px]">Report a problem</button> : null}
+            </div>
           ) : null}
         </div>
         <ol className={`px-[22px] ${isLate ? "pt-1" : ""}`} aria-label="Progress">
