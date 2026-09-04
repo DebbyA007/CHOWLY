@@ -2059,3 +2059,42 @@ head's rotation and the three signals. Sheets `chromium-splash.png`,
   and the Order tab afterwards showed "Order #1001", state waiting, with the bottled
   water line and its total. Nothing is lost by going home. Home from the waiter side
   reaches the door in both engines too.
+
+### Commit: `fix: the splash is cold start only, and nothing under it is reachable`
+
+An adversarial review of the splash, the static door and the home link, run as four
+reviewers over the diff with every finding then put to three independent verifiers,
+found five real defects. All five were reproduced by hand before being fixed.
+
+- **The splash played on a navigation to the door.** The only thing stopping it was the
+  `data-warm` attribute, which the inline script sets from the cookie. Someone who
+  opened `/menu` or `/waiter` directly, which is exactly what the walkthrough tells a
+  facilitator to do, had no cookie, so tapping the lockup home mounted a running splash
+  in the middle of their session. Fixed by deciding on the path the bundle first ran at:
+  a cold start is the browser loading the door itself, so a splash can only run when
+  `window.location.pathname` was `/` when the JavaScript first executed, and a document
+  runs it at most once. Verified: deep link to `/waiter`, tap the lockup, no splash;
+  the same from `/menu`; and going home again after a real cold start, no splash.
+- **The landing beneath the splash was reachable.** The overlay covers the screen, so
+  pointer events were caught, but the landing is fully mounted underneath and its two
+  doors are only at `opacity: 0`, which does not remove an element from the tab order.
+  Two presses of Tab landed on "I'm a waiter" under the cover. The landing is now
+  `inert` while the splash is up, set before the first paint so there is no window at
+  all, and released at the handoff and on unmount. Verified: two Tabs now leave the
+  focus on the body and Enter does nothing.
+- **Leaving mid-flight kept running.** The cleanup paused the interval and the fill but
+  nothing created inside the leave path: the park tween, the caption fade, the dissolve
+  and a deferred timer all survived an unmount, so navigating away during the park still
+  fired the handoff event and wrote the cookie from another screen. Every animation is
+  now collected and paused, and the settle refuses to run once cancelled.
+- **The mark was claimed before the splash knew it would run.** The layout effect wrote
+  `chowly-mark-drawn` unconditionally, so a warm start got neither the splash nor the
+  landing's own draw. It is written only when the splash actually takes the run.
+- **The load restarted under reduced motion.** The reduced-motion hook returns false on
+  the first render and the true value from an effect, and the splash's effect depended
+  on it, so it tore down and re-ran, restarting the floor timer and all three signals.
+  The setting is now read synchronously inside the effect, which no longer depends on
+  it. Verified: progress climbs 0.00, 0.55, 1.00 and never restarts.
+- The deferred `data-warm` write that the review also flagged is gone: the document's
+  own state now says whether the splash has run, so there is no window in which a
+  freshly mounted splash is hidden mid-run.

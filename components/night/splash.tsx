@@ -4,7 +4,6 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate } from "animejs";
 import { MARK_ARC_START, MARK_DOT, MARK_PATH, MARK_STROKE, MARK_VIEWBOX } from "@/lib/brand";
 import { ARC_LENGTH, ARC_SWEEP_DEG, CEILING_MS, FLOOR_MS, HANDOFF_EVENT, PARK_DEG, SPLASH_COOKIE } from "@/lib/splash";
-import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Wordmark } from "./brand";
 import { preloadMenu } from "./use-menu";
 
@@ -21,13 +20,46 @@ import { preloadMenu } from "./use-menu";
 type Phase = "fill" | "park" | "handoff" | "done";
 const WEIGHTS = { fonts: 0.25, menu: 0.45, photos: 0.3 };
 
+// A cold start is the browser loading the door itself. Arriving at the door from
+// inside the app, by the lockup or any other link, is a navigation, and a splash in
+// front of a navigation is the tax this is meant to avoid. So the path the bundle
+// first ran at decides, a document runs the splash at most once, and the cookie the
+// inline script reads covers the session's later loads.
+const ENTERED_AT = typeof window === "undefined" ? null : window.location.pathname;
+let claimedDocument = false;
+let active = false;
+
+function willRun(): boolean {
+  if (typeof window === "undefined") return false;
+  if (claimedDocument || ENTERED_AT !== "/") return false;
+  return !document.documentElement.dataset.warm;
+}
+
+// Whether the landing should wait for a handoff instead of entering on its own.
+export function splashIsRunning(): boolean {
+  return active;
+}
+
 export function Splash() {
   const root = useRef<HTMLDivElement>(null);
-  const reduce = usePrefersReducedMotion();
+  const running = useRef(false);
   const [phase, setPhase] = useState<Phase>("fill");
 
-  // The landing's own mark must not draw again under this: the splash is the draw.
+  // Decided before the first paint, so a screen not getting the splash never shows a
+  // frame of it, and the landing's mark is only claimed when the splash really is the
+  // one drawing it.
   useLayoutEffect(() => {
+    if (!willRun()) {
+      setPhase("done");
+      return;
+    }
+    claimedDocument = true;
+    active = true;
+    running.current = true;
+    // Nothing under a full-screen cover should be reachable. Set before the first
+    // paint, so there is no window in which a Tab reaches the landing beneath, whose
+    // doors are merely at opacity 0 and would otherwise take focus and activate.
+    document.querySelector("main")?.setAttribute("inert", "");
     try {
       window.sessionStorage.setItem("chowly-mark-drawn", "1");
     } catch {
@@ -36,21 +68,22 @@ export function Splash() {
   }, []);
 
   useEffect(() => {
-    // a warm start: the document was marked before first paint, or this is a later
-    // visit to the door in the same session; the splash is already hidden, so it leaves
-    if (document.documentElement.dataset.warm) {
-      setPhase("done");
-      return;
-    }
+    if (!running.current) return;
     const el = root.current;
     const arc = el?.querySelector<SVGPathElement>(".splash-arc");
     const head = el?.querySelector<SVGGElement>(".splash-head");
     const caption = el?.querySelector<HTMLElement>(".splash-caption");
     if (!el || !arc || !head) return;
+    const release = () => document.querySelector("main")?.removeAttribute("inert");
+    // Read the setting here rather than through a hook that returns false on the first
+    // render, which would tear this effect down and start the whole load over.
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const started = performance.now();
     let cancelled = false;
     let leaving = false;
     let fill: ReturnType<typeof animate> | null = null;
+    // every animation, so leaving mid-flight cancels all of them
+    const anims: ReturnType<typeof animate>[] = [];
     const done = { fonts: 0, menu: 0, photos: 0 };
     let progress = 0;
     const state = { offset: ARC_LENGTH, deg: 0 };
@@ -99,6 +132,9 @@ export function Splash() {
       fill?.pause();
       window.clearInterval(timer);
       const settle = () => {
+        if (cancelled) return;
+        active = false;
+        release();
         setPhase("handoff");
         window.dispatchEvent(new Event(HANDOFF_EVENT));
         try {
@@ -106,17 +142,15 @@ export function Splash() {
         } catch {
           // then it shows again next time, which is a brand moment, not a fault
         }
-        // later visits to the door in this session are warm too
-        window.setTimeout(() => document.documentElement.setAttribute("data-warm", "1"), reduce ? 320 : 540);
-        animate(el, { opacity: [1, 0], duration: reduce ? 300 : 520, ease: "inOutQuad", onComplete: () => setPhase("done") });
+        anims.push(animate(el, { opacity: [1, 0], duration: reduce ? 300 : 520, ease: "inOutQuad", onComplete: () => setPhase("done") }));
       };
       if (reduce) {
         settle();
         return;
       }
       setPhase("park");
-      if (caption) animate(caption, { opacity: 0, duration: 260, ease: "outQuad" });
-      animate(state, { offset: 0, deg: PARK_DEG, duration: 480, ease: "outQuart", onUpdate: paint, onComplete: settle });
+      if (caption) anims.push(animate(caption, { opacity: 0, duration: 260, ease: "outQuad" }));
+      anims.push(animate(state, { offset: 0, deg: PARK_DEG, duration: 480, ease: "outQuart", onUpdate: paint, onComplete: settle }));
     };
     const timer = window.setInterval(() => {
       const t = performance.now() - started;
@@ -127,10 +161,13 @@ export function Splash() {
     }, 80);
     return () => {
       cancelled = true;
+      active = false;
       window.clearInterval(timer);
       fill?.pause();
+      anims.forEach((a) => a.pause());
+      release();
     };
-  }, [reduce]);
+  }, []);
 
   if (phase === "done") return null;
   return (

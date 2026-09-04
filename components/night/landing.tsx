@@ -10,6 +10,7 @@ import { preloadMenu } from "./use-menu";
 import { preloadMine } from "./use-order";
 import { preloadRail } from "./use-rail";
 import { HANDOFF_EVENT } from "@/lib/splash";
+import { splashIsRunning } from "./splash";
 
 // Screen 1. The dining room across the top, the name, the address, and the two ways
 // in pushed to the bottom. The menu, the guest's orders and the live list are all
@@ -41,8 +42,10 @@ export function Landing() {
     preloadMine();
     preloadRail();
     // On a cold start the splash covers this screen; the entrance waits for its handoff
-    // and rises under the dissolve. A warm start has no splash to wait for.
-    const afterSplash = !document.documentElement.dataset.warm && !!document.querySelector("[data-splash]");
+    // and rises under the dissolve. Every other arrival, warm start or a tap on the
+    // lockup from inside the app, enters on its own. The splash says which it is, so
+    // this does not depend on the order two components' effects happen to run in.
+    const afterSplash = splashIsRunning();
     let scope: ReturnType<typeof createScope> | null = null;
     const start = () => {
       scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
