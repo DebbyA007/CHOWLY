@@ -11,6 +11,7 @@ import { DishPhoto } from "./photo";
 import { orderClock } from "./use-order";
 import { preloadMenu, useMenu } from "./use-menu";
 import { useRail, type Rail } from "./use-rail";
+import { readWaiter, writeWaiter } from "./waiter-session";
 
 const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 const KITCHEN_AFTER_SECONDS = 120;
@@ -29,9 +30,39 @@ function statusOf(order: SerializedOrder, now: number | null): { status: Status;
 }
 const inFilter = (status: Status, filter: Filter) => filter === "All" || (filter === "Late" ? status === "Late" : filter === "Served" ? status === "Served" : status !== "Late" && status !== "Served");
 
-function staffPill(rail: Rail | undefined): string {
-  const first = rail?.staff.waiters[0];
-  return first ? shortName(first.name) : "Staff";
+// The pill in every waiter header: who is on the floor, or the invitation to say so.
+function useWaiterChoice(rail: Rail | undefined) {
+  const [chosen, setChosen] = useState<string | null>(null);
+  useEffect(() => setChosen(readWaiter()), []);
+  const waiter = rail?.staff.waiters.find((w) => w.id === chosen) ?? null;
+  const choose = (id: string | null) => {
+    setChosen(id);
+    writeWaiter(id);
+  };
+  return { chosen, waiter, choose, label: waiter ? shortName(waiter.name) : rail ? "Who's serving?" : "" };
+}
+
+// The roster, as a sheet. Choosing is instant and kept for the session.
+export function WaiterPicker({ rail, chosen, onChoose, onClose }: { rail: Rail; chosen: string | null; onChoose: (id: string) => void; onClose: () => void }) {
+  const reduce = usePrefersReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current) animate(ref.current, reduce ? { opacity: [0, 1], duration: 150 } : { opacity: [0, 1], y: [28, 0], duration: 240, ease: "outQuad" });
+  }, [reduce]);
+  return (
+    <div className="fixed inset-0 z-30 flex items-end justify-center" role="presentation">
+      <button type="button" className="absolute inset-0 h-full w-full bg-[rgba(20,18,15,0.7)]" aria-label="Close" onClick={onClose} />
+      <div ref={ref} className="relative w-full max-w-[430px] rounded-t-[16px] bg-surface fibre px-[22px] pb-[30px] pt-5" style={{ opacity: 0 }} role="dialog" aria-label="Who is serving">
+        <h2 className="serif text-[25px] leading-[1.05]">Who&apos;s serving?</h2>
+        <p className="mt-[5px] text-[12.5px] text-fg-muted">Orders you mark as served are recorded under your name.</p>
+        <div className="mt-4 flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Waiter">
+          {rail.staff.waiters.map((w) => (
+            <button key={w.id} type="button" role="radio" aria-checked={w.id === chosen} data-waiter={w.id} onClick={(e) => { onChoose(w.id); if (!reduce) animate(e.currentTarget, { scale: [1, 1.06, 1], duration: 260, ease: "outQuad" }); window.setTimeout(onClose, 260); }} className="chip press !px-[15px] !py-[11px] !font-semibold">{w.name}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Rows enter in two ways: the ones there at mount stagger in from below, and any that
@@ -64,7 +95,10 @@ function Row({ order, status, time, colour, meta }: { order: SerializedOrder; st
             <span className="text-[11.5px] text-fg-muted">#{order.reference}</span>
           </div>
           <div className="rule-soft mt-1" />
-          <p className="tabular mt-1 truncate text-[12px] text-fg-muted">{meta}</p>
+          <p className="tabular mt-1 truncate text-[12px] text-fg-muted">
+            {meta}
+            {order.complaints.length > 0 ? <span className="ml-2 font-semibold text-late">{order.complaints.length} {order.complaints.length === 1 ? "report" : "reports"}</span> : null}
+          </p>
         </div>
         <div className="shrink-0 text-right">
           <div className="flex items-center justify-end gap-[6px]">
@@ -93,10 +127,13 @@ export function LiveOrders() {
   const subtitle = `${WORDS[open] ?? open} open · ${(WORDS[drinksPending] ?? String(drinksPending)).toLowerCase()} ${drinksPending === 1 ? "drink" : "drinks"} pending`;
   const shown = rows.filter((r) => inFilter(r.status, filter));
   useRowEntrance(listRef, shown.map((r) => r.order.id).join(","), reduce);
+  const who = useWaiterChoice(rail.data);
+  const [picking, setPicking] = useState(false);
   return (
     <>
       <Screen>
-        <Header title="Live orders" subtitle={rail.data ? subtitle : "Opening the floor"} pill={staffPill(rail.data)} />
+        <Header title="Live orders" subtitle={rail.data ? subtitle : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
+        {picking && rail.data ? <WaiterPicker rail={rail.data} chosen={who.chosen} onChoose={who.choose} onClose={() => setPicking(false)} /> : null}
         <div className="flex gap-2 overflow-x-auto px-[22px] pb-[14px]" role="tablist" aria-label="Filter">
           {(["All", "Cooking", "Late", "Served"] as Filter[]).map((f) => (
             <Chip key={f} on={f === filter} onClick={() => setFilter(f)} className="!px-[14px] !py-2 !text-[12.5px]">{f}</Chip>
@@ -128,6 +165,9 @@ export function WaiterOrder({ id }: { id: string }) {
   const order = rail.orders.find((o) => o.id === id) ?? null;
   const [chef, setChef] = useState<string | null>(null);
   const [bartender, setBartender] = useState<string | null>(null);
+  const who = useWaiterChoice(rail.data);
+  const waiterId = order?.staff.waiter?.id ?? who.chosen;
+  const chooseWaiter = (id: string) => who.choose(id);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const staff = rail.staff;
@@ -173,8 +213,10 @@ export function WaiterOrder({ id }: { id: string }) {
   }
   async function serve(target: HTMLElement) {
     if (!order || !staff || !chefId || !bartenderId) return;
-    const waiterId = staff.waiters[0]?.id;
-    if (!waiterId) return;
+    if (!waiterId) {
+      setError("Choose who is serving first.");
+      return;
+    }
     setSaving(true);
     setError(null);
     // the press is answered before the request returns: the pill settles and its fill dims
@@ -220,7 +262,31 @@ export function WaiterOrder({ id }: { id: string }) {
                   <span className="serif struck tabular text-[23px]">{order.subtotal}</span>
                 </div>
               </section>
+              {order.complaints.length > 0 || order.rating ? (
+                <section className="field card fibre mx-[22px] mt-4 px-[18px] py-4" style={{ opacity: 0 }} aria-label="From the table" data-section="reports">
+                  <p className="text-[12.5px] text-fg-muted">From the table</p>
+                  {order.complaints.map((c) => (
+                    <div key={c.id} className="mt-3">
+                      <div className="rule-soft mb-2" />
+                      <p className="text-[14px] leading-[1.5]"><span className="mr-2 font-semibold text-late">Report</span>{c.description}</p>
+                      <p className="mt-1 text-[11.5px] text-fg-muted">{clockTime(c.createdAt)}</p>
+                    </div>
+                  ))}
+                  {order.rating ? (
+                    <div className="mt-3">
+                      <div className="rule-soft mb-2" />
+                      <p className="text-[14px] leading-[1.5]"><span className="mr-2 font-semibold text-accent">Rated {order.rating.score} of 5</span>{order.rating.comment ?? ""}</p>
+                    </div>
+                  ) : null}
+                </section>
+              ) : null}
               <div className="field px-[22px] pt-6" style={{ opacity: 0 }}>
+                <p className="text-[12.5px] text-fg-muted">Waiter</p>
+                <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Waiter">
+                  {(staff?.waiters ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === waiterId} disabled={served} onClick={(e) => { pick(chooseWaiter, p.id, e.currentTarget); }} className="chip press !px-[15px] !py-[11px] !font-semibold" data-waiter={p.id}>{p.name}</button>)}
+                </div>
+              </div>
+              <div className="field px-[22px] pt-[22px]" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Chef</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Chef">
                   {(staff?.chefs ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === chefId} disabled={served} onClick={(e) => pick(setChef, p.id, e.currentTarget)} className="chip press !px-[15px] !py-[11px] !font-semibold" data-chef={p.id}>{p.name}</button>)}
@@ -237,7 +303,7 @@ export function WaiterOrder({ id }: { id: string }) {
                 {served ? (
                   <p className="rounded-full border py-[17px] text-center text-[15px] font-semibold text-accent" style={{ borderColor: "var(--accent-served-border)" }} data-served-at>Served at {clockTime(order.servedAt ?? order.placedAt)}</p>
                 ) : (
-                  <button type="button" data-serve onClick={(e) => serve(e.currentTarget)} disabled={saving || !staff} className="btn-primary" style={{ transition: "none" }}>{saving ? "Marking as served" : "Mark as served"}</button>
+                  <button type="button" data-serve onClick={(e) => serve(e.currentTarget)} disabled={saving || !staff || !waiterId} className="btn-primary" style={{ transition: "none" }}>{saving ? "Marking as served" : waiterId ? "Mark as served" : "Choose who is serving"}</button>
                 )}
               </div>
             </>
@@ -258,10 +324,13 @@ export function Tables() {
   const listRef = useRef<HTMLUListElement>(null);
   const rows = rail.orders.filter((o) => o.status === "PLACED").map((order) => ({ order, ...statusOf(order, rail.now) })).sort((a, b) => a.order.tableNo.localeCompare(b.order.tableNo, undefined, { numeric: true }));
   useRowEntrance(listRef, rows.map((r) => r.order.id).join(","), reduce);
+  const who = useWaiterChoice(rail.data);
+  const [picking, setPicking] = useState(false);
   return (
     <>
       <Screen>
-        <Header title="Tables" subtitle={rail.data ? `${WORDS[rows.length] ?? rows.length} ${rows.length === 1 ? "table" : "tables"} waiting` : "Opening the floor"} pill={staffPill(rail.data)} />
+        <Header title="Tables" subtitle={rail.data ? `${WORDS[rows.length] ?? rows.length} ${rows.length === 1 ? "table" : "tables"} waiting` : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
+        {picking && rail.data ? <WaiterPicker rail={rail.data} chosen={who.chosen} onChoose={who.choose} onClose={() => setPicking(false)} /> : null}
         <ul ref={listRef} aria-label="Tables">
           {rail.data && rows.length === 0 ? <li className="card mx-[22px] px-[18px] py-4 text-[13px] text-fg-muted" data-empty>No tables waiting on an order.</li> : null}
           {rows.map(({ order, status, time, colour }) => (
