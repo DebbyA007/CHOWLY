@@ -281,6 +281,44 @@ reproduced by hand before it was fixed and re-tested on the deployed app afterwa
 findings and the fixes are in `docs/AI-LOG.md`. The value was not the code it wrote, it
 was the defects it found in code that had already passed a green gate and a manual pass.
 
+### A method error in the second review, and what the fixes actually rest on
+
+The same fan-out was run a second time, over the order and pay work: the path to the
+bill, the receipt saved as an image, the steam and the vessel. Four reviewers, three
+refuting verifiers per finding, seventy-six agents. It raised twenty-four findings and
+confirmed three.
+
+That refutation rate is not the good news it looks like, and the reason is my own
+mistake. **I began fixing while the verifiers were still reading the same working tree.**
+So most of the twenty-one dismissals are not evidence that those findings were false.
+Several were dismissed because they had already been fixed by the time a verifier looked
+at the file. One verifier says so in its own report, noting that the change it had been
+asked to judge was already staged in the tree in front of it. A review and the repair of
+what it finds have to be sequential, or the verification measures the repair rather than
+the defect, and the numbers that come out of it mean nothing. Run again properly, the
+confirmed count would very likely have been higher, not lower.
+
+I am recording this rather than quoting "twenty-four raised, three confirmed" as a
+result, because the number would be misleading and I produced it.
+
+**What the eleven fixes actually rest on is measurement I took myself, before each change
+and after it**, not the panel's vote:
+
+| Fix | Before | After |
+|---|---|---|
+| The fibre missing from the saved receipt | an empty band of the card held 1 colour | the same band holds 183 |
+| Transparent pixels in the saved file | 2 rows along the foot | 0, in the band and along the foot |
+| The amount on the order screen | the button read ₦1,075, the card under it read ₦1,000 | the card reads Subtotal, and says VAT is added on the bill |
+| The actions at the foot when an order is served with the screen open | measured at opacity 0, and still reachable by a keyboard | measured animating in, 0.81 then 1.00 |
+| A served drinks order opened fresh | the pour was drawn and faded out | the stream reads 0.00 on every frame |
+| The steam when an order goes late | all five wisps restarted on their staggered delays, one wisp for over three seconds | the steam is not tied to the late state, so it does not restart |
+| The save button before the image exists | live, and drawing inside the tap that iOS needs | waits, reading "Preparing the receipt" |
+| What the download claimed | "Saved to your downloads." | "Check your downloads for chowly-receipt-0013-order-1042.png." |
+
+Every one of those was then re-run on the deployed app in both engines. The lesson I
+would carry forward is the plainer half of it: a review is only worth its verification,
+and the verification is only worth the tree it read.
+
 ### Where the AI was strongest and weakest
 
 Strongest at holding a large rule set steady across a long build, at writing the
