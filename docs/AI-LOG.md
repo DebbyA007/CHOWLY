@@ -1920,3 +1920,77 @@ and in WebKit, after the deploy carried "Tables · CHOWLY" and the manifest.
   with its size, `og:type` and `twitter:card summary_large_image`; the tables route is
   titled "Tables · CHOWLY". `states/brand-*` and `q5-crop-brand-*` are the lockups in
   place on the landing, the menu header and the waiter chrome.
+
+## The splash
+
+### Commit: `feat: the splash, the arc as a progress ring`
+
+- **Direction 1e**, from the splash handoff bundle, read in full first. Its onboarding
+  target was ignored: CHOWLY has no onboarding, the guest is seated, so the splash
+  hands off to the landing and the table. Its `icon.svg` was ignored too; it carries a
+  large embedded metadata blob and `public/icon.svg` is the clean one. The wireframe's
+  Helvetica and its monospace caption were not used: the wordmark is Newsreader per
+  `docs/BRAND.md`, the caption "Loading the menu" is Space Grotesk in sentence case,
+  the ground is `#14120F`, the track is the ring's own track token.
+- **Real progress, not a timer.** Three signals, weighted: the fonts resolving
+  (`document.fonts.ready`, a quarter), the menu request settling (the SWR preload's
+  promise, which now returns it, nearly half), and the first screen's photographs
+  decoding (`img.decode()` on the landing's images, the rest, counted one by one). The
+  arc's dashoffset is 136 times the part still to come, animated to each new value
+  over 420ms, so the fill moves in the uneven steps the signals actually arrive in.
+  The dot rides the head: a group about the mark's centre rotated by 250 degrees
+  times the progress, from the arc's start at 55 degrees. Ready means every signal
+  has landed and 800ms have passed; a four second ceiling lets the splash leave on a
+  slow network, marked `data-ceiling` in the DOM and honest about it: the arc then
+  completes because the splash is leaving, and the page underneath shows its own
+  loading shapes. Then the dot goes on from 250 to 305 degrees, which lands it in the
+  gap at 0 degrees, the mark's resting state, the caption fades, the handoff event
+  fires, the landing's entrance rises under a 520ms dissolve. Fast start: about 1.8
+  seconds in all.
+- **Cold start only, once per session.** The splash sets a session cookie at the
+  handoff, and the landing page reads it on the server, so a warm start renders the
+  door with no splash and nothing flashes in either direction; the route is dynamic
+  for that reason. It also marks the mark as drawn, so the landing's own arc does not
+  draw again under it. Tab presses never see it: the tab fix and this do not meet.
+- **Same mechanic as the ring.** Dasharray the path's length, dashoffset the part
+  still to come; the ring on the order screen empties the way this fills. The ring's
+  own length is its circumference, 515, and the mark's arc is 136, the number the
+  handoff gives; both are the number their path measures.
+- **Reduced motion.** The stylesheet holds the arc full and the dot parked from the
+  first paint, the progress is only recorded, and the handoff is a plain cross-fade.
+
+### Evidence for the splash, from production
+
+Captured against https://chowly-theta.vercel.app under iPhone 13 emulation, in a fresh
+context each time so the cold start is real, in Chromium and in WebKit; the frames are
+70ms apart and each one logs the phase, the progress, the painted dashoffset, the
+head's rotation and the three signals. Sheets `chromium-splash.png`,
+`webkit-splash.png` and `chromium-splash-reduced.png`.
+
+- **The fill is the load.** Chromium, from the first frame: fonts landed first
+  (progress 0.03, offset 131.9, head 7 degrees), the photographs next (0.41, offset
+  79.8, head 103 degrees at +240ms), the menu last (0.55 held from +470ms while the
+  request ran, then 0.67 at +930ms): three uneven steps, each one a signal arriving.
+  WebKit: 0.03, 0.40, 0.55 held from +380ms, the menu at +780ms.
+- **The park.** Once every signal had landed and the floor had passed, the dot went on
+  from the head of the fill to the gap: Chromium 167 degrees at +930ms, 296 at +1180ms,
+  305 with the offset at 0.0 at +1420ms; WebKit 187, 292, 305 at +1170ms. That is the
+  mark's resting state, the arc full and the dot at 0 degrees.
+- **The handoff.** The splash's opacity fell from 1.00 to 0.06 over the next 600ms
+  while the room under it rose from 0.00 to 0.98 and the name to 1.00 (Chromium,
+  +1420ms to +2000ms); WebKit 0.81 then 0.00 while the room went 0.65 then 0.99. Then
+  the splash was gone and the doors finished their own entrance. About 1.5 seconds
+  from the first paint in Chromium, 1.4 in WebKit, inside the 1.2 to 1.8 target. The
+  first paint itself came about a second after the request in both engines, which is
+  the dynamic landing's cold function on Vercel: the cookie that stops the splash from
+  repeating is read on the server, so the door renders on a function rather than from
+  the static cache. The splash markup is in that HTML, so what a person sees first is
+  the splash, not a blank.
+- **Once per session.** The `chowly-splash` cookie was set at the handoff in both
+  engines; a reload in the same context rendered the door with no splash and its own
+  entrance; a tab press to Order afterwards showed no splash and the order in place.
+- **Reduced motion.** The painted offset was 0.0 and the head 305 degrees on every
+  frame while the signals were still arriving (the progress was only recorded), then a
+  plain cross-fade: splash 0.97 with the room at 0.33 (Chromium, +1930ms), gone by
+  +2760ms. In WebKit the very first frame, +770ms, showed the arc empty for one
+  capture before the stylesheet's rule took hold; every frame after was still.

@@ -86,3 +86,15 @@ zoom, which is why the field-size defect got past them.
 
 `states/brand-*.png` are the lockups in place: stacked on the landing, horizontal in the
 menu header and the waiter chrome, with element crops `q5-crop-brand-*`.
+
+## The splash
+
+From production under iPhone 13 emulation, in Chromium and in WebKit, in a fresh
+context each time so the cold start is real: `motion/*/splash-*` are frames 70ms apart
+from the first paint through the fill (the arc against its track, the dot on the head,
+`data-progress` and the three signals logged at each frame), the park (the dot going on
+to the gap at 0 degrees), the handoff (the door rising under the dissolve) and the
+landed door; `motion/*/splash-reduced-*` are the same under reduced motion, a still
+lockup and a cross-fade. Sheets: `chromium-splash.png`, `webkit-splash.png`,
+`chromium-splash-reduced.png`. The warm start that follows, in the same context, shows
+no splash.

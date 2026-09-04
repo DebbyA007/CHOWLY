@@ -279,7 +279,11 @@ process, not the model, is what kept those from shipping.
 
 ### The landing
 
-`/` shows the dining room across the top, the CHOWLY lockup (the mark, an open ochre
+On a cold start `/` opens with the splash: the mark's arc fills as a progress ring
+driven by the fonts, the menu request and the photographs actually loading, the dot rides
+the head of the fill and parks in the gap once the app is ready, and the door rises under
+a cross-dissolve, about 1.8 seconds in all, once per session. Then `/` shows the dining
+room across the top, the CHOWLY lockup (the mark, an open ochre
 ring with a dot in its opening, over the wordmark), the restaurant's name and address,
 "I'm a guest" and "I'm a waiter", and the table. On first arrival the mark's arc draws in
 the way the ring sweeps and the dot lands last, once per session. The identity is

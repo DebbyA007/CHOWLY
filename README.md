@@ -31,8 +31,10 @@ in [`docs/screens`](docs/screens/README.md).
   <img src="docs/screens/08-receipt-390.png" alt="The receipt: a perforation under the header, ruled lines, the total struck into the surface, a PAID stamp, a torn foot" width="32%">
 </p>
 
-1. **Landing.** The dining room, the name and address, "I'm a guest", "I'm a waiter", and
-   the table: the one the link carried, or the door asks for it.
+1. **Landing.** On a cold start, a splash where the mark's arc fills as a progress ring
+   from the real load and the dot parks in the gap once the app is ready; then the dining
+   room, the name and address, "I'm a guest", "I'm a waiter", and the table: the one the
+   link carried, or the door asks for it.
 2. **Menu.** Mains, Soups and Drinks as chips; each dish a 76px round photograph with its
    name, description, price and the kitchen's minutes; an add circle that morphs into a
    quantity stepper; a cart bar that never disappears.
