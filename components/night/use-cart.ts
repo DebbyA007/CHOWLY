@@ -134,7 +134,7 @@ export function useCart(menu: MenuView | null) {
       rating: null,
       complaints: [],
     };
-    startPlacement(provisional, { tableNo: tableNo.trim(), items: lines.map((l) => ({ menuItemId: l.item.id, quantity: l.quantity })), foodIds: [...foodIds] });
+    startPlacement(provisional, { tableNo: tableNo.trim(), items: lines.map((l) => ({ menuItemId: l.item.id, quantity: l.quantity })) }, [...foodIds]);
     return provisional;
   }
 

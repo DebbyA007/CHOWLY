@@ -10,11 +10,15 @@ import { selectOrder } from "./selection";
 // same formula the server uses, goes to the Order tab while the request is in flight,
 // and the kitchen's real order replaces it when it lands. A failure is shown on that
 // same screen, with the order kept on the menu so nothing is typed twice.
-// foodIds is carried so that when a dish sells out from under a mixed order and comes
-// off it, what is left can be judged again: an order that was food and is now drinks
-// only should show the glass, not go on holding a pot until the kitchen's order lands.
-export type Payload = { tableNo: string; items: { menuItemId: string; quantity: number }[]; foodIds: string[] };
-export type Pending = { order: SerializedOrder; status: "sending" | "failed"; message: string | null; payload: Payload };
+// The body of the request, and nothing else. The order API's schema is strict, so an
+// extra key here is a 400: what the client knows and what the client may send are two
+// different things and this type is the second one.
+export type Payload = { tableNo: string; items: { menuItemId: string; quantity: number }[] };
+// foodIds is kept beside the payload, never inside it, so that when a dish sells out
+// from under a mixed order and comes off it, what is left can be judged again: an order
+// that was food and is now drinks only should show the glass rather than go on holding
+// a pot until the kitchen's order lands.
+export type Pending = { order: SerializedOrder; status: "sending" | "failed"; message: string | null; payload: Payload; foodIds: string[] };
 
 export const PENDING_PREFIX = "pending:";
 export const isPending = (id: string) => id.startsWith(PENDING_PREFIX);
@@ -49,8 +53,8 @@ function editCart(edit: (cart: Record<string, number>) => Record<string, number>
   window.dispatchEvent(new Event(CART_EVENT));
 }
 
-export function startPlacement(order: SerializedOrder, payload: Payload) {
-  pending = { order, status: "sending", message: null, payload };
+export function startPlacement(order: SerializedOrder, payload: Payload, foodIds: string[]) {
+  pending = { order, status: "sending", message: null, payload, foodIds };
   emit();
   selectOrder(order.id);
   void send();
@@ -95,7 +99,7 @@ function fail(message: string, unavailable: string[]) {
   const gone = new Set(unavailable);
   if (gone.size > 0) editCart((cart) => Object.fromEntries(Object.entries(cart).filter(([id]) => !gone.has(id))));
   const items = pending.payload.items.filter((l) => !gone.has(l.menuItemId));
-  const food = new Set(pending.payload.foodIds);
+  const food = new Set(pending.foodIds);
   const lines = pending.order.items.filter((l) => !gone.has(l.menuItemId));
   const order = { ...pending.order, items: lines, kind: lines.some((l) => food.has(l.menuItemId)) ? ("food" as const) : ("drinks" as const) };
   pending = { ...pending, status: "failed", message, payload: { ...pending.payload, items }, order };

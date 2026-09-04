@@ -2360,3 +2360,24 @@ hundred and eighty three; the Pay button read ₦1,075 while the card under it r
 ₦1,000; the foot actions were measured at opacity zero and are now measured animating in
 from 0.81 to 1.00; a served drinks order opened fresh was measured drawing a pour and now
 reads zero on every frame. Those measurements stand on their own.
+
+### Commit: `fix: placing an order was returning 400 on production`
+
+- **Found by walking the deployed app, not by the gate.** The previous commit gave the
+  placement store the ids of the food on the order, so that a sold-out dish could change
+  what the order is waiting on. It put them on the `Payload` type, and `send()` posts
+  that payload verbatim, so every placement carried an extra `foodIds` key. The order
+  API's schema is strict on purpose, and it did exactly what it was built to do: 400,
+  "Unknown field: foodIds. Prices and wait times are set by the kitchen, not the client."
+  Nobody could place an order on the live link.
+- Typecheck, lint, thirty tests and a build were all green, because nothing in any of
+  them compares the body the client sends with the schema the server accepts. The types
+  agreed with themselves. The two ends were only ever joined at runtime.
+- The fix separates the two things that had been conflated: `Payload` is the request
+  body and nothing else, and the food ids sit beside it on the pending record, where the
+  client can use them and the server never sees them.
+- A test now asserts the wire shape both ways: the body the client builds parses, and a
+  body with an extra field is refused and names it. That is the check that was missing.
+- Worth recording plainly: the strict schema is the only reason this was a clean 400
+  naming the field rather than a silently mangled order. The rule that felt fussy when
+  it was written is what made the fault findable in one line.
