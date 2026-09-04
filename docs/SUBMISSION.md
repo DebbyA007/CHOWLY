@@ -379,10 +379,15 @@ replaced. The customer id is never read from a request.
    remaining fraction of the promise, recomputed every second from `placedAt` and
    `waitMinutes`, so a refresh changes nothing and no client-side counter can drift. The
    arc empties as the minutes are used; the numerals inside count down in tabular figures
-   with no reflow. Above the ring a pot simmers: three wisps of steam on their own
-   periods, never a loop that restarts; late, the pot reddens with the ring and the lid
-   sits ajar; served, the steam thins away. Under reduced motion the pot is still. Under
-   the ring: "Promised in 20 minutes · placed 9:04 pm".
+   with no reflow. Above the ring is the vessel, and it matches the order: a pot
+   simmering for food, five wisps of steam on their own periods so no loop ever
+   restarts, or a glass being poured for a drinks-only order, the stream sliding by
+   exactly one dash period so it never seams. A mixed order takes the pot, because the
+   food is what the guest is waiting on. Late, the vessel reddens with the ring and the
+   lid sits ajar. On serving it changes: the lid lifts away and a plated dish arrives
+   under it with the steam settling low over the food, or the pour stops and the glass
+   fills. Under reduced motion the vessel is simply drawn in the state the order is in.
+   Under the ring: "Promised in 20 minutes · placed 9:04 pm".
 3. **The derived delay.** Late is `now > placedAt + waitMinutes` while the order is still
    placed. It is computed at read time on the server and on every tick in the browser,
    and never stored. Crossing it flips the screen: the subtitle reads "6 minutes late",
@@ -396,8 +401,10 @@ replaced. The customer id is never read from a request.
    An earlier "In the kitchen" step was invented from nothing the database records and
    was removed. Then the items and the subtotal on a card.
 5. The view polls `GET /api/orders/{id}` every three seconds, so when the waiter marks
-   the order served the ring reads "Served" with the time, the stepper completes, and
-   the screen offers Pay and Rate your order. Once paid it offers See the receipt and
+   the order served the ring reads "Served" with the time, the vessel becomes the plate
+   or the full glass, and the screen leads with the way to settle: "Settle the bill
+   whenever you are ready" and a filled "Pay ₦5,375" carrying the amount, with rating
+   under it. Once paid it offers See the receipt and
    Order something else, and the receipt does the same, so nothing dead-ends.
 6. When the browser is offline, or a poll fails after the order had arrived, a bar under
    the header says "Offline since 9:31. Showing your order as of then." The ring keeps
@@ -540,7 +547,11 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
 10. **Pay.** The summary shows the subtotal, VAT and total. Pick a method and tap
    **"Pay ₦… (pretend)"**. The receipt prints: the perforation, the lines, the stamp, the
    torn foot, and who served, cooked and mixed. Tap it twice if you like; the record is
-   one payment.
+   one payment. "Save the receipt" draws it again on a canvas, at the phone's own pixel
+   ratio, and hands it to the share sheet so it can be kept in Photos, with a plain
+   download where there is no share sheet. Nothing was added to the dependencies for
+   that: the packages that do it render through an SVG foreignObject, which drops
+   self-hosted fonts on iOS, or reimplement CSS painting and lose the torn foot.
 11. **The role switch** is the front door: two buttons, one tap each, and the tab bars on
     each side. Both sides are open to anyone with the link; that is the assignment's
     rule.

@@ -115,3 +115,18 @@ the AI log, taken at the first animation frame rather than guessed from a screen
 `states/home-focus.png` is the header with the lockup focused from the keyboard on
 production: the ochre ring drawn inside the 44px target, which is the area that is
 actually tappable, rather than a tighter ring that would lie about it.
+
+## The vessel, the bill and the saved receipt
+
+From production under iPhone 13 emulation, both engines, on the sheets
+`chromium-vessel.png` and `webkit-vessel.png`. `motion/*/vessel-food-making-*` is the pot
+simmering, frames 230ms apart, five wisps at different heights on every frame;
+`vessel-food-serve-*` is the lid lifting away and the plate arriving under it with the
+steam settling, 170ms apart, caught mid-transition rather than as an end state;
+`vessel-drinks-making-*` is the pour; `vessel-drinks-serve-*` is the pour stopping and
+the level rising to full; `vessel-drinks-late-*` is the glass in the late tone, its
+stroke matching the ring's `--ring-tone` exactly.
+
+`states/served-order-pay.png` is the served order with the primary action to the bill
+under the ring, and `states/receipt-saved.png` is the file the save button produces, at
+1170 by 1251 on a device pixel ratio of 3. The WebKit copies carry the `webkit-` prefix.
