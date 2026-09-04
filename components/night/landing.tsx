@@ -14,7 +14,7 @@ import { HANDOFF_EVENT } from "@/lib/splash";
 // Screen 1. The dining room across the top, the name, the address, and the two ways
 // in pushed to the bottom. The menu, the guest's orders and the live list are all
 // preloaded here so either button opens onto a screen that is already there.
-export function Landing({ afterSplash = false }: { afterSplash?: boolean } = {}) {
+export function Landing() {
   const root = useRef<HTMLElement>(null);
   const [table, setTable] = useState("");
   const [editing, setEditing] = useState(false);
@@ -41,7 +41,8 @@ export function Landing({ afterSplash = false }: { afterSplash?: boolean } = {})
     preloadMine();
     preloadRail();
     // On a cold start the splash covers this screen; the entrance waits for its handoff
-    // and rises under the dissolve.
+    // and rises under the dissolve. A warm start has no splash to wait for.
+    const afterSplash = !document.documentElement.dataset.warm && !!document.querySelector("[data-splash]");
     let scope: ReturnType<typeof createScope> | null = null;
     const start = () => {
       scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
@@ -67,7 +68,7 @@ export function Landing({ afterSplash = false }: { afterSplash?: boolean } = {})
       window.removeEventListener(HANDOFF_EVENT, start);
       scope?.revert();
     };
-  }, [afterSplash]);
+  }, []);
   return (
     <main ref={root} className="flex min-h-dvh flex-col">
       <div className="room shrink-0" style={{ opacity: 0 }}>

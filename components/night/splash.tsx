@@ -14,8 +14,10 @@ import { preloadMenu } from "./use-menu";
 // splash dissolves into the landing. The fill is driven by real work, never a timer:
 // the fonts resolving, the menu request settling, and the first screen's photographs
 // decoding. Cold start only, once per session: a cookie set at the handoff keeps it
-// from running again, and the landing reads the cookie on the server so nothing
-// flashes either way. Under reduced motion the lockup is still and simply cross-fades.
+// from running again: an inline script in the root layout reads it before the body is
+// parsed and marks the document warm, the stylesheet hides the splash, and this
+// component unmounts. The page stays static. Under reduced motion the lockup is still
+// and simply cross-fades.
 type Phase = "fill" | "park" | "handoff" | "done";
 const WEIGHTS = { fonts: 0.25, menu: 0.45, photos: 0.3 };
 
@@ -34,6 +36,12 @@ export function Splash() {
   }, []);
 
   useEffect(() => {
+    // a warm start: the document was marked before first paint, or this is a later
+    // visit to the door in the same session; the splash is already hidden, so it leaves
+    if (document.documentElement.dataset.warm) {
+      setPhase("done");
+      return;
+    }
     const el = root.current;
     const arc = el?.querySelector<SVGPathElement>(".splash-arc");
     const head = el?.querySelector<SVGGElement>(".splash-head");
@@ -98,6 +106,8 @@ export function Splash() {
         } catch {
           // then it shows again next time, which is a brand moment, not a fault
         }
+        // later visits to the door in this session are warm too
+        window.setTimeout(() => document.documentElement.setAttribute("data-warm", "1"), reduce ? 320 : 540);
         animate(el, { opacity: [1, 0], duration: reduce ? 300 : 520, ease: "inOutQuad", onComplete: () => setPhase("done") });
       };
       if (reduce) {

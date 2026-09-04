@@ -82,6 +82,11 @@ select {
   position: relative;
 }
 
+/* A warm start: the inline script in the layout marked the document before first paint. */
+html[data-warm] [data-splash] {
+  display: none;
+}
+
 /* The wordmark: Newsreader 400, all caps, tracked 0.15em, bone. The only all-caps setting. */
 .wordmark {
   font-family: var(--font-serif);

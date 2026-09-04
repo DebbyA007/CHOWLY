@@ -31,10 +31,16 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// Runs while the document is still being parsed, before anything below it can paint:
+// a session that has already had the splash marks the document warm, and the
+// stylesheet keeps the splash from showing. The page itself stays static.
+const WARM_START = "try{if(/(^|; )chowly-splash=1(;|$)/.test(document.cookie))document.documentElement.setAttribute('data-warm','1')}catch(e){}";
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${newsreader.variable} ${grotesk.variable}`}>
+    <html lang="en" className={`${newsreader.variable} ${grotesk.variable}`} suppressHydrationWarning>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: WARM_START }} />
         <div className="app">{children}</div>
       </body>
     </html>
