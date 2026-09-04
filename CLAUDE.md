@@ -152,6 +152,91 @@ Anything using anime.js is a client component and needs `'use client'`.
 
 ## Design direction
 
+The design is decided: **Night Service**, direction 1c of the handoff at
+`docs/design-ref/design_handoff_chowly_night_service/`. Read that README before touching
+a screen. Fidelity is high: colours, type, spacing and radii are final and matched
+closely. The structure is deliberately conventional (header, category chips, a scrolling
+dish list with the photo left and the text right, a persistent cart bar, bottom tab
+navigation, a vertical stepper for tracking) and it stays that way. Do not improve,
+simplify or reinterpret the layout. The `.dc.html` beside the README is a reference
+prototype, not code to port.
+
+A warm near-black room: bone text, ochre for every primary action and for the countdown
+ring, one late red. Elevation is a single surface step and hairline borders. Paper is
+surface detail on the dark ground, never a light panel: fibre at very low contrast on
+the order card and the waiter rows, a rule that reads as printed rather than drawn,
+numerals and totals struck into the surface, and on the receipt, the one place it is
+literal, a perforation, a torn foot and a stamp that lands once.
+
+**Do not build:** gradients; glassmorphism or backdrop blur; neon glow, coloured outer
+shadows or drop shadows of any kind; icons of any kind (the tab bar, the steppers and the
+status indicators are text and simple dots by design); italics; tracked-out all-caps
+eyebrow labels; an arrow glued to button text; a light panel dropped onto the dark
+ground. **Middle dots are part of this design:** the handoff joins meta strings with
+them on purpose ("3 items · ₦12,500", "Promised in 20 minutes · placed 9:04 pm",
+"Order #1042 · Table 12 · Receipt 0088") and those stay. The earlier ban was on middle
+dots as decoration between unrelated fragments; it does not strip an approved design.
+
+### Tokens
+
+The values are the ones in `app/globals.css`.
+
+```
+--bg          #14120F   the room, warm near-black; header and tab bar share it
+--surface     #1D1A16   raised panels: cart bar, order cards, receipt, waiter rows
+--fg          #F0EBE1   primary text, bone
+--fg-muted    #9A9287   secondary text, captions, inactive tabs
+--accent      #D2A24C   ochre: primary action fill, prices, active tab, the ring, chips
+--late        #C9482F   the late state only: ring, elapsed numerals, table pill, tab dot
+```
+
+Derived values, verbatim from the handoff: hairline `rgba(240,235,225,.09)`; card
+divider `.12`; outline button and chip border `.26` and `.28`; ring track `.12` and late
+track `rgba(201,72,47,.22)`; accent pill border `rgba(210,162,76,.4)`, ghost fill `.14`;
+late pill border `rgba(201,72,47,.45)`; receipt perforation `1px dashed` at `.2`.
+
+### Type
+
+- Display: **Newsreader**, weight 400 only, for the restaurant name, screen titles, dish
+  names, money totals and table names. Sizes 44 / 32 / 27 / 25 / 24 / 23 / 21 / 20.
+- Everything else: **Space Grotesk**, weights 400, 500, 600. It carries a real naira
+  glyph; any substitute must too. Countdown numerals 40px, weight 500, tracking -0.03em,
+  tabular. All money and every clock value is tabular.
+- Load both with `next/font/google`. No third family.
+
+### Spacing, radii, sizes
+
+Screen gutter 22px everywhere; header block `14px 22px 16px`; dish row `20px 22px` with
+a 17px gap and a 76px circular photo; card padding 18px; radii 999px for pills, chips
+and buttons, 16px for the receipt, 14px for order and waiter cards, 12px for payment
+rows; tab bar `13px 0 26px`. Nothing tappable below 44px effective. Viewport 390 by 844.
+
+### Motion
+
+anime.js throughout, restrained: one orchestrated entrance per screen, everything else
+answers an action and shows what changed. Menu rows stagger in once; the add control
+morphs into the stepper; the cart bar rises once and its figures tick. The ring's
+`stroke-dashoffset` is driven from real elapsed time against the promise, computed from
+`placedAt`; ochre to late red is a slow crossfade, never a snap or a flash. New waiter
+rows slide in on the poll; status changes recolour in place; nothing pulses. Payment
+prints the receipt. Every scope declares `mediaQueries: { reduceMotion }` and degrades to
+a fade. No sound feature.
+
+### Photography
+
+Real, licensed and self-hosted under `public/photos/`, because the CSP allows images from
+this origin only. The sources and licences are in `docs/PHOTOGRAPHY.md`. One CSS
+treatment sits over all of them so eleven sources read as one shoot. Never ship a
+placeholder.
+
+### Superseded: The Pass
+
+Replaced in Phase 5 because it was well built and wrong: industrial metal, too dark and
+heavy, and its ordering screen had furniture over the task. Its lamp clock and its
+ticket through-line survive as ideas; its paper treatment survives as surface detail in
+Night Service. Kept here for the lineage the submission document needs.
+
+
 The visual language is **The Pass**: the kitchen side of a restaurant pass at nine at
 night. Brushed steel is the room, brass is the rail, thermal paper is everything printed,
 and the heat lamp is the clock. The customer's order is a ticket on a spike under its own
@@ -166,7 +251,7 @@ button text; meta strings joined with middle dots. Light is halftone, steel is g
 shadows are hard offsets in soot, and every visual choice traces to the pass or to the
 data it presents.
 
-### Tokens
+#### Tokens
 
 The values are the ones in `app/globals.css`.
 
@@ -195,7 +280,7 @@ The values are the ones in `app/globals.css`.
 property resolves where it is declared. The bright char and served are for stamps and
 button faces; text on paper uses the ink versions. No text ever sits on a lamp pool.
 
-### Type
+#### Type
 
 - Display: **Fraunces**, variable, with the `SOFT`, `WONK` and `opsz` axes loaded, for the
   restaurant name and the big numbers. The only curve in the room.
@@ -203,7 +288,7 @@ button faces; text on paper uses the ink versions. No text ever sits on a lamp p
   every count.
 - Load both with `next/font/google`. No third family.
 
-### The hero is the lamp
+#### The hero is the lamp
 
 Time is the app's subject, so the heat lamp over the ticket is the clock. Its halftone
 pool shrinks as the promised minutes are used, and its light cools and dims, slowly and
@@ -213,7 +298,7 @@ lamp out. Under `prefers-reduced-motion` the temperature still shifts, in one sl
 per state, because it is the app's central idea. `components/pass/heat.ts` is the one
 place it is computed. Contrast holds at both ends of the range, worst case 4.84:1.
 
-### Motion budget
+#### Motion budget
 
 One orchestrated page-load sequence on the menu: the lamps come on one at a time, the
 name warms in, the strips drop off the rail and print. That is the only motion nobody
@@ -230,6 +315,7 @@ Everything after that answers an action and shows what changed:
 - Settle: the receipt feeds out, the PAID stamp lands once, the lamp goes out.
 - Sound: four synthesised cues that answer those actions, off by default behind a
   visible tag.
+
 
 ### Superseded: West African enamelware
 
