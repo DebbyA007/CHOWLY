@@ -2123,3 +2123,21 @@ after rather than argued.
 - Two more from the review, both taken: the cookie is written with `Secure` over HTTPS,
   and the stale comment in `lib/splash.ts` claiming the server decides the splash was
   corrected, since an inline script decides it now.
+
+### The nine fixes, verified on production
+
+Every one re-tested against https://chowly-theta.vercel.app under iPhone 13 emulation,
+in Chromium and in WebKit, in a fresh browser context per case. Both engines agreed on
+every line.
+
+| Case | Result |
+|---|---|
+| Deep link to `/waiter`, then tap the lockup home | The splash never appears; the door arrives |
+| Deep link to `/menu`, then tap the lockup home | The splash never appears; the room is already at full opacity |
+| A real cold start at `/` | At the first animation frame the splash is in the DOM, `display: flex`, visible |
+| While the splash is up | The landing carries `inert`; two presses of Tab leave the focus on the body and Enter does nothing |
+| When the splash settles | `inert` released, the cookie written |
+| Going home again in the same document | The splash never appears |
+| Reduced motion | Progress climbs and never restarts: 0.00, 0.55, 1.00 in Chromium; 0.00, 0.30, 0.55, 1.00 in WebKit |
+| The header | 104.5px tall, the title's top at y=40, the link 90 by 44 at the 22px gutter, `display: flex`, identical in both engines |
+| The focus ring | Chromium: reached by Tab, `:focus-visible` matches, `solid rgb(210, 162, 76)`, drawn at y=2, not clipped. WebKit: Tab does not reach links, which is macOS Safari's own setting; the rule applies when the link is focused |

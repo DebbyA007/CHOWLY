@@ -111,3 +111,7 @@ nothing lost, and `states/home-focus` is the header with the lockup focused from
 keyboard, its ring in ochre. `states/warm-*.png` are the first frames of a warm start,
 the door already there and the splash never displayed; the measurement behind that is in
 the AI log, taken at the first animation frame rather than guessed from a screenshot.
+
+`states/home-focus.png` is the header with the lockup focused from the keyboard on
+production: the ochre ring drawn inside the 44px target, which is the area that is
+actually tappable, rather than a tighter ring that would lie about it.
