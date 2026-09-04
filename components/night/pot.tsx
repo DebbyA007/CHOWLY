@@ -5,18 +5,25 @@ import { animate, utils } from "animejs";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 
 // The pot above the ring: what makes the wait feel alive while the ring keeps the
-// time. Three wisps of steam rise on their own periods, each fading out at the top
-// and in at the bottom, so nothing ever visibly restarts. The pot's line takes the
-// ring's tone, so it reddens with everything else when the order runs late; late,
-// the lid sits ajar and the steam comes fuller and faster. Served, the steam thins
-// away and the lid settles. Under reduced motion the pot is still and there is no
-// steam at all.
+// time. Five wisps of steam rise on their own periods, each fading in low and out at
+// the top, so nothing ever visibly restarts. The pot's line takes the ring's tone, so
+// it reddens with everything else when the order runs late; late, the lid sits ajar and
+// the steam comes fuller and faster. Served, the steam thins away and the lid settles.
+// Under reduced motion the pot is still and there is no steam at all.
 export type PotState = "cooking" | "late" | "settled";
 
+// Each wisp is about twenty units tall and rises thirty four, from a base just above
+// the lid. The svg does not clip, so the last of the rise trails off into the padding
+// above rather than being cut in half, which is what made the old steam so faint: most
+// of its travel happened outside the box.
+const BASE_Y = 48;
+const RISE = 34;
 const WISPS = [
-  { x: 44, d: "M0 0 c -5 -7 5 -12 0 -20 c -4 -6 4 -10 0 -16", period: 3400, delay: 0 },
-  { x: 60, d: "M0 0 c 6 -8 -6 -14 0 -24 c 5 -7 -5 -11 0 -18", period: 4300, delay: 1100 },
-  { x: 76, d: "M0 0 c -4 -6 4 -11 0 -18 c -5 -7 5 -12 0 -16", period: 5100, delay: 2000 },
+  { x: 34, d: "M0 0 c -5 -5 5 -9 0 -14 c -3 -3 3 -4 0 -6", period: 3200, delay: 0, drift: -3 },
+  { x: 47, d: "M0 0 c 6 -6 -6 -9 0 -14 c 4 -4 -4 -4 0 -6", period: 4100, delay: 900, drift: 2 },
+  { x: 60, d: "M0 0 c -4 -5 4 -8 0 -13 c -3 -4 3 -4 0 -7", period: 3600, delay: 1800, drift: -2 },
+  { x: 73, d: "M0 0 c 5 -6 -5 -8 0 -13 c 3 -4 -3 -4 0 -7", period: 4600, delay: 2500, drift: 3 },
+  { x: 86, d: "M0 0 c -6 -5 6 -10 0 -15 c -3 -3 3 -3 0 -5", period: 3900, delay: 3300, drift: -2 },
 ];
 
 export function Pot({ state }: { state: PotState }) {
@@ -47,12 +54,13 @@ export function Pot({ state }: { state: PotState }) {
     steam.current = wisps.map((wisp, i) => {
       const w = WISPS[i]!;
       const period = late ? w.period * 0.62 : w.period;
-      const peak = late ? 0.85 : 0.55;
+      const peak = late ? 1 : 0.85;
       utils.set(wisp, { opacity: 0 });
       return animate(wisp, {
-        translateY: [0, -30],
-        scaleY: [0.7, 1.15],
-        opacity: [0, peak, peak, 0],
+        translateY: [0, -RISE],
+        translateX: [0, w.drift],
+        scaleY: [0.75, 1.3],
+        opacity: [0, peak, peak, peak, 0],
         duration: period,
         delay: w.delay,
         loop: true,
@@ -65,11 +73,16 @@ export function Pot({ state }: { state: PotState }) {
   }, [state, reduce]);
 
   return (
-    <svg ref={root} width="120" height="96" viewBox="0 0 120 96" className="pot block" data-pot={state} aria-hidden="true">
-      {/* steam, three wisps, each on its own period */}
-      <g fill="none" stroke="var(--fg)" strokeWidth="2" strokeLinecap="round" opacity="0.9">
+    <svg ref={root} width="120" height="96" viewBox="0 0 120 96" className="pot block" style={{ overflow: "visible" }} data-pot={state} aria-hidden="true">
+      {/* steam, five wisps, each on its own period, drawn under the pot so it reads as
+          coming from behind the lid */}
+      <g fill="none" stroke="var(--fg)" strokeWidth="3" strokeLinecap="round">
         {WISPS.map((w) => (
-          <path key={w.x} className="wisp" d={w.d} transform={`translate(${w.x} 40)`} style={{ transformOrigin: `${w.x}px 40px`, opacity: 0 }} />
+          // the group carries the placement, because an animated style transform on the
+          // path itself would override a transform attribute and collapse them all
+          <g key={w.x} transform={`translate(${w.x} ${BASE_Y})`}>
+            <path className="wisp" d={w.d} style={{ transformBox: "fill-box", transformOrigin: "50% 100%", opacity: 0 }} />
+          </g>
         ))}
       </g>
       {/* the pot: a body, two handles, a lid with a knob, in the ring's tone */}

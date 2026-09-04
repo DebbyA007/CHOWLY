@@ -2175,3 +2175,20 @@ escape from under the splash reproduced either way; the fix covers both.
   are ready", then a filled "Pay ₦1,075" carrying the amount, with rating below it as an
   outline. The button at the foot no longer repeats it; a served order offers only
   "Order something else" there, and a paid one "See the receipt".
+
+### Commit: `fix: the steam actually reads as steam`
+
+- **Diagnosed by looking at frames, not at the code.** Two faults, both invisible from
+  reading it. First, anime.js writes `style.transform`, and on an SVG element a style
+  transform overrides the `transform` attribute completely, so the `translate(x, base)`
+  that placed each wisp across the pot was thrown away the moment the animation started:
+  all five collapsed into a single column well above and to the left of the pot. Each
+  wisp now sits in its own `<g>` that carries the placement, and the animation moves the
+  path inside it. Second, the rise took the wisps far outside the viewBox, which clips by
+  default, so most of the travel was cut off; the svg is `overflow: visible` and the
+  steam trails off into the padding above, which is empty.
+- With that fixed the steam was raised until it reads at 390 on a phone: five wisps
+  instead of three, stroke 3 instead of 2, peak opacity 0.85 instead of 0.55, a 34 unit
+  rise, a small sideways drift each, and periods of 3.2 to 4.6 seconds so it is calm.
+  Each fades in low and out at the top, and the five are out of phase, so there is no
+  moment where the loop restarts. Late: fuller and about a third faster.
