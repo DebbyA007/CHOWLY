@@ -4,20 +4,20 @@ import { assertStaffPin, pinMatches, staffPinRequired } from "./staff-pin.ts";
 
 const request = (pin?: string) => new Request("http://x/api/waiter/orders", { headers: pin === undefined ? {} : { "x-staff-pin": pin } });
 
-test("the check is on unless the flag is exactly false", () => {
-  assert.equal(staffPinRequired({}), true, "absent stays on");
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "" }), true, "empty stays on");
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "0" }), true);
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "no" }), true);
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "off" }), true);
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "False" }), true, "case matters: explicit means exact");
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "true" }), true);
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "false" }), false, "only false opens it");
-  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: " false " }), false, "whitespace around it is tolerated");
+test("the check is off unless the flag is exactly true", () => {
+  assert.equal(staffPinRequired({}), false, "absent stays open");
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "" }), false, "empty stays open");
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "1" }), false);
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "yes" }), false);
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "on" }), false);
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "True" }), false, "case matters: explicit means exact");
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "false" }), false);
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: "true" }), true, "only true closes it");
+  assert.equal(staffPinRequired({ STAFF_PIN_REQUIRED: " true " }), true, "whitespace around it is tolerated");
 });
 
 test("with the check on, the PIN is required and compared", () => {
-  const env = { STAFF_PIN: "483920" };
+  const env = { STAFF_PIN_REQUIRED: "true", STAFF_PIN: "483920" };
   assert.throws(() => assertStaffPin(request(), env), /missing or wrong/);
   assert.throws(() => assertStaffPin(request("000000"), env), /missing or wrong/);
   assert.throws(() => assertStaffPin(request("48"), env), /missing or wrong/);
@@ -26,11 +26,13 @@ test("with the check on, the PIN is required and compared", () => {
 });
 
 test("with the check on and no PIN configured, the route fails closed", () => {
-  assert.throws(() => assertStaffPin(request("483920"), {}), /not configured/);
-  assert.throws(() => assertStaffPin(request("483920"), { STAFF_PIN: "12" }), /not configured/);
+  assert.throws(() => assertStaffPin(request("483920"), { STAFF_PIN_REQUIRED: "true" }), /not configured/);
+  assert.throws(() => assertStaffPin(request("483920"), { STAFF_PIN_REQUIRED: "true", STAFF_PIN: "12" }), /not configured/);
 });
 
-test("with the flag exactly false, waiter routes are open", () => {
+test("with the flag absent, false or anything but true, waiter routes are open", () => {
+  assert.doesNotThrow(() => assertStaffPin(request(), {}));
+  assert.doesNotThrow(() => assertStaffPin(request(), { STAFF_PIN: "483920" }));
   assert.doesNotThrow(() => assertStaffPin(request(), { STAFF_PIN_REQUIRED: "false" }));
   assert.doesNotThrow(() => assertStaffPin(request("anything"), { STAFF_PIN_REQUIRED: "false", STAFF_PIN: "483920" }));
 });

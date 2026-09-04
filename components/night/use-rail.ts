@@ -14,7 +14,6 @@ export const RAIL_KEY = "/api/waiter/orders";
 
 export async function railFetcher(url: string): Promise<Rail> {
   const response = await fetch(url);
-  if (response.status === 401) throw new Error("This deployment has locked the waiter side.");
   if (!response.ok) throw new Error("Live orders could not be loaded.");
   return response.json();
 }

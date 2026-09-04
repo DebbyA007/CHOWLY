@@ -8,18 +8,18 @@ import { HttpError } from "./errors.ts";
 // would turn on. When it is on, waiter routes need the staff PIN in the x-staff-pin
 // header, compared in constant time.
 //
-// The seam is explicit, never implicit. It is off only when STAFF_PIN_REQUIRED is
-// exactly "false". An absent, empty or malformed flag leaves the check on, because an
-// absent variable meaning "allow everything" is fail-open, and a future environment
-// that forgot to set it would silently open.
+// The seam is off by default. It is on only when STAFF_PIN_REQUIRED is exactly "true";
+// an absent, empty or malformed flag leaves every waiter route open, because the
+// product's rule is no gate anywhere, and a deployment that never set the variable
+// must not lock its own waiter side.
 const HEADER = "x-staff-pin";
 
 type Env = Record<string, string | undefined>;
 
 export function staffPinRequired(env: Env = process.env): boolean {
   const flag = env.STAFF_PIN_REQUIRED;
-  if (typeof flag !== "string") return true;
-  return flag.trim() !== "false";
+  if (typeof flag !== "string") return false;
+  return flag.trim() === "true";
 }
 
 export function assertStaffPin(request: Request, env: Env = process.env): void {

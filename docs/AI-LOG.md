@@ -1434,3 +1434,19 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
   with the ten dishes at the handoff's prices and none of the four retired ones, because
   the seed ran against the shared database. The deployed interface is still The Pass
   reading that data until this branch is merged and deployed.
+
+### Correction: `fix: the staff pin seam is off unless STAFF_PIN_REQUIRED is exactly true`
+
+- **What happened.** The waiter side of the production deployment was locked: the live
+  orders API answered 401 with the PIN message. The seam was fail-closed, on unless the
+  variable was exactly `false`, and the variable had never been set on Vercel. That was
+  my design, argued as the safe default, and it broke the product's one stated rule: no
+  gate anywhere, every screen open to anyone with the URL.
+- **Fix.** Inverted. The seam is on only when `STAFF_PIN_REQUIRED` is exactly `true`;
+  absent, empty, `false` or anything else leaves the waiter routes open. The tests are
+  rewritten for the new truth table, the special 401 wording in the client is gone,
+  `.env` and `.env.example` keep `false` so the intent is written down, and the
+  rulebook, the README and the submission document say the same thing.
+- **Production.** Still locked until this branch is deployed, because the code that is
+  live is the old seam. Reported to the user with the production responses before and
+  after the push.
