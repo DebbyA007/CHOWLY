@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-labelledby="t d">
+<title id="t">CHOWLY</title>
+<desc id="d">The name in a serif on a warm near-black ground, and an ochre ring that empties as a promised wait is used, then turns late red, then starts again.</desc>
+<style>
+  .name { font-family: Newsreader, Georgia, "Times New Roman", serif; font-size: 118px; font-weight: 400; letter-spacing: -2px; }
+  .line { font-family: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 17px; }
+  .arc { stroke: #d2a24c; stroke-dasharray: 515.2; stroke-dashoffset: 0; animation: wait 24s linear infinite; }
+  .num { font-family: "Space Grotesk", system-ui, sans-serif; font-size: 40px; font-weight: 500; letter-spacing: -1.2px; fill: #f0ebe1; animation: tone 24s linear infinite; }
+  @keyframes wait { 0% { stroke-dashoffset: 0; stroke: #d2a24c; } 80% { stroke-dashoffset: 515.2; stroke: #d2a24c; } 86% { stroke-dashoffset: 0; stroke: #c9482f; } 96% { stroke-dashoffset: 0; stroke: #c9482f; } 100% { stroke-dashoffset: 0; stroke: #d2a24c; } }
+  @keyframes tone { 0%, 80% { fill: #f0ebe1; } 86%, 96% { fill: #c9482f; } 100% { fill: #f0ebe1; } }
+  @media (prefers-reduced-motion: reduce) { .arc { animation: none; stroke-dashoffset: 128.8; } .num { animation: none; } }
+</style>
+<rect width="1200" height="300" fill="#14120f"/>
+<g fill="#f0ebe1">
+  <circle cx="90" cy="40" r="0.9" fill-opacity="0.05"/><circle cx="310" cy="70" r="0.8" fill-opacity="0.04"/><circle cx="560" cy="30" r="0.9" fill-opacity="0.05"/><circle cx="220" cy="250" r="0.8" fill-opacity="0.04"/><circle cx="700" cy="270" r="0.9" fill-opacity="0.05"/><circle cx="1120" cy="60" r="0.8" fill-opacity="0.04"/><circle cx="450" cy="120" r="0.7" fill-opacity="0.04"/>
+</g>
+<text x="60" y="150" class="name" fill="#f0ebe1">CHOWLY</text>
+<rect x="62" y="176" width="620" height="1" fill="#f0ebe1" fill-opacity="0.13"/>
+<text x="62" y="212" class="line" fill="#9a9287">Order at your table. The kitchen promises a time. The ring keeps it.</text>
+<text x="62" y="240" class="line" fill="#9a9287">The Golden Gate, 13 Ubah Street, Berger, Lagos</text>
+<g transform="translate(1010 150)">
+  <circle r="82" fill="none" stroke="#f0ebe1" stroke-opacity="0.12" stroke-width="9"/>
+  <circle class="arc" r="82" fill="none" stroke-width="9" transform="rotate(-90)"/>
+  <text y="-16" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-size="11.5" fill="#9a9287">Ready in</text>
+  <text class="num" y="26" text-anchor="middle">20:00</text>
+</g>
+</svg>

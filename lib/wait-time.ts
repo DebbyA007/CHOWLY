@@ -2,11 +2,9 @@
 // It is computed here and only here, on the server, from prep times read from the
 // database. Nothing the client sends can move it.
 //
-// Formula: the slowest item sets the floor, and every additional unit on the ticket adds
-// three minutes of kitchen load. Capped so a huge ticket still shows a wait a person
-// would believe.
+// Formula, from the design handoff: the promise is the longest prep time in the order.
+// Capped so a bad prep time in the data still shows a wait a person would believe.
 
-export const EXTRA_ITEM_MINUTES = 3;
 export const WAIT_CAP_MINUTES = 90;
 
 export type WaitLine = {
@@ -30,8 +28,8 @@ export function calculateWaitMinutes(lines: readonly WaitLine[]): number {
     longestPrep = Math.max(longestPrep, line.prepTimeMinutes);
     itemCount += line.quantity;
   }
-  const raw = longestPrep + EXTRA_ITEM_MINUTES * (itemCount - 1);
-  return Math.min(raw, WAIT_CAP_MINUTES);
+  void itemCount;
+  return Math.min(longestPrep, WAIT_CAP_MINUTES);
 }
 
 // Delay is derived, never stored (delta 4). PLACED and past the promised wait.

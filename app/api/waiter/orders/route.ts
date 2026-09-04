@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { handle } from "@/lib/http";
+import { STAFF_ORDER, byDesignOrder } from "@/lib/menu-order";
 import { orderInclude, presentOrder } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 import { assertStaffPin } from "@/lib/staff-pin";
@@ -24,7 +25,7 @@ export function GET(request: Request) {
     return NextResponse.json({
       now,
       orders: orders.map((order) => presentOrder(order, now)),
-      staff: { waiters, chefs, bartenders },
+      staff: { waiters: byDesignOrder(waiters, STAFF_ORDER), chefs: byDesignOrder(chefs, STAFF_ORDER), bartenders: byDesignOrder(bartenders, STAFF_ORDER) },
     });
   });
 }

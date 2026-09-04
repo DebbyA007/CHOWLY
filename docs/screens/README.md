@@ -1,33 +1,26 @@
-# Screens of The Pass
+# Screens of Night Service
 
-Every screen and state of the redesigned interface, captured headlessly in Chromium
-against the dev server on the seeded data. File names carry the screen, the state and
-the viewport width.
+Every screen and state of the app, captured at 390 wide against the dev server on the
+seeded data. The numbered frames are from headless Chromium, clicked through in order;
+the `webkit-` frames are the same screens rendered by the system WebKit, Safari's
+engine, which is the one that caught the CSP fault in an earlier round. Times are the
+machine's local time at capture.
 
 | File | Screen and state |
 |---|---|
-| `menu-1440-entrance.png` | The menu 0.7 seconds in: two lamps on, the strips still to drop |
-| `menu-1440.png`, `menu-390.png` | The menu settled, full height, at both widths |
-| `menu-1440-header.png`, `menu-390-header.png` | The rail header with the sound tag and the role tags |
-| `menu-1440-ticket.png` | Two lines on the customer's ticket with a table entered |
-| `menu-1440-firing.png` | The ticket mid-tear after the order was fired |
-| `order-waiting-1440.png` | A fresh order under a warm lamp, digits counting down |
-| `order-waiting-mid-1440.png` | Fifteen of twenty-five minutes used: the pool smaller and cooler |
-| `order-late-1440.png` | Five minutes past the promise: the plus sign, the paper aged |
-| `order-late-cold-1440.png` | Far past the promise: the lamp at its floor, straw over aged paper |
-| `order-late-slip-1440.png`, `order-late-slip-390.png` | The complaint slip printed, a slip sent, a score punched |
-| `order-punched-1440.png` | A rating of four punched into an on-time ticket |
-| `order-served-1440.png` | Served: the lamp steady, the staff named |
-| `order-settle-1440.png` | The settle section on a served ticket |
-| `order-paid-1440.png`, `order-paid-390.png` | Paid: the lamp out |
-| `order-receipt-1440.png`, `order-receipt-390.png` | The receipt torn off below with the PAID stamp and the pretend line |
-| `not-found-1440.png` | A stranger's view of someone else's order: nothing on this spike |
-| `waiter-pin-1440.png` | The waiter station asking for the PIN |
-| `waiter-rail-empty-1440.png` | The pass with nothing on it |
-| `waiter-rail-1440.png`, `waiter-rail-390.png` | Three tickets on the pass, one late under a cooled lamp |
-| `waiter-serve-dialog-1440.png` | The serving dialog opened from the keyboard |
-| `waiter-rail-drag-1440.png` | A ticket mid-pull down the rail |
-| `waiter-rail-served-1440.png` | Tickets on the served rail |
-| `directions-1440.png`, `directions-390.png` | The index of the three art directions |
+| `01-landing-390.png` | Screen 1. The dining room, the name, the two ways in, the table |
+| `02-menu-390.png` | Screen 2. Mains, the round photographs, the add circles, the empty cart strip |
+| `02b-menu-cart-390.png` | Drinks, with Chapman at 2 on the stepper and the cart bar risen: 4 items, ₦18,813 |
+| `02c-order-review-390.png` | The order sheet: lines with steppers, subtotal, VAT, total, the table, Place order |
+| `03-order-placed-390.png` | Screen 3. The ring emptying, 19:57 of 20 minutes, the stepper, the items |
+| `04-order-late-390.png` | Screen 4. Six minutes late: the ring closed in red, the note, the two actions |
+| `04b-report-390.png` | Report a problem, the sheet |
+| `04c-rate-390.png` | Rate your order, 4 of 5 chosen |
+| `05-waiter-orders-390.png` | Screen 5. Live orders: one open, one drink pending, Ada O., the late row |
+| `06-waiter-order-390.png` | Screen 6. The order open: placed, six minutes late, the lines with their minutes, chef and bartender |
+| `06b-waiter-served-390.png` | Marked as served: the button has become the record of when |
+| `07-pay-390.png` | Screen 7. The summary with VAT, three methods, Pay ₦18,813 (pretend) |
+| `08-receipt-390.png` | Screen 8. The receipt printed: perforation, ruled lines, the stamp, the torn foot, the credit line |
+| `webkit-landing-390.png`, `webkit-menu-390.png`, `webkit-waiter-390.png`, `webkit-waiter-menu-390.png` | The same screens in WebKit |
 
-The three direction prototypes are captured in `../directions/`.
+The earlier set, of The Pass, is in the history of this folder at the merge of phase 4b.

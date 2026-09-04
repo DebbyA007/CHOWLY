@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { handle, HttpError } from "@/lib/http";
-import { orderInclude, presentOrder } from "@/lib/orders";
+import { orderInclude, presentWithReceipt } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 import { orderIdSchema, parseWith, paymentSchema } from "@/lib/schemas";
 import { requireCustomer } from "@/lib/session";
@@ -65,5 +65,5 @@ export function POST(request: Request, context: Context) {
 
 async function present(orderId: string) {
   const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId }, include: orderInclude });
-  return presentOrder(order);
+  return presentWithReceipt(order);
 }

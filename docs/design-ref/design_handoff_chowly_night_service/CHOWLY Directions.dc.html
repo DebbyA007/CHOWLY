@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDEAE3;font-family:Karla,Archivo,system-ui,sans-serif}
+a{color:#1E4633}a:hover{color:#14301F}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 22px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 Karla,system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:14px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:10px;font:400 11.5px/1.3 Karla,system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-opt:target .dv-oid{background:#1E4633;color:#fff}
+.dv-next{margin:26px 0 0;font:12px/1.5 Karla,system-ui,sans-serif;color:rgba(0,0,0,.5)}
+.dv-frames{display:flex;gap:24px;align-items:flex-start}
+.cap{font:500 10.5px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.42);padding-left:2px}
+.ph{width:390px;height:844px;overflow:hidden;position:relative;border-radius:16px;border:1px solid rgba(0,0,0,.14)}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column}
+.sc{flex:1;overflow:auto;-ms-overflow-style:none;scrollbar-width:none}
+.sc::-webkit-scrollbar{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style></helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">CHOWLY — three visual treatments of one interface</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Green House — cream and deep green, Instrument Serif over Karla, generous rows, countdown on a minute rail</div>
+<div class="dv-frames">
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">1 · Landing</div>
+<div class="ph" data-screen-label="1a Landing" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="height:430px;flex:none;background-color:#E7DECB;background-image:repeating-linear-gradient(135deg,rgba(30,70,51,.14) 0 6px,rgba(30,70,51,0) 6px 13px);display:flex;align-items:flex-end;padding:16px">
+<span style="font:10px ui-monospace,Menlo,monospace;color:rgba(23,37,28,.45)">dining room photo</span>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;padding:34px 26px 30px">
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:42px;line-height:1.02;letter-spacing:-.01em">The Golden Gate</div>
+<div style="font-size:13px;color:#6E7C71;margin-top:10px;line-height:1.5">13 Ubah Street, Berger, Lagos</div>
+<div style="flex:1"></div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="background:#1E4633;color:#F7F2E8;text-align:center;padding:17px;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer">I'm a guest</div>
+<div style="border:1px solid rgba(23,37,28,.28);color:#17251C;text-align:center;padding:17px;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer">I'm a waiter</div>
+</div>
+<div style="font-size:12px;color:#6E7C71;text-align:center;margin-top:16px">You're at table {{ table }}</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">2 · Menu</div>
+<div class="ph" data-screen-label="1a Menu" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="background:#1E4633;color:#F7F2E8;padding:13px 20px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(247,242,232,.55);border-radius:2px"></span>
+</div>
+<div style="background:#1E4633;color:#F7F2E8;padding:12px 20px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:23px;line-height:1.05">The Golden Gate</div>
+<div style="font-size:11.5px;color:rgba(247,242,232,.68);margin-top:4px">13 Ubah Street, Berger</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;background:rgba(247,242,232,.15);padding:6px 10px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div style="display:flex;gap:24px;padding:15px 20px 0;flex:none;border-bottom:1px solid rgba(23,37,28,.12)">
+<sc-for list="{{ A.tabs }}" as="t" hint-placeholder-count="3">
+<div onClick="{{ t.pick }}" style="padding-bottom:11px;font-size:14.5px;cursor:pointer;color:{{ t.color }};font-weight:{{ t.weight }};border-bottom:2px solid {{ t.bd }};margin-bottom:-1px">{{ t.name }}</div>
+</sc-for>
+</div>
+<div class="sc">
+<sc-for list="{{ A.rows }}" as="d" hint-placeholder-count="5">
+<div style="display:flex;gap:14px;padding:17px 20px;border-bottom:1px solid rgba(23,37,28,.1)">
+<div style="width:96px;height:80px;border-radius:9px;flex:none;background-color:#E7DECB;background-image:repeating-linear-gradient(135deg,rgba(30,70,51,.13) 0 5px,rgba(30,70,51,0) 5px 11px);display:flex;align-items:flex-end;padding:6px">
+<span style="font:9px ui-monospace,Menlo,monospace;color:rgba(23,37,28,.42)">{{ d.tag }}</span>
+</div>
+<div style="flex:1;min-width:0">
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:19.5px;line-height:1.14">{{ d.name }}</div>
+<div style="font-size:12.5px;color:#6E7C71;line-height:1.45;margin-top:4px;text-wrap:pretty">{{ d.desc }}</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin-top:9px">
+<span style="font-size:14.5px;font-weight:600">{{ d.priceLabel }}</span>
+<span style="font-size:12px;color:#6E7C71">{{ d.minsLabel }}</span>
+</div>
+</div>
+<div style="flex:none;display:flex;align-items:center">
+<sc-if value="{{ d.noQty }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ d.add }}" style="width:35px;height:35px;border-radius:50%;border:1px solid rgba(30,70,51,.45);color:#1E4633;display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer">+</div>
+</sc-if>
+<sc-if value="{{ d.hasQty }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:11px;background:#1E4633;color:#F7F2E8;border-radius:999px;padding:8px 11px">
+<span onClick="{{ d.sub }}" style="cursor:pointer;font-size:15px;line-height:1">−</span>
+<span style="font-size:13px;font-weight:700;min-width:9px;text-align:center">{{ d.qty }}</span>
+<span onClick="{{ d.add }}" style="cursor:pointer;font-size:15px;line-height:1">+</span>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="flex:none">
+<sc-if value="{{ A.has }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;justify-content:space-between;background:#1E4633;color:#F7F2E8;padding:14px 16px 14px 20px">
+<div>
+<div style="font-size:12px;color:rgba(247,242,232,.72)">{{ A.countLabel }}</div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:21px;line-height:1.1;margin-top:2px">{{ A.totalLabel }}</div>
+</div>
+<div style="background:#F7F2E8;color:#1E4633;font-size:13.5px;font-weight:700;padding:12px 18px;border-radius:999px;cursor:pointer">View order</div>
+</div>
+</sc-if>
+<sc-if value="{{ A.empty }}" hint-placeholder-val="{{ false }}">
+<div style="background:#EEE6D6;color:#6E7C71;padding:19px;text-align:center;font-size:13px">Your order is empty</div>
+</sc-if>
+<div style="display:flex;background:#F7F2E8;border-top:1px solid rgba(23,37,28,.12);padding:11px 0 24px">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:#1E4633">Menu<div style="width:4px;height:4px;border-radius:50%;background:#1E4633;margin:5px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Pay</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">3 · Order placed</div>
+<div class="ph" data-screen-label="1a Order placed" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="background:#1E4633;color:#F7F2E8;padding:13px 20px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(247,242,232,.55);border-radius:2px"></span>
+</div>
+<div style="background:#1E4633;color:#F7F2E8;padding:12px 20px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:23px;line-height:1.05">The Golden Gate</div>
+<div style="font-size:11.5px;color:rgba(247,242,232,.68);margin-top:4px">Order #1042</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;background:rgba(247,242,232,.15);padding:6px 10px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="margin:18px;padding:22px 20px 20px;background:#FFFCF5;border:1px solid rgba(23,37,28,.13);border-radius:13px">
+<div style="font-size:12.5px;color:#6E7C71">Ready in</div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:62px;line-height:.95;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums">{{ clock.rem }}</div>
+<div style="margin-top:20px;height:8px;border-radius:4px;background-color:#E7DECB;background-image:repeating-linear-gradient(90deg,rgba(23,37,28,.18) 0 1px,rgba(23,37,28,0) 1px 5%);overflow:hidden">
+<div style="height:100%;width:{{ clock.pct }}%;background:#1E4633;border-radius:4px"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:9px;font-size:11.5px;color:#6E7C71">
+<span>Placed 9:04 pm</span><span>{{ promiseLabel }}</span>
+</div>
+</div>
+<div style="padding:4px 20px 0">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+<div style="display:flex;gap:14px">
+<div style="width:13px;flex:none;display:flex;flex-direction:column;align-items:center">
+<div style="width:11px;height:11px;border-radius:50%;margin-top:5px;background:{{ s.dot }};border:1px solid {{ s.ring }}"></div>
+<div style="flex:1;width:1px;background:{{ s.line }}"></div>
+</div>
+<div style="padding-bottom:22px;flex:1">
+<div style="font-size:14.5px;font-weight:{{ s.weight }};color:{{ s.text }}">{{ s.name }}</div>
+<div style="font-size:11.5px;color:#6E7C71;margin-top:2px">{{ s.time }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="margin:0 18px 20px;border-top:1px solid rgba(23,37,28,.13);padding-top:16px">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 2px;font-size:14px">
+<span><span style="color:#6E7C71;margin-right:9px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-weight:600">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(23,37,28,.13);margin-top:10px;padding-top:13px">
+<span style="font-size:13px;color:#6E7C71">Total</span>
+<span style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:24px">{{ subtotalLabel }}</span>
+</div>
+</div>
+</div>
+<div style="display:flex;background:#F7F2E8;border-top:1px solid rgba(23,37,28,.12);padding:11px 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:#1E4633">Order<div style="width:4px;height:4px;border-radius:50%;background:#1E4633;margin:5px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">4 · Running late</div>
+<div class="ph" data-screen-label="1a Running late" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="background:#1E4633;color:#F7F2E8;padding:13px 20px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:31</span><span style="width:17px;height:9px;border:1px solid rgba(247,242,232,.55);border-radius:2px"></span>
+</div>
+<div style="background:#1E4633;color:#F7F2E8;padding:12px 20px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:23px;line-height:1.05">The Golden Gate</div>
+<div style="font-size:11.5px;color:rgba(247,242,232,.68);margin-top:4px">Order #1042</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;background:rgba(247,242,232,.15);padding:6px 10px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="margin:18px;padding:22px 20px 20px;background:#FBF0E9;border:1px solid rgba(180,80,47,.35);border-radius:13px">
+<div style="font-size:12.5px;color:#B4502F;font-weight:600">{{ clock.lateLabel }}</div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:62px;line-height:.95;letter-spacing:-.02em;margin-top:6px;color:#B4502F;font-variant-numeric:tabular-nums">{{ clock.elapsed }}</div>
+<div style="margin-top:20px;height:8px;border-radius:4px;background-color:#EEDDD2;background-image:repeating-linear-gradient(90deg,rgba(23,37,28,.16) 0 1px,rgba(23,37,28,0) 1px 5%);display:flex;overflow:hidden">
+<div style="height:100%;width:{{ clock.promisePct }}%;background:#1E4633"></div>
+<div style="height:100%;width:{{ clock.overPct }}%;background:#B4502F"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:9px;font-size:11.5px;color:#6E7C71">
+<span>{{ promiseLabel }}</span><span style="color:#B4502F">{{ clock.overLabel }}</span>
+</div>
+<div style="font-size:13.5px;line-height:1.5;margin-top:16px;text-wrap:pretty">Sorry, your food is taking longer than we said. It's with the chef now.</div>
+<div style="display:flex;gap:9px;margin-top:16px">
+<div style="flex:1;text-align:center;border:1px solid rgba(23,37,28,.3);padding:13px;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer">Report a problem</div>
+<div style="flex:1;text-align:center;border:1px solid rgba(23,37,28,.3);padding:13px;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer">Rate your order</div>
+</div>
+</div>
+<div style="padding:4px 20px 0">
+<sc-for list="{{ stepsLate }}" as="s" hint-placeholder-count="4">
+<div style="display:flex;gap:14px">
+<div style="width:13px;flex:none;display:flex;flex-direction:column;align-items:center">
+<div style="width:11px;height:11px;border-radius:50%;margin-top:5px;background:{{ s.dot }};border:1px solid {{ s.ring }}"></div>
+<div style="flex:1;width:1px;background:{{ s.line }}"></div>
+</div>
+<div style="padding-bottom:22px;flex:1">
+<div style="font-size:14.5px;font-weight:{{ s.weight }};color:{{ s.text }}">{{ s.name }}</div>
+<div style="font-size:11.5px;color:#6E7C71;margin-top:2px">{{ s.time }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;background:#F7F2E8;border-top:1px solid rgba(23,37,28,.12);padding:11px 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:#1E4633">Order<div style="width:4px;height:4px;border-radius:50%;background:#1E4633;margin:5px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">5 · Waiter · live orders</div>
+<div class="ph" data-screen-label="1a Waiter orders" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="background:#14301F;color:#F7F2E8;padding:13px 20px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(247,242,232,.55);border-radius:2px"></span>
+</div>
+<div style="background:#14301F;color:#F7F2E8;padding:12px 20px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:23px;line-height:1.05">Live orders</div>
+<div style="font-size:11.5px;color:rgba(247,242,232,.68);margin-top:4px">The Golden Gate</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;background:rgba(247,242,232,.15);padding:6px 10px;border-radius:999px">Ada O.</div>
+</div>
+<div style="display:flex;gap:20px;padding:15px 20px 0;flex:none;border-bottom:1px solid rgba(23,37,28,.12)">
+<sc-for list="{{ A.wtabs }}" as="t" hint-placeholder-count="4">
+<div onClick="{{ t.pick }}" style="padding-bottom:11px;font-size:14px;cursor:pointer;color:{{ t.color }};font-weight:{{ t.weight }};border-bottom:2px solid {{ t.bd }};margin-bottom:-1px">{{ t.name }}</div>
+</sc-for>
+</div>
+<div class="sc">
+<sc-for list="{{ A.waiter }}" as="w" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:14px;padding:17px 20px;border-bottom:1px solid rgba(23,37,28,.1);cursor:pointer">
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;gap:9px">
+<span style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:20px">{{ w.table }}</span>
+<span style="font-size:11.5px;color:#6E7C71">{{ w.no }}</span>
+</div>
+<div style="font-size:12.5px;color:#6E7C71;margin-top:4px">{{ w.items }} · {{ w.totalLabel }}</div>
+</div>
+<div style="text-align:right;flex:none">
+<div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+<span style="width:7px;height:7px;border-radius:50%;background:{{ w.dot }}"></span>
+<span style="font-size:12.5px;font-weight:600;color:{{ w.dot }}">{{ w.status }}</span>
+</div>
+<div style="font-size:12px;color:#6E7C71;margin-top:4px;font-variant-numeric:tabular-nums">{{ w.time }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;background:#F7F2E8;border-top:1px solid rgba(23,37,28,.12);padding:11px 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:#1E4633">Orders<div style="width:4px;height:4px;border-radius:50%;background:#1E4633;margin:5px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Tables</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Menu</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">6 · Waiter · order open</div>
+<div class="ph" data-screen-label="1a Waiter order" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="background:#14301F;color:#F7F2E8;padding:13px 20px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(247,242,232,.55);border-radius:2px"></span>
+</div>
+<div style="background:#14301F;color:#F7F2E8;padding:12px 20px 16px;flex:none">
+<div style="font-size:11.5px;color:rgba(247,242,232,.68);cursor:pointer">Live orders</div>
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px">
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:26px;line-height:1.05">Order #1042</div>
+<div style="font-size:11.5px;font-weight:600;background:rgba(247,242,232,.15);padding:6px 10px;border-radius:999px">Table {{ table }}</div>
+</div>
+</div>
+<div class="sc">
+<div style="padding:18px 20px 0">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#6E7C71">
+<span>Placed 9:04 pm</span><span style="font-variant-numeric:tabular-nums">{{ clock.rem }} left</span>
+</div>
+<div style="margin-top:14px;border-top:1px solid rgba(23,37,28,.13)">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid rgba(23,37,28,.09);font-size:14.5px">
+<span><span style="color:#6E7C71;margin-right:9px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-size:12px;color:#6E7C71">{{ o.minsLabel }}</span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:13px">
+<span style="font-size:13px;color:#6E7C71">Total</span>
+<span style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:22px">{{ subtotalLabel }}</span>
+</div>
+</div>
+<div style="padding:24px 20px 0">
+<div style="font-size:13px;color:#6E7C71">Chef</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:9px">
+<sc-for list="{{ A.chefs }}" as="c" hint-placeholder-count="3">
+<div onClick="{{ c.pick }}" style="padding:10px 14px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }}">{{ c.name }}</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:20px 20px 0">
+<div style="font-size:13px;color:#6E7C71">Bartender</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:9px">
+<sc-for list="{{ A.bars }}" as="c" hint-placeholder-count="2">
+<div onClick="{{ c.pick }}" style="padding:10px 14px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }}">{{ c.name }}</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:26px 20px 24px">
+<sc-if value="{{ A.notServed }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ A.serve }}" style="background:#1E4633;color:#F7F2E8;text-align:center;padding:17px;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer">Mark as served</div>
+</sc-if>
+<sc-if value="{{ A.served }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ A.serve }}" style="border:1px solid rgba(30,70,51,.4);background:#EDF0E9;color:#1E4633;text-align:center;padding:17px;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer">Served at 9:26 pm</div>
+</sc-if>
+</div>
+</div>
+<div style="display:flex;background:#F7F2E8;border-top:1px solid rgba(23,37,28,.12);padding:11px 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:#1E4633">Orders<div style="width:4px;height:4px;border-radius:50%;background:#1E4633;margin:5px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Tables</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Menu</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">7 · Payment</div>
+<div class="ph" data-screen-label="1a Payment" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="background:#1E4633;color:#F7F2E8;padding:13px 20px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:38</span><span style="width:17px;height:9px;border:1px solid rgba(247,242,232,.55);border-radius:2px"></span>
+</div>
+<div style="background:#1E4633;color:#F7F2E8;padding:12px 20px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:23px;line-height:1.05">Pay</div>
+<div style="font-size:11.5px;color:rgba(247,242,232,.68);margin-top:4px">Order #1042</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;background:rgba(247,242,232,.15);padding:6px 10px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="padding:18px 20px 0">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;font-size:14px">
+<span><span style="color:#6E7C71;margin-right:9px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-weight:600">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="border-top:1px solid rgba(23,37,28,.13);margin-top:9px;padding-top:12px">
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6E7C71;padding:4px 0">
+<span>Subtotal</span><span>{{ subtotalLabel }}</span>
+</div>
+<sc-if value="{{ showVat }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6E7C71;padding:4px 0">
+<span>VAT 7.5%</span><span>{{ vatLabel }}</span>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px">
+<span style="font-size:14px;font-weight:600">Total</span>
+<span style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:30px">{{ totalLabel }}</span>
+</div>
+</div>
+</div>
+<div style="padding:24px 20px 0">
+<div style="font-size:13px;color:#6E7C71">How would you like to pay?</div>
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:11px">
+<sc-for list="{{ A.methods }}" as="m" hint-placeholder-count="3">
+<div onClick="{{ m.pick }}" style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:11px;cursor:pointer;background:{{ m.bg }};color:{{ m.fg }};border:1px solid {{ m.bd }}">
+<span style="width:16px;height:16px;border-radius:50%;flex:none;border:1px solid {{ m.ring }};background:{{ m.fill }};box-shadow:{{ m.inner }}"></span>
+<span style="font-size:14.5px;font-weight:{{ m.weight }}">{{ m.name }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:24px 20px 26px">
+<sc-if value="{{ A.payIdle }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ A.pay }}" style="background:#1E4633;color:#F7F2E8;text-align:center;padding:18px;border-radius:11px;font-size:15.5px;font-weight:700;cursor:pointer">{{ payLabel }}</div>
+</sc-if>
+<sc-if value="{{ A.payBusy }}" hint-placeholder-val="{{ false }}">
+<div style="background:#2A5340;color:rgba(247,242,232,.8);text-align:center;padding:18px;border-radius:11px;font-size:15.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px">
+<span style="width:15px;height:15px;border-radius:50%;border:2px solid rgba(247,242,232,.3);border-top-color:#F7F2E8;animation:spin .7s linear infinite"></span>Taking payment
+</div>
+</sc-if>
+<sc-if value="{{ A.payDone }}" hint-placeholder-val="{{ false }}">
+<div style="background:#EDF0E9;border:1px solid rgba(30,70,51,.4);color:#1E4633;text-align:center;padding:18px;border-radius:11px">
+<div style="font-size:15.5px;font-weight:700">Paid {{ totalLabel }}</div>
+<div style="font-size:12.5px;margin-top:4px;color:#4A6152">{{ A.method }} · 9:38 pm</div>
+</div>
+<div onClick="{{ A.reset }}" style="text-align:center;font-size:12.5px;color:#6E7C71;margin-top:14px;cursor:pointer;text-decoration:underline">Start over</div>
+</sc-if>
+</div>
+</div>
+<div style="display:flex;background:#F7F2E8;border-top:1px solid rgba(23,37,28,.12);padding:11px 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:#1E4633">Pay<div style="width:4px;height:4px;border-radius:50%;background:#1E4633;margin:5px auto 0"></div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">8 · Receipt</div>
+<div class="ph" data-screen-label="1a Receipt" style="background:#F7F2E8;font-family:Karla,Archivo,system-ui,sans-serif;color:#17251C">
+<div class="scr">
+<div style="background:#1E4633;color:#F7F2E8;padding:13px 20px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:39</span><span style="width:17px;height:9px;border:1px solid rgba(247,242,232,.55);border-radius:2px"></span>
+</div>
+<div style="background:#1E4633;color:#F7F2E8;padding:12px 20px 20px;flex:none">
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:23px;line-height:1.05">Paid</div>
+<div style="font-size:11.5px;color:rgba(247,242,232,.68);margin-top:4px">Thank you. Your table is settled.</div>
+</div>
+<div class="sc">
+<div style="margin:18px;background:#FFFCF5;border:1px solid rgba(23,37,28,.13);border-radius:13px;overflow:hidden">
+<div style="padding:22px 20px 18px;text-align:center;border-bottom:1px dashed rgba(23,37,28,.25)">
+<div style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:24px;line-height:1.1">The Golden Gate</div>
+<div style="font-size:11.5px;color:#6E7C71;margin-top:5px;line-height:1.5">13 Ubah Street, Berger, Lagos<br>3 Sep 2026, 9:38 pm</div>
+<div style="font-size:11.5px;color:#6E7C71;margin-top:4px">Order #1042 · Table {{ table }} · Receipt 0088</div>
+</div>
+<div style="padding:16px 20px 20px">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;font-size:14px">
+<span><span style="color:#6E7C71;margin-right:9px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-weight:600;font-variant-numeric:tabular-nums">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="border-top:1px solid rgba(23,37,28,.13);margin-top:10px;padding-top:12px">
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6E7C71;padding:4px 0">
+<span>Subtotal</span><span style="font-variant-numeric:tabular-nums">{{ subtotalLabel }}</span>
+</div>
+<sc-if value="{{ showVat }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6E7C71;padding:4px 0">
+<span>VAT 7.5%</span><span style="font-variant-numeric:tabular-nums">{{ vatLabel }}</span>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;border-top:1px solid rgba(23,37,28,.13);padding-top:13px">
+<span style="font-size:14px;font-weight:600">Paid by card</span>
+<span style="font-family:'Instrument Serif',Newsreader,Georgia,serif;font-size:30px;font-variant-numeric:tabular-nums">{{ totalLabel }}</span>
+</div>
+</div>
+</div>
+</div>
+<div style="padding:2px 20px 0">
+<div style="font-size:13px;color:#6E7C71;line-height:1.5">Served by Ada O. · Chef {{ A.chef }} · Bar {{ A.bar }}</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+<div style="border:1px solid rgba(23,37,28,.28);text-align:center;padding:16px;border-radius:11px;font-size:14.5px;font-weight:600;cursor:pointer">Rate your order</div>
+<div style="border:1px solid rgba(23,37,28,.28);text-align:center;padding:16px;border-radius:11px;font-size:14.5px;font-weight:600;cursor:pointer">Email receipt</div>
+</div>
+</div>
+</div>
+<div style="display:flex;background:#F7F2E8;border-top:1px solid rgba(23,37,28,.12);padding:11px 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#6E7C71">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:#1E4633">Pay<div style="width:4px;height:4px;border-radius:50%;background:#1E4633;margin:5px auto 0"></div></div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Broadsheet — warm paper and ink with a cobalt accent, Archivo with tabular figures, hairline rules instead of cards, denser rows, countdown as a departure board</div>
+<div class="dv-frames">
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">1 · Landing</div>
+<div class="ph" data-screen-label="1b Landing" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="height:404px;flex:none;background-color:#ECE7DE;background-image:repeating-linear-gradient(0deg,rgba(19,19,19,.15) 0 1px,rgba(19,19,19,0) 1px 7px);border-bottom:1px solid #131313;display:flex;align-items:flex-end;padding:14px">
+<span style="font:10px ui-monospace,Menlo,monospace;color:rgba(19,19,19,.5)">dining room photo</span>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;padding:28px 24px 30px">
+<div style="font-size:13px;color:#1B47B4;font-weight:600">13 Ubah Street, Berger, Lagos</div>
+<div style="font-size:44px;font-weight:800;line-height:.96;letter-spacing:-.035em;margin-top:12px">The Golden<br>Gate</div>
+<div style="height:1px;background:rgba(19,19,19,.2);margin:20px 0 0"></div>
+<div style="font-size:13.5px;line-height:1.55;color:rgba(19,19,19,.62);margin-top:16px;text-wrap:pretty">Open every day, noon until eleven. Kitchen closes at ten thirty.</div>
+<div style="flex:1"></div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="background:#131313;color:#FAF8F4;text-align:center;padding:17px;font-size:15px;font-weight:700;cursor:pointer">I'm a guest</div>
+<div style="border:1px solid #131313;color:#131313;text-align:center;padding:16px;font-size:15px;font-weight:700;cursor:pointer">I'm a waiter</div>
+</div>
+<div style="font-size:12px;color:rgba(19,19,19,.55);text-align:center;margin-top:14px;font-variant-numeric:tabular-nums">You're at table {{ table }}</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">2 · Menu</div>
+<div class="ph" data-screen-label="1b Menu" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="padding:13px 18px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;flex:none;font-variant-numeric:tabular-nums">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(19,19,19,.5);border-radius:2px"></span>
+</div>
+<div style="padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:baseline;flex:none;border-bottom:2px solid #131313">
+<div style="font-size:21px;font-weight:800;letter-spacing:-.03em">The Golden Gate</div>
+<div style="font-size:12px;font-weight:700;color:#1B47B4;font-variant-numeric:tabular-nums">Table {{ table }}</div>
+</div>
+<div style="display:flex;flex:none;border-bottom:1px solid rgba(19,19,19,.18)">
+<sc-for list="{{ B.tabs }}" as="t" hint-placeholder-count="3">
+<div onClick="{{ t.pick }}" style="flex:1;text-align:center;padding:12px 0 10px;font-size:13.5px;cursor:pointer;color:{{ t.color }};font-weight:{{ t.weight }};border-bottom:3px solid {{ t.bd }};margin-bottom:-1px">{{ t.name }}</div>
+</sc-for>
+</div>
+<div class="sc">
+<sc-for list="{{ B.rows }}" as="d" hint-placeholder-count="5">
+<div style="display:flex;gap:13px;padding:13px 18px;border-bottom:1px solid rgba(19,19,19,.14)">
+<div style="width:66px;height:66px;flex:none;border:1px solid #131313;background-color:#ECE7DE;background-image:repeating-linear-gradient(0deg,rgba(19,19,19,.16) 0 1px,rgba(19,19,19,0) 1px 6px);display:flex;align-items:flex-end;padding:4px">
+<span style="font:8.5px ui-monospace,Menlo,monospace;color:rgba(19,19,19,.5)">{{ d.tag }}</span>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<span style="font-size:15px;font-weight:700;letter-spacing:-.015em">{{ d.name }}</span>
+<span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;flex:none">{{ d.priceLabel }}</span>
+</div>
+<div style="font-size:12px;color:rgba(19,19,19,.58);line-height:1.4;margin-top:3px;text-wrap:pretty">{{ d.desc }}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+<span style="font-size:11.5px;color:#1B47B4;font-weight:600;font-variant-numeric:tabular-nums">{{ d.minsLabel }}</span>
+<sc-if value="{{ d.noQty }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ d.add }}" style="border:1px solid #131313;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer">Add</div>
+</sc-if>
+<sc-if value="{{ d.hasQty }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:stretch;border:1px solid #131313">
+<span onClick="{{ d.sub }}" style="cursor:pointer;padding:4px 10px;font-size:14px;line-height:1.3;border-right:1px solid rgba(19,19,19,.25)">−</span>
+<span style="padding:4px 11px;font-size:12.5px;font-weight:700;line-height:1.3;font-variant-numeric:tabular-nums;background:#131313;color:#FAF8F4">{{ d.qty }}</span>
+<span onClick="{{ d.add }}" style="cursor:pointer;padding:4px 10px;font-size:14px;line-height:1.3;border-left:1px solid rgba(19,19,19,.25)">+</span>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="flex:none">
+<sc-if value="{{ B.has }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;justify-content:space-between;background:#131313;color:#FAF8F4;padding:13px 14px 13px 18px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<span style="font-size:24px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums">{{ B.totalLabel }}</span>
+<span style="font-size:12px;color:rgba(250,248,244,.6);font-variant-numeric:tabular-nums">{{ B.countLabel }}</span>
+</div>
+<div style="background:#1B47B4;color:#FAF8F4;font-size:13px;font-weight:700;padding:11px 16px;cursor:pointer">View order</div>
+</div>
+</sc-if>
+<sc-if value="{{ B.empty }}" hint-placeholder-val="{{ false }}">
+<div style="background:#F2EFE9;color:rgba(19,19,19,.55);padding:18px;text-align:center;font-size:13px;border-top:1px solid rgba(19,19,19,.18)">Your order is empty</div>
+</sc-if>
+<div style="display:flex;border-top:1px solid rgba(19,19,19,.18);padding:0 0 24px">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:11px 0 0;border-top:3px solid #1B47B4;margin-top:-1px">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Pay</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">3 · Order placed</div>
+<div class="ph" data-screen-label="1b Order placed" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="padding:13px 18px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;flex:none;font-variant-numeric:tabular-nums">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(19,19,19,.5);border-radius:2px"></span>
+</div>
+<div style="padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:baseline;flex:none;border-bottom:2px solid #131313">
+<div style="font-size:21px;font-weight:800;letter-spacing:-.03em">Order #1042</div>
+<div style="font-size:12px;font-weight:700;color:#1B47B4;font-variant-numeric:tabular-nums">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="padding:22px 18px 20px;border-bottom:1px solid rgba(19,19,19,.18)">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:13px;font-weight:600">Ready in</span>
+<span style="font-size:12px;color:rgba(19,19,19,.55);font-variant-numeric:tabular-nums">{{ promiseLabel }}</span>
+</div>
+<div style="font-size:86px;font-weight:800;line-height:.9;letter-spacing:-.055em;margin-top:8px;font-variant-numeric:tabular-nums">{{ clock.rem }}</div>
+<div style="margin-top:18px;height:10px;background-color:#ECE7DE;background-image:repeating-linear-gradient(90deg,rgba(19,19,19,.22) 0 1px,rgba(19,19,19,0) 1px 5%);overflow:hidden">
+<div style="height:100%;width:{{ clock.pct }}%;background:#1B47B4"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:11.5px;color:rgba(19,19,19,.55);font-variant-numeric:tabular-nums">
+<span>9:04 pm</span><span>9:24 pm</span>
+</div>
+</div>
+<div style="padding:18px 18px 4px">
+<sc-for list="{{ stepsB }}" as="s" hint-placeholder-count="4">
+<div style="display:flex;gap:13px">
+<div style="width:9px;flex:none;display:flex;flex-direction:column;align-items:center">
+<div style="width:9px;height:9px;margin-top:6px;background:{{ s.dot }};border:1px solid {{ s.ring }}"></div>
+<div style="flex:1;width:1px;background:{{ s.line }}"></div>
+</div>
+<div style="padding-bottom:19px;flex:1;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.text }}">{{ s.name }}</span>
+<span style="font-size:11.5px;color:rgba(19,19,19,.5);font-variant-numeric:tabular-nums">{{ s.time }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="padding:14px 18px 22px;border-top:1px solid rgba(19,19,19,.18)">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:14px">
+<span><span style="color:rgba(19,19,19,.5);margin-right:9px;font-variant-numeric:tabular-nums">{{ o.qty }}</span>{{ o.name }}</span>
+<span style="font-weight:700;font-variant-numeric:tabular-nums">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid #131313;margin-top:10px;padding-top:11px">
+<span style="font-size:13px;font-weight:600">Total</span>
+<span style="font-size:26px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums">{{ subtotalLabel }}</span>
+</div>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid rgba(19,19,19,.18);padding:0 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:11px 0 0;border-top:3px solid #1B47B4;margin-top:-1px">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">4 · Running late</div>
+<div class="ph" data-screen-label="1b Running late" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="padding:13px 18px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;flex:none;font-variant-numeric:tabular-nums">
+<span>9:31</span><span style="width:17px;height:9px;border:1px solid rgba(19,19,19,.5);border-radius:2px"></span>
+</div>
+<div style="padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:baseline;flex:none;border-bottom:2px solid #A32118">
+<div style="font-size:21px;font-weight:800;letter-spacing:-.03em">Order #1042</div>
+<div style="font-size:12px;font-weight:700;color:#A32118;font-variant-numeric:tabular-nums">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="padding:22px 18px 20px;border-bottom:1px solid rgba(19,19,19,.18);background:#F6EFEC">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:13px;font-weight:700;color:#A32118">{{ clock.lateLabel }}</span>
+<span style="font-size:12px;color:rgba(19,19,19,.55);font-variant-numeric:tabular-nums">{{ promiseLabel }}</span>
+</div>
+<div style="font-size:86px;font-weight:800;line-height:.9;letter-spacing:-.055em;margin-top:8px;color:#A32118;font-variant-numeric:tabular-nums">{{ clock.elapsed }}</div>
+<div style="margin-top:18px;height:10px;background-color:#EFE3DE;background-image:repeating-linear-gradient(90deg,rgba(19,19,19,.2) 0 1px,rgba(19,19,19,0) 1px 5%);display:flex;overflow:hidden">
+<div style="height:100%;width:{{ clock.promisePct }}%;background:#131313"></div>
+<div style="height:100%;width:{{ clock.overPct }}%;background:#A32118"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:11.5px;font-variant-numeric:tabular-nums">
+<span style="color:rgba(19,19,19,.55)">Promised 9:24 pm</span><span style="color:#A32118;font-weight:700">{{ clock.overLabel }}</span>
+</div>
+<div style="font-size:13.5px;line-height:1.5;margin-top:16px;text-wrap:pretty">Sorry, your food is taking longer than we said. It's with the chef now.</div>
+<div style="display:flex;gap:8px;margin-top:16px">
+<div style="flex:1;text-align:center;border:1px solid #131313;padding:13px;font-size:13px;font-weight:700;cursor:pointer">Report a problem</div>
+<div style="flex:1;text-align:center;border:1px solid #131313;padding:13px;font-size:13px;font-weight:700;cursor:pointer">Rate your order</div>
+</div>
+</div>
+<div style="padding:18px 18px 4px">
+<sc-for list="{{ stepsLateB }}" as="s" hint-placeholder-count="4">
+<div style="display:flex;gap:13px">
+<div style="width:9px;flex:none;display:flex;flex-direction:column;align-items:center">
+<div style="width:9px;height:9px;margin-top:6px;background:{{ s.dot }};border:1px solid {{ s.ring }}"></div>
+<div style="flex:1;width:1px;background:{{ s.line }}"></div>
+</div>
+<div style="padding-bottom:19px;flex:1;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.text }}">{{ s.name }}</span>
+<span style="font-size:11.5px;color:rgba(19,19,19,.5);font-variant-numeric:tabular-nums">{{ s.time }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid rgba(19,19,19,.18);padding:0 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:11px 0 0;border-top:3px solid #A32118;margin-top:-1px">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">5 · Waiter · live orders</div>
+<div class="ph" data-screen-label="1b Waiter orders" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="padding:13px 18px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;flex:none;font-variant-numeric:tabular-nums">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(19,19,19,.5);border-radius:2px"></span>
+</div>
+<div style="padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:baseline;flex:none;border-bottom:2px solid #131313">
+<div style="font-size:21px;font-weight:800;letter-spacing:-.03em">Live orders</div>
+<div style="font-size:12px;font-weight:700;color:#1B47B4">Ada O.</div>
+</div>
+<div style="display:flex;flex:none;border-bottom:1px solid rgba(19,19,19,.18)">
+<sc-for list="{{ B.wtabs }}" as="t" hint-placeholder-count="4">
+<div onClick="{{ t.pick }}" style="flex:1;text-align:center;padding:12px 0 10px;font-size:13px;cursor:pointer;color:{{ t.color }};font-weight:{{ t.weight }};border-bottom:3px solid {{ t.bd }};margin-bottom:-1px">{{ t.name }}</div>
+</sc-for>
+</div>
+<div class="sc">
+<sc-for list="{{ B.waiter }}" as="w" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(19,19,19,.14);cursor:pointer">
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;gap:9px">
+<span style="font-size:16px;font-weight:800;letter-spacing:-.02em">{{ w.table }}</span>
+<span style="font-size:11.5px;color:rgba(19,19,19,.5);font-variant-numeric:tabular-nums">{{ w.no }}</span>
+</div>
+<div style="font-size:12px;color:rgba(19,19,19,.55);margin-top:3px;font-variant-numeric:tabular-nums">{{ w.items }} · {{ w.totalLabel }}</div>
+</div>
+<div style="text-align:right;flex:none">
+<div style="font-size:12.5px;font-weight:700;color:{{ w.dot }}">{{ w.status }}</div>
+<div style="font-size:12px;color:rgba(19,19,19,.5);margin-top:3px;font-variant-numeric:tabular-nums">{{ w.time }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;border-top:1px solid rgba(19,19,19,.18);padding:0 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:11px 0 0;border-top:3px solid #1B47B4;margin-top:-1px">Orders</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Tables</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Menu</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">6 · Waiter · order open</div>
+<div class="ph" data-screen-label="1b Waiter order" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="padding:13px 18px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;flex:none;font-variant-numeric:tabular-nums">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(19,19,19,.5);border-radius:2px"></span>
+</div>
+<div style="padding:10px 18px 12px;flex:none;border-bottom:2px solid #131313">
+<div style="font-size:12px;color:#1B47B4;font-weight:600;cursor:pointer">Live orders</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:5px">
+<div style="font-size:24px;font-weight:800;letter-spacing:-.03em">Order #1042</div>
+<div style="font-size:12px;font-weight:700;font-variant-numeric:tabular-nums">Table {{ table }}</div>
+</div>
+</div>
+<div class="sc">
+<div style="padding:14px 18px 0">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(19,19,19,.55);font-variant-numeric:tabular-nums">
+<span>Placed 9:04 pm</span><span style="color:#1B47B4;font-weight:700">{{ clock.rem }} left</span>
+</div>
+<div style="margin-top:12px;border-top:1px solid rgba(19,19,19,.18)">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(19,19,19,.12);font-size:14px">
+<span><span style="color:rgba(19,19,19,.5);margin-right:9px;font-variant-numeric:tabular-nums">{{ o.qty }}</span>{{ o.name }}</span>
+<span style="font-size:11.5px;color:rgba(19,19,19,.5);font-variant-numeric:tabular-nums">{{ o.minsLabel }}</span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:11px">
+<span style="font-size:13px;font-weight:600">Total</span>
+<span style="font-size:22px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums">{{ subtotalLabel }}</span>
+</div>
+</div>
+<div style="padding:22px 18px 0">
+<div style="font-size:12.5px;font-weight:700;padding-bottom:9px;border-bottom:1px solid rgba(19,19,19,.18)">Chef</div>
+<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:11px">
+<sc-for list="{{ B.chefs }}" as="c" hint-placeholder-count="3">
+<div onClick="{{ c.pick }}" style="padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }}">{{ c.name }}</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:20px 18px 0">
+<div style="font-size:12.5px;font-weight:700;padding-bottom:9px;border-bottom:1px solid rgba(19,19,19,.18)">Bartender</div>
+<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:11px">
+<sc-for list="{{ B.bars }}" as="c" hint-placeholder-count="2">
+<div onClick="{{ c.pick }}" style="padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }}">{{ c.name }}</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:24px 18px 22px">
+<sc-if value="{{ B.notServed }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ B.serve }}" style="background:#131313;color:#FAF8F4;text-align:center;padding:17px;font-size:15px;font-weight:700;cursor:pointer">Mark as served</div>
+</sc-if>
+<sc-if value="{{ B.served }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ B.serve }}" style="border:1px solid #1B47B4;color:#1B47B4;text-align:center;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-variant-numeric:tabular-nums">Served at 9:26 pm</div>
+</sc-if>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid rgba(19,19,19,.18);padding:0 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:11px 0 0;border-top:3px solid #1B47B4;margin-top:-1px">Orders</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Tables</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Menu</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">7 · Payment</div>
+<div class="ph" data-screen-label="1b Payment" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="padding:13px 18px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;flex:none;font-variant-numeric:tabular-nums">
+<span>9:38</span><span style="width:17px;height:9px;border:1px solid rgba(19,19,19,.5);border-radius:2px"></span>
+</div>
+<div style="padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:baseline;flex:none;border-bottom:2px solid #131313">
+<div style="font-size:21px;font-weight:800;letter-spacing:-.03em">Pay</div>
+<div style="font-size:12px;font-weight:700;color:#1B47B4;font-variant-numeric:tabular-nums">Order #1042 · Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="padding:16px 18px 0">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;font-size:14px">
+<span><span style="color:rgba(19,19,19,.5);margin-right:9px;font-variant-numeric:tabular-nums">{{ o.qty }}</span>{{ o.name }}</span>
+<span style="font-weight:700;font-variant-numeric:tabular-nums">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="border-top:1px solid rgba(19,19,19,.18);margin-top:9px;padding-top:11px">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(19,19,19,.55);padding:3px 0;font-variant-numeric:tabular-nums">
+<span>Subtotal</span><span>{{ subtotalLabel }}</span>
+</div>
+<sc-if value="{{ showVat }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(19,19,19,.55);padding:3px 0;font-variant-numeric:tabular-nums">
+<span>VAT 7.5%</span><span>{{ vatLabel }}</span>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;border-top:2px solid #131313;padding-top:11px">
+<span style="font-size:13.5px;font-weight:700">Total</span>
+<span style="font-size:32px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums">{{ totalLabel }}</span>
+</div>
+</div>
+</div>
+<div style="padding:22px 18px 0">
+<div style="font-size:12.5px;font-weight:700;padding-bottom:9px;border-bottom:1px solid rgba(19,19,19,.18)">How would you like to pay?</div>
+<sc-for list="{{ B.methods }}" as="m" hint-placeholder-count="3">
+<div onClick="{{ m.pick }}" style="display:flex;align-items:center;gap:12px;padding:15px 14px;cursor:pointer;margin-top:8px;background:{{ m.bg }};color:{{ m.fg }};border:1px solid {{ m.bd }}">
+<span style="width:15px;height:15px;flex:none;border:1px solid {{ m.ring }};background:{{ m.fill }};box-shadow:{{ m.inner }}"></span>
+<span style="font-size:14px;font-weight:{{ m.weight }}">{{ m.name }}</span>
+</div>
+</sc-for>
+</div>
+<div style="padding:22px 18px 24px">
+<sc-if value="{{ B.payIdle }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ B.pay }}" style="background:#1B47B4;color:#FAF8F4;text-align:center;padding:18px;font-size:15.5px;font-weight:700;cursor:pointer;font-variant-numeric:tabular-nums">{{ payLabel }}</div>
+</sc-if>
+<sc-if value="{{ B.payBusy }}" hint-placeholder-val="{{ false }}">
+<div style="background:#2D57BC;color:rgba(250,248,244,.85);text-align:center;padding:18px;font-size:15.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px">
+<span style="width:15px;height:15px;border-radius:50%;border:2px solid rgba(250,248,244,.35);border-top-color:#FAF8F4;animation:spin .7s linear infinite"></span>Taking payment
+</div>
+</sc-if>
+<sc-if value="{{ B.payDone }}" hint-placeholder-val="{{ false }}">
+<div style="border:1px solid #1B47B4;color:#131313;text-align:center;padding:17px">
+<div style="font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums">Paid {{ totalLabel }}</div>
+<div style="font-size:12.5px;margin-top:4px;color:#1B47B4;font-weight:600">{{ B.method }} · 9:38 pm</div>
+</div>
+<div onClick="{{ B.reset }}" style="text-align:center;font-size:12.5px;color:rgba(19,19,19,.5);margin-top:13px;cursor:pointer;text-decoration:underline">Start over</div>
+</sc-if>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid rgba(19,19,19,.18);padding:0 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:11px 0 0;border-top:3px solid #1B47B4;margin-top:-1px">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">8 · Receipt</div>
+<div class="ph" data-screen-label="1b Receipt" style="background:#FAF8F4;font-family:Archivo,system-ui,sans-serif;color:#131313">
+<div class="scr">
+<div style="padding:13px 18px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;flex:none;font-variant-numeric:tabular-nums">
+<span>9:39</span><span style="width:17px;height:9px;border:1px solid rgba(19,19,19,.5);border-radius:2px"></span>
+</div>
+<div style="padding:10px 18px 14px;flex:none;border-bottom:2px solid #131313;display:flex;justify-content:space-between;align-items:baseline">
+<div style="font-size:21px;font-weight:800;letter-spacing:-.03em">Paid</div>
+<div style="font-size:12px;color:rgba(19,19,19,.55);font-variant-numeric:tabular-nums">Receipt 0088</div>
+</div>
+<div class="sc">
+<div style="padding:20px 18px 0">
+<div style="display:flex;justify-content:space-between;align-items:flex-start">
+<div>
+<div style="font-size:16px;font-weight:800;letter-spacing:-.02em">The Golden Gate</div>
+<div style="font-size:11.5px;color:rgba(19,19,19,.55);margin-top:4px;line-height:1.5">13 Ubah Street, Berger, Lagos<br>3 Sep 2026, 9:38 pm</div>
+</div>
+<div style="text-align:right;font-size:11.5px;color:rgba(19,19,19,.55);line-height:1.5;font-variant-numeric:tabular-nums">Order #1042<br>Table {{ table }}</div>
+</div>
+<div style="margin-top:18px;border-top:2px solid #131313;padding-top:6px">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid rgba(19,19,19,.12);font-size:14px">
+<span><span style="color:rgba(19,19,19,.5);margin-right:9px;font-variant-numeric:tabular-nums">{{ o.qty }}</span>{{ o.name }}</span>
+<span style="font-weight:700;font-variant-numeric:tabular-nums">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+</div>
+<div style="margin-top:12px">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(19,19,19,.55);padding:3px 0;font-variant-numeric:tabular-nums">
+<span>Subtotal</span><span>{{ subtotalLabel }}</span>
+</div>
+<sc-if value="{{ showVat }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(19,19,19,.55);padding:3px 0;font-variant-numeric:tabular-nums">
+<span>VAT 7.5%</span><span>{{ vatLabel }}</span>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;border-top:2px solid #131313;padding-top:12px">
+<span style="font-size:13.5px;font-weight:700">Paid by card</span>
+<span style="font-size:32px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums">{{ totalLabel }}</span>
+</div>
+</div>
+<div style="font-size:12px;color:rgba(19,19,19,.55);line-height:1.55;margin-top:18px">Served by Ada O.<br>Chef {{ B.chef }} · Bar {{ B.bar }}</div>
+<div style="display:flex;gap:8px;margin-top:20px;padding-bottom:24px">
+<div style="flex:1;text-align:center;border:1px solid #131313;padding:15px;font-size:13.5px;font-weight:700;cursor:pointer">Rate your order</div>
+<div style="flex:1;text-align:center;border:1px solid #131313;padding:15px;font-size:13.5px;font-weight:700;cursor:pointer">Email receipt</div>
+</div>
+</div>
+</div>
+<div style="display:flex;border-top:1px solid rgba(19,19,19,.18);padding:0 0 24px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;color:rgba(19,19,19,.5);padding:11px 0 0">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:11px 0 0;border-top:3px solid #1B47B4;margin-top:-1px">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Night Service — warm near-black and bone with ochre, Newsreader over Space Grotesk, round photos, the roomiest rows, countdown as a ring</div>
+<div class="dv-frames">
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">1 · Landing</div>
+<div class="ph" data-screen-label="1c Landing" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="height:452px;flex:none;background-color:#241F19;background-image:repeating-linear-gradient(135deg,rgba(210,162,76,.16) 0 6px,rgba(210,162,76,0) 6px 14px);display:flex;align-items:flex-end;padding:18px">
+<span style="font:10px ui-monospace,Menlo,monospace;color:rgba(240,235,225,.42)">dining room photo</span>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;padding:36px 26px 32px">
+<div style="font-family:Newsreader,Georgia,serif;font-size:44px;line-height:1;font-weight:400;letter-spacing:-.015em">The Golden Gate</div>
+<div style="font-size:12.5px;color:#9A9287;margin-top:12px;line-height:1.6;letter-spacing:.01em">13 Ubah Street, Berger, Lagos</div>
+<div style="flex:1"></div>
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="background:#D2A24C;color:#14120F;text-align:center;padding:18px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer">I'm a guest</div>
+<div style="border:1px solid rgba(240,235,225,.26);color:#F0EBE1;text-align:center;padding:18px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer">I'm a waiter</div>
+</div>
+<div style="font-size:12px;color:#9A9287;text-align:center;margin-top:18px">You're at table {{ table }}</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">2 · Menu</div>
+<div class="ph" data-screen-label="1c Menu" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="padding:13px 22px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(240,235,225,.45);border-radius:2px"></span>
+</div>
+<div style="padding:14px 22px 18px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:Newsreader,Georgia,serif;font-size:25px;line-height:1.05">The Golden Gate</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:5px">13 Ubah Street, Berger</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;color:#D2A24C;border:1px solid rgba(210,162,76,.4);padding:6px 11px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div style="display:flex;gap:9px;padding:0 22px 16px;flex:none">
+<sc-for list="{{ C.tabs }}" as="t" hint-placeholder-count="3">
+<div onClick="{{ t.pick }}" style="padding:9px 16px;border-radius:999px;font-size:13.5px;cursor:pointer;color:{{ t.chipFg }};background:{{ t.chipBg }};border:1px solid {{ t.chipBd }};font-weight:{{ t.weight }}">{{ t.name }}</div>
+</sc-for>
+</div>
+<div class="sc">
+<sc-for list="{{ C.rows }}" as="d" hint-placeholder-count="5">
+<div style="display:flex;gap:17px;padding:20px 22px;border-bottom:1px solid rgba(240,235,225,.09);align-items:center">
+<div style="width:76px;height:76px;border-radius:50%;flex:none;background-color:#241F19;background-image:repeating-linear-gradient(135deg,rgba(210,162,76,.18) 0 5px,rgba(210,162,76,0) 5px 12px);display:flex;align-items:center;justify-content:center">
+<span style="font:8px ui-monospace,Menlo,monospace;color:rgba(240,235,225,.4);text-align:center">{{ d.tag }}</span>
+</div>
+<div style="flex:1;min-width:0">
+<div style="font-family:Newsreader,Georgia,serif;font-size:20px;line-height:1.2">{{ d.name }}</div>
+<div style="font-size:12px;color:#9A9287;line-height:1.5;margin-top:5px;text-wrap:pretty">{{ d.desc }}</div>
+<div style="display:flex;align-items:baseline;gap:10px;margin-top:10px">
+<span style="font-size:14px;font-weight:600;color:#D2A24C">{{ d.priceLabel }}</span>
+<span style="font-size:11.5px;color:#9A9287">{{ d.minsLabel }}</span>
+</div>
+</div>
+<div style="flex:none;display:flex;align-items:center">
+<sc-if value="{{ d.noQty }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ d.add }}" style="width:38px;height:38px;border-radius:50%;background:rgba(210,162,76,.14);border:1px solid rgba(210,162,76,.45);color:#D2A24C;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer">+</div>
+</sc-if>
+<sc-if value="{{ d.hasQty }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:12px;background:#D2A24C;color:#14120F;border-radius:999px;padding:9px 12px">
+<span onClick="{{ d.sub }}" style="cursor:pointer;font-size:15px;line-height:1">−</span>
+<span style="font-size:13px;font-weight:700;min-width:9px;text-align:center">{{ d.qty }}</span>
+<span onClick="{{ d.add }}" style="cursor:pointer;font-size:15px;line-height:1">+</span>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="flex:none">
+<sc-if value="{{ C.has }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;justify-content:space-between;background:#1D1A16;padding:16px 16px 16px 22px;border-top:1px solid rgba(210,162,76,.3)">
+<div>
+<div style="font-size:11.5px;color:#9A9287">{{ C.countLabel }}</div>
+<div style="font-family:Newsreader,Georgia,serif;font-size:23px;line-height:1.1;margin-top:2px">{{ C.totalLabel }}</div>
+</div>
+<div style="background:#D2A24C;color:#14120F;font-size:13.5px;font-weight:600;padding:13px 20px;border-radius:999px;cursor:pointer">View order</div>
+</div>
+</sc-if>
+<sc-if value="{{ C.empty }}" hint-placeholder-val="{{ false }}">
+<div style="background:#1D1A16;color:#9A9287;padding:20px;text-align:center;font-size:13px;border-top:1px solid rgba(240,235,225,.09)">Your order is empty</div>
+</sc-if>
+<div style="display:flex;background:#14120F;border-top:1px solid rgba(240,235,225,.09);padding:13px 0 26px">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:#D2A24C">Menu<div style="width:5px;height:5px;border-radius:50%;background:#D2A24C;margin:6px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Pay</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">3 · Order placed</div>
+<div class="ph" data-screen-label="1c Order placed" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="padding:13px 22px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(240,235,225,.45);border-radius:2px"></span>
+</div>
+<div style="padding:14px 22px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:Newsreader,Georgia,serif;font-size:25px;line-height:1.05">Order #1042</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:5px">The Golden Gate</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;color:#D2A24C;border:1px solid rgba(210,162,76,.4);padding:6px 11px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="display:flex;flex-direction:column;align-items:center;padding:14px 22px 26px">
+<div style="position:relative;width:184px;height:184px">
+<svg width="184" height="184" viewBox="0 0 184 184" style="display:block;transform:rotate(-90deg)">
+<circle cx="92" cy="92" r="82" fill="none" stroke="rgba(240,235,225,.12)" stroke-width="9"></circle>
+<circle cx="92" cy="92" r="82" fill="none" stroke="#D2A24C" stroke-width="9" stroke-dasharray="{{ clock.ring }}"></circle>
+</svg>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+<div style="font-size:11.5px;color:#9A9287">Ready in</div>
+<div style="font-size:40px;font-weight:500;letter-spacing:-.03em;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums">{{ clock.rem }}</div>
+</div>
+</div>
+<div style="font-size:12px;color:#9A9287;margin-top:16px">{{ promiseLabel }} · placed 9:04 pm</div>
+</div>
+<div style="padding:0 22px">
+<sc-for list="{{ stepsC }}" as="s" hint-placeholder-count="4">
+<div style="display:flex;gap:15px">
+<div style="width:12px;flex:none;display:flex;flex-direction:column;align-items:center">
+<div style="width:11px;height:11px;border-radius:50%;margin-top:5px;background:{{ s.dot }};border:1px solid {{ s.ring }}"></div>
+<div style="flex:1;width:1px;background:{{ s.line }}"></div>
+</div>
+<div style="padding-bottom:24px;flex:1">
+<div style="font-size:14.5px;font-weight:{{ s.weight }};color:{{ s.text }}">{{ s.name }}</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:3px">{{ s.time }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="margin:0 22px 24px;background:#1D1A16;border-radius:14px;padding:18px 18px 16px">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:14px">
+<span><span style="color:#9A9287;margin-right:10px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-weight:600">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(240,235,225,.12);margin-top:10px;padding-top:13px">
+<span style="font-size:12.5px;color:#9A9287">Total</span>
+<span style="font-family:Newsreader,Georgia,serif;font-size:24px">{{ subtotalLabel }}</span>
+</div>
+</div>
+</div>
+<div style="display:flex;background:#14120F;border-top:1px solid rgba(240,235,225,.09);padding:13px 0 26px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:#D2A24C">Order<div style="width:5px;height:5px;border-radius:50%;background:#D2A24C;margin:6px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">4 · Running late</div>
+<div class="ph" data-screen-label="1c Running late" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="padding:13px 22px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:31</span><span style="width:17px;height:9px;border:1px solid rgba(240,235,225,.45);border-radius:2px"></span>
+</div>
+<div style="padding:14px 22px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:Newsreader,Georgia,serif;font-size:25px;line-height:1.05">Order #1042</div>
+<div style="font-size:11.5px;color:#C9482F;margin-top:5px;font-weight:600">{{ clock.lateLabel }}</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;color:#C9482F;border:1px solid rgba(201,72,47,.45);padding:6px 11px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="display:flex;flex-direction:column;align-items:center;padding:14px 22px 22px">
+<div style="position:relative;width:184px;height:184px">
+<svg width="184" height="184" viewBox="0 0 184 184" style="display:block;transform:rotate(-90deg)">
+<circle cx="92" cy="92" r="82" fill="none" stroke="rgba(201,72,47,.22)" stroke-width="9"></circle>
+<circle cx="92" cy="92" r="82" fill="none" stroke="#C9482F" stroke-width="9" stroke-dasharray="{{ clock.ringFull }}"></circle>
+</svg>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+<div style="font-size:11.5px;color:#C9482F">Elapsed</div>
+<div style="font-size:40px;font-weight:500;letter-spacing:-.03em;line-height:1.1;margin-top:2px;color:#C9482F;font-variant-numeric:tabular-nums">{{ clock.elapsed }}</div>
+</div>
+</div>
+<div style="font-size:12px;color:#9A9287;margin-top:16px">{{ promiseLabel }} · placed 9:04 pm</div>
+<div style="font-size:13.5px;line-height:1.55;margin-top:20px;text-align:center;text-wrap:pretty">Sorry, your food is taking longer than we said. It's with the chef now.</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;align-self:stretch">
+<div style="text-align:center;border:1px solid rgba(240,235,225,.26);padding:15px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer">Report a problem</div>
+<div style="text-align:center;border:1px solid rgba(240,235,225,.26);padding:15px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer">Rate your order</div>
+</div>
+</div>
+<div style="padding:4px 22px 0">
+<sc-for list="{{ stepsLateC }}" as="s" hint-placeholder-count="4">
+<div style="display:flex;gap:15px">
+<div style="width:12px;flex:none;display:flex;flex-direction:column;align-items:center">
+<div style="width:11px;height:11px;border-radius:50%;margin-top:5px;background:{{ s.dot }};border:1px solid {{ s.ring }}"></div>
+<div style="flex:1;width:1px;background:{{ s.line }}"></div>
+</div>
+<div style="padding-bottom:24px;flex:1">
+<div style="font-size:14.5px;font-weight:{{ s.weight }};color:{{ s.text }}">{{ s.name }}</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:3px">{{ s.time }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;background:#14120F;border-top:1px solid rgba(240,235,225,.09);padding:13px 0 26px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:#C9482F">Order<div style="width:5px;height:5px;border-radius:50%;background:#C9482F;margin:6px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Pay</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">5 · Waiter · live orders</div>
+<div class="ph" data-screen-label="1c Waiter orders" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="padding:13px 22px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(240,235,225,.45);border-radius:2px"></span>
+</div>
+<div style="padding:14px 22px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:Newsreader,Georgia,serif;font-size:25px;line-height:1.05">Live orders</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:5px">Five open · two drinks pending</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;color:#D2A24C;border:1px solid rgba(210,162,76,.4);padding:6px 11px;border-radius:999px">Ada O.</div>
+</div>
+<div style="display:flex;gap:8px;padding:0 22px 14px;flex:none">
+<sc-for list="{{ C.wtabs }}" as="t" hint-placeholder-count="4">
+<div onClick="{{ t.pick }}" style="padding:8px 14px;border-radius:999px;font-size:12.5px;cursor:pointer;color:{{ t.chipFg }};background:{{ t.chipBg }};border:1px solid {{ t.chipBd }};font-weight:{{ t.weight }}">{{ t.name }}</div>
+</sc-for>
+</div>
+<div class="sc">
+<sc-for list="{{ C.waiter }}" as="w" hint-placeholder-count="5">
+<div style="margin:0 22px 10px;background:#1D1A16;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer">
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;gap:9px">
+<span style="font-family:Newsreader,Georgia,serif;font-size:21px">{{ w.table }}</span>
+<span style="font-size:11.5px;color:#9A9287">{{ w.no }}</span>
+</div>
+<div style="font-size:12px;color:#9A9287;margin-top:5px">{{ w.items }} · {{ w.totalLabel }}</div>
+</div>
+<div style="text-align:right;flex:none">
+<div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+<span style="width:7px;height:7px;border-radius:50%;background:{{ w.dot }}"></span>
+<span style="font-size:12.5px;font-weight:600;color:{{ w.dot }}">{{ w.status }}</span>
+</div>
+<div style="font-size:12px;color:#9A9287;margin-top:5px;font-variant-numeric:tabular-nums">{{ w.time }}</div>
+</div>
+</div>
+</sc-for>
+<div style="height:14px"></div>
+</div>
+<div style="display:flex;background:#14120F;border-top:1px solid rgba(240,235,225,.09);padding:13px 0 26px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:#D2A24C">Orders<div style="width:5px;height:5px;border-radius:50%;background:#D2A24C;margin:6px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Tables</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Menu</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">6 · Waiter · order open</div>
+<div class="ph" data-screen-label="1c Waiter order" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="padding:13px 22px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:04</span><span style="width:17px;height:9px;border:1px solid rgba(240,235,225,.45);border-radius:2px"></span>
+</div>
+<div style="padding:14px 22px 16px;flex:none">
+<div style="font-size:11.5px;color:#9A9287;cursor:pointer">Live orders</div>
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:7px">
+<div style="font-family:Newsreader,Georgia,serif;font-size:27px;line-height:1.05">Order #1042</div>
+<div style="font-size:11.5px;font-weight:600;color:#D2A24C;border:1px solid rgba(210,162,76,.4);padding:6px 11px;border-radius:999px">Table {{ table }}</div>
+</div>
+</div>
+<div class="sc">
+<div style="margin:0 22px;background:#1D1A16;border-radius:14px;padding:18px">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#9A9287">
+<span>Placed 9:04 pm</span><span style="color:#D2A24C;font-weight:600;font-variant-numeric:tabular-nums">{{ clock.rem }} left</span>
+</div>
+<div style="margin-top:14px">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-top:1px solid rgba(240,235,225,.1);font-size:14.5px">
+<span><span style="color:#9A9287;margin-right:10px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-size:11.5px;color:#9A9287">{{ o.minsLabel }}</span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;border-top:1px solid rgba(240,235,225,.12);padding-top:13px">
+<span style="font-size:12.5px;color:#9A9287">Total</span>
+<span style="font-family:Newsreader,Georgia,serif;font-size:23px">{{ subtotalLabel }}</span>
+</div>
+</div>
+<div style="padding:24px 22px 0">
+<div style="font-size:12.5px;color:#9A9287">Chef</div>
+<div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:10px">
+<sc-for list="{{ C.chefs }}" as="c" hint-placeholder-count="3">
+<div onClick="{{ c.pick }}" style="padding:11px 15px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }}">{{ c.name }}</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:22px 22px 0">
+<div style="font-size:12.5px;color:#9A9287">Bartender</div>
+<div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:10px">
+<sc-for list="{{ C.bars }}" as="c" hint-placeholder-count="2">
+<div onClick="{{ c.pick }}" style="padding:11px 15px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }}">{{ c.name }}</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:28px 22px 26px">
+<sc-if value="{{ C.notServed }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ C.serve }}" style="background:#D2A24C;color:#14120F;text-align:center;padding:18px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer">Mark as served</div>
+</sc-if>
+<sc-if value="{{ C.served }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ C.serve }}" style="border:1px solid rgba(210,162,76,.5);color:#D2A24C;text-align:center;padding:17px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer">Served at 9:26 pm</div>
+</sc-if>
+</div>
+</div>
+<div style="display:flex;background:#14120F;border-top:1px solid rgba(240,235,225,.09);padding:13px 0 26px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:#D2A24C">Orders<div style="width:5px;height:5px;border-radius:50%;background:#D2A24C;margin:6px auto 0"></div></div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Tables</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Menu</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">7 · Payment</div>
+<div class="ph" data-screen-label="1c Payment" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="padding:13px 22px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:38</span><span style="width:17px;height:9px;border:1px solid rgba(240,235,225,.45);border-radius:2px"></span>
+</div>
+<div style="padding:14px 22px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex:none">
+<div>
+<div style="font-family:Newsreader,Georgia,serif;font-size:25px;line-height:1.05">Pay</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:5px">Order #1042</div>
+</div>
+<div style="font-size:11.5px;font-weight:600;color:#D2A24C;border:1px solid rgba(210,162,76,.4);padding:6px 11px;border-radius:999px">Table {{ table }}</div>
+</div>
+<div class="sc">
+<div style="margin:0 22px;background:#1D1A16;border-radius:14px;padding:18px">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;font-size:14px">
+<span><span style="color:#9A9287;margin-right:10px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-weight:600">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="border-top:1px solid rgba(240,235,225,.12);margin-top:10px;padding-top:12px">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#9A9287;padding:4px 0">
+<span>Subtotal</span><span>{{ subtotalLabel }}</span>
+</div>
+<sc-if value="{{ showVat }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#9A9287;padding:4px 0">
+<span>VAT 7.5%</span><span>{{ vatLabel }}</span>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:12px">
+<span style="font-size:13.5px;font-weight:600">Total</span>
+<span style="font-family:Newsreader,Georgia,serif;font-size:32px;color:#D2A24C">{{ totalLabel }}</span>
+</div>
+</div>
+</div>
+<div style="padding:24px 22px 0">
+<div style="font-size:12.5px;color:#9A9287">How would you like to pay?</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:11px">
+<sc-for list="{{ C.methods }}" as="m" hint-placeholder-count="3">
+<div onClick="{{ m.pick }}" style="display:flex;align-items:center;gap:13px;padding:17px;border-radius:12px;cursor:pointer;background:{{ m.bg }};color:{{ m.fg }};border:1px solid {{ m.bd }}">
+<span style="width:16px;height:16px;border-radius:50%;flex:none;border:1px solid {{ m.ring }};background:{{ m.fill }};box-shadow:{{ m.inner }}"></span>
+<span style="font-size:14.5px;font-weight:{{ m.weight }}">{{ m.name }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:26px 22px 26px">
+<sc-if value="{{ C.payIdle }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ C.pay }}" style="background:#D2A24C;color:#14120F;text-align:center;padding:19px;border-radius:999px;font-size:15.5px;font-weight:600;cursor:pointer">{{ payLabel }}</div>
+</sc-if>
+<sc-if value="{{ C.payBusy }}" hint-placeholder-val="{{ false }}">
+<div style="background:rgba(210,162,76,.28);color:#F0EBE1;text-align:center;padding:19px;border-radius:999px;font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px">
+<span style="width:15px;height:15px;border-radius:50%;border:2px solid rgba(240,235,225,.3);border-top-color:#F0EBE1;animation:spin .7s linear infinite"></span>Taking payment
+</div>
+</sc-if>
+<sc-if value="{{ C.payDone }}" hint-placeholder-val="{{ false }}">
+<div style="border:1px solid rgba(210,162,76,.5);text-align:center;padding:18px;border-radius:14px">
+<div style="font-size:15.5px;font-weight:600;color:#D2A24C">Paid {{ totalLabel }}</div>
+<div style="font-size:12.5px;margin-top:5px;color:#9A9287">{{ C.method }} · 9:38 pm</div>
+</div>
+<div onClick="{{ C.reset }}" style="text-align:center;font-size:12.5px;color:#9A9287;margin-top:14px;cursor:pointer;text-decoration:underline">Start over</div>
+</sc-if>
+</div>
+</div>
+<div style="display:flex;background:#14120F;border-top:1px solid rgba(240,235,225,.09);padding:13px 0 26px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:#D2A24C">Pay<div style="width:5px;height:5px;border-radius:50%;background:#D2A24C;margin:6px auto 0"></div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div class="cap">8 · Receipt</div>
+<div class="ph" data-screen-label="1c Receipt" style="background:#14120F;font-family:'Space Grotesk',system-ui,sans-serif;color:#F0EBE1">
+<div class="scr">
+<div style="padding:13px 22px 0;display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;flex:none">
+<span>9:39</span><span style="width:17px;height:9px;border:1px solid rgba(240,235,225,.45);border-radius:2px"></span>
+</div>
+<div style="padding:14px 22px 18px;flex:none">
+<div style="font-family:Newsreader,Georgia,serif;font-size:25px;line-height:1.05">Paid</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:5px">Thank you. Your table is settled.</div>
+</div>
+<div class="sc">
+<div style="margin:0 22px;background:#1D1A16;border-radius:16px;overflow:hidden">
+<div style="padding:22px 20px 20px;text-align:center;border-bottom:1px dashed rgba(240,235,225,.2)">
+<div style="font-family:Newsreader,Georgia,serif;font-size:24px;line-height:1.15">The Golden Gate</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:6px;line-height:1.6">13 Ubah Street, Berger, Lagos<br>3 Sep 2026, 9:38 pm</div>
+<div style="font-size:11.5px;color:#9A9287;margin-top:5px">Order #1042 · Table {{ table }} · Receipt 0088</div>
+</div>
+<div style="padding:18px 20px 20px">
+<sc-for list="{{ order }}" as="o" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;font-size:14px">
+<span><span style="color:#9A9287;margin-right:10px">{{ o.qty }}×</span>{{ o.name }}</span>
+<span style="font-weight:600;font-variant-numeric:tabular-nums">{{ o.priceLabel }}</span>
+</div>
+</sc-for>
+<div style="border-top:1px solid rgba(240,235,225,.12);margin-top:10px;padding-top:12px">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#9A9287;padding:4px 0;font-variant-numeric:tabular-nums">
+<span>Subtotal</span><span>{{ subtotalLabel }}</span>
+</div>
+<sc-if value="{{ showVat }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#9A9287;padding:4px 0;font-variant-numeric:tabular-nums">
+<span>VAT 7.5%</span><span>{{ vatLabel }}</span>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:13px;border-top:1px solid rgba(240,235,225,.12);padding-top:14px">
+<span style="font-size:13.5px;font-weight:600">Paid by card</span>
+<span style="font-family:Newsreader,Georgia,serif;font-size:32px;color:#D2A24C;font-variant-numeric:tabular-nums">{{ totalLabel }}</span>
+</div>
+</div>
+</div>
+</div>
+<div style="padding:20px 22px 0">
+<div style="font-size:12px;color:#9A9287;line-height:1.6">Served by Ada O. · Chef {{ C.chef }} · Bar {{ C.bar }}</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;padding-bottom:26px">
+<div style="border:1px solid rgba(240,235,225,.26);text-align:center;padding:16px;border-radius:999px;font-size:14.5px;font-weight:600;cursor:pointer">Rate your order</div>
+<div style="border:1px solid rgba(240,235,225,.26);text-align:center;padding:16px;border-radius:999px;font-size:14.5px;font-weight:600;cursor:pointer">Email receipt</div>
+</div>
+</div>
+</div>
+<div style="display:flex;background:#14120F;border-top:1px solid rgba(240,235,225,.09);padding:13px 0 26px;flex:none">
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Menu</div>
+<div style="flex:1;text-align:center;font-size:12px;color:#9A9287">Order</div>
+<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:#D2A24C">Pay<div style="width:5px;height:5px;border-radius:50%;background:#D2A24C;margin:6px auto 0"></div></div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "take <a class="dv-oid" href="#1a">1a</a> further" · "swap the countdown from <a class="dv-oid" href="#1c">1c</a> into <a class="dv-oid" href="#1b">1b</a>" · "tighten the density everywhere"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tableNumber&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;12&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Content&quot;},&quot;promiseMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:20,&quot;min&quot;:5,&quot;max&quot;:60,&quot;unit&quot;:&quot;min&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Content&quot;},&quot;showVat&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Content&quot;}}">
+class Component extends DCLogic {
+  MENU = [
+    {id:'steak',cat:'Mains',name:'Grilled steak',desc:'Sirloin with pepper sauce and chips',price:8500,mins:22,tag:'steak'},
+    {id:'catfish',cat:'Mains',name:'Grilled catfish',desc:'Whole, roasted plantain, pepper sauce',price:7000,mins:20,tag:'catfish'},
+    {id:'egusi',cat:'Mains',name:'Pounded yam and egusi',desc:'Goat meat and stockfish',price:5500,mins:18,tag:'egusi'},
+    {id:'jollof',cat:'Mains',name:'Jollof rice',desc:'Grilled chicken and fried plantain',price:3500,mins:12,tag:'jollof'},
+    {id:'benedict',cat:'Mains',name:'Eggs benedict',desc:'Poached eggs and hollandaise',price:5000,mins:10,tag:'eggs'},
+    {id:'peppersoup',cat:'Soups',name:'Goat pepper soup',desc:'Hot light broth with scent leaf',price:4000,mins:14,tag:'pepper soup'},
+    {id:'chapman',cat:'Drinks',name:'Chapman',desc:'Mixed fruit cocktail with bitters',price:3500,mins:4,tag:'chapman'},
+    {id:'mojito',cat:'Drinks',name:'Mojito',desc:'Lime and mint',price:4000,mins:5,tag:'mojito'},
+    {id:'merlot',cat:'Drinks',name:'Merlot 2018',desc:'French red, by the glass',price:6000,mins:3,tag:'merlot'},
+    {id:'zobo',cat:'Drinks',name:'Zobo',desc:'Hibiscus with ginger',price:1500,mins:4,tag:'zobo'}
+  ];
+  CATS = ['Mains','Soups','Drinks'];
+  WTABS = ['All','Cooking','Late','Served'];
+  CHEFS = ['Emeka Obi','Tunde Bello','Amaka Nwosu'];
+  BARS = ['Ify Chukwu','Sade Balogun'];
+  METHODS = ['Card','Bank transfer','Cash at the till'];
+  ORDER = [{qty:1,id:'jollof'},{qty:1,id:'catfish'},{qty:2,id:'chapman'}];
+  LIVE = [
+    {table:'Table 4',no:'#1039',items:'3 items',total:12500,status:'Ready',time:'Ready now',tone:'ready',group:'Cooking'},
+    {table:'Table 7',no:'#1041',items:'5 items',total:24000,status:'Late',time:'6 min late',tone:'late',group:'Late'},
+    {table:'Table 12',no:'#1042',items:'3 items',total:17500,status:'In the kitchen',time:'',tone:'run',group:'Cooking',live:true},
+    {table:'Table 9',no:'#1043',items:'4 items',total:19500,status:'Just placed',time:'20 min left',tone:'run',group:'Cooking'},
+    {table:'Table 2',no:'#1040',items:'2 items',total:7500,status:'Served',time:'Served 8:52 pm',tone:'served',group:'Served'}
+  ];
+  TONES = {
+    A:{ready:'#1E4633',late:'#B4502F',run:'#6E7C71',served:'rgba(23,37,28,.3)'},
+    B:{ready:'#1B47B4',late:'#A32118',run:'#131313',served:'rgba(19,19,19,.35)'},
+    C:{ready:'#D2A24C',late:'#C9482F',run:'#9A9287',served:'rgba(240,235,225,.3)'}
+  };
+  SEL = {
+    A:{on:{bg:'#1E4633',fg:'#F7F2E8',bd:'#1E4633'},off:{bg:'transparent',fg:'#17251C',bd:'rgba(23,37,28,.25)'},tab:{on:'#17251C',off:'#6E7C71',bdOn:'#1E4633',bdOff:'transparent'}},
+    B:{on:{bg:'#131313',fg:'#FAF8F4',bd:'#131313'},off:{bg:'transparent',fg:'#131313',bd:'rgba(19,19,19,.3)'},tab:{on:'#131313',off:'rgba(19,19,19,.5)',bdOn:'#1B47B4',bdOff:'transparent'}},
+    C:{on:{bg:'#D2A24C',fg:'#14120F',bd:'#D2A24C'},off:{bg:'transparent',fg:'#F0EBE1',bd:'rgba(240,235,225,.28)'},tab:{on:'#F0EBE1',off:'#9A9287',bdOn:'#D2A24C',bdOff:'transparent'}}
+  };
+  state = {
+    t:0,
+    tabA:'Mains', tabB:'Mains', tabC:'Mains',
+    wtabA:'All', wtabB:'All', wtabC:'All',
+    cA:{jollof:1,catfish:1,chapman:2}, cB:{jollof:1,catfish:1,chapman:2}, cC:{jollof:1,catfish:1,chapman:2},
+    chefA:'Emeka Obi', chefB:'Emeka Obi', chefC:'Emeka Obi',
+    barA:'Ify Chukwu', barB:'Ify Chukwu', barC:'Ify Chukwu',
+    servedA:false, servedB:false, servedC:false,
+    mA:'Card', mB:'Card', mC:'Card',
+    payA:'idle', payB:'idle', payC:'idle'
+  };
+  componentDidMount(){ this.timer = setInterval(() => this.setState(s => ({t:s.t+1})), 1000); }
+  componentWillUnmount(){ clearInterval(this.timer); }
+  naira(n){ return '\u20A6' + Math.round(n).toLocaleString('en-US'); }
+  mmss(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+  dish(id){ return this.MENU.find(d => d.id === id); }
+
+  pack(k){
+    const S = this.state, sel = this.SEL[k], tones = this.TONES[k];
+    const tab = S['tab'+k], cart = S['c'+k];
+    const bump = (id,delta) => this.setState(s => {
+      const c = Object.assign({}, s['c'+k]);
+      const q = (c[id]||0) + delta;
+      if (q <= 0) delete c[id]; else c[id] = q;
+      const o = {}; o['c'+k] = c; return o;
+    });
+    const rows = this.MENU.filter(d => d.cat === tab).map(d => {
+      const q = cart[d.id] || 0;
+      return Object.assign({}, d, {
+        priceLabel:this.naira(d.price), minsLabel:d.mins + ' min',
+        qty:q, hasQty:q > 0, noQty:q === 0,
+        add:() => bump(d.id, 1), sub:() => bump(d.id, -1)
+      });
+    });
+    const ids = Object.keys(cart);
+    const count = ids.reduce((a,id) => a + cart[id], 0);
+    const total = ids.reduce((a,id) => a + cart[id] * this.dish(id).price, 0);
+    const mkTabs = (list, key, val) => list.map(name => ({
+      name, active:name === val,
+      color:name === val ? sel.tab.on : sel.tab.off,
+      weight:name === val ? 700 : 400,
+      bd:name === val ? sel.tab.bdOn : sel.tab.bdOff,
+      chipBg:name === val ? sel.on.bg : sel.off.bg,
+      chipFg:name === val ? sel.on.fg : sel.off.fg,
+      chipBd:name === val ? sel.on.bd : sel.off.bd,
+      pick:() => { const o = {}; o[key+k] = name; this.setState(o); }
+    }));
+    const chip = (name, on, key) => Object.assign({name, active:on}, on ? sel.on : sel.off, {
+      pick:() => { const o = {}; o[key+k] = name; this.setState(o); }
+    });
+    const wtab = S['wtab'+k];
+    const rem = this.mmss(Math.max(0, this.promiseSec() - 332 - this.state.t));
+    const pay = S['pay'+k];
+    return {
+      rows,
+      tabs:mkTabs(this.CATS, 'tab', tab),
+      wtabs:mkTabs(this.WTABS, 'wtab', wtab),
+      count, empty:count === 0, has:count > 0,
+      countLabel:count === 1 ? '1 item' : count + ' items',
+      totalLabel:this.naira(total),
+      waiter:this.LIVE.filter(w => wtab === 'All' || w.group === wtab).map(w => Object.assign({}, w, {
+        dot:tones[w.tone], totalLabel:this.naira(w.total), time:w.live ? rem + ' left' : w.time
+      })),
+      chefs:this.CHEFS.map(n => chip(n, n === S['chef'+k], 'chef')),
+      bars:this.BARS.map(n => chip(n, n === S['bar'+k], 'bar')),
+      chef:S['chef'+k], bar:S['bar'+k],
+      served:S['served'+k], notServed:!S['served'+k],
+      serve:() => { const o = {}; o['served'+k] = !S['served'+k]; this.setState(o); },
+      methods:this.METHODS.map(n => {
+        const on = n === S['m'+k];
+        return {
+          name:n, bg:on ? sel.on.bg : 'transparent',
+          bd:on ? sel.on.bd : sel.off.bd,
+          fg:on ? sel.on.fg : sel.off.fg,
+          ring:on ? sel.on.fg : sel.off.bd,
+          fill:on ? sel.on.fg : 'transparent',
+          inner:on ? 'inset 0 0 0 3px ' + sel.on.bg : 'none',
+          weight:on ? 700 : 400,
+          pick:() => { const o = {}; o['m'+k] = n; this.setState(o); }
+        };
+      }),
+      method:S['m'+k],
+      payIdle:pay === 'idle', payBusy:pay === 'busy', payDone:pay === 'done',
+      pay:() => {
+        const busy = {}; busy['pay'+k] = 'busy'; this.setState(busy);
+        setTimeout(() => { const d = {}; d['pay'+k] = 'done'; this.setState(d); }, 1500);
+      },
+      reset:() => { const o = {}; o['pay'+k] = 'idle'; this.setState(o); }
+    };
+  }
+
+  promiseSec(){ return (this.props.promiseMinutes || 20) * 60; }
+
+  stepper(state, palette){
+    const rows = [
+      {name:'Order placed', time:'9:04 pm', done:true},
+      {name:'In the kitchen', time:state === 'late' ? 'Since 9:06 pm' : '9:06 pm', done:true, current:true},
+      {name:'Ready to serve', time:state === 'late' ? 'Any moment' : 'About 9:24 pm'},
+      {name:'Served', time:'At your table'}
+    ];
+    const accent = state === 'late' ? palette.late : palette.accent;
+    return rows.map((r,i) => ({
+      name:r.name, time:r.time,
+      dot:r.done ? accent : 'transparent',
+      ring:r.done ? accent : palette.line,
+      line:i === rows.length - 1 ? 'transparent' : (r.done ? accent : palette.line),
+      text:r.done ? palette.ink : palette.muted,
+      weight:r.current ? 700 : 400
+    }));
+  }
+
+  renderVals(){
+    const t = this.state.t;
+    const promise = this.promiseSec();
+    const rem = Math.max(0, promise - 332 - t);
+    const over = 384 + t;
+    const subtotal = this.ORDER.reduce((a,o) => a + o.qty * this.dish(o.id).price, 0);
+    const showVat = this.props.showVat !== false;
+    const vat = Math.round(subtotal * 0.075);
+    const total = subtotal + (showVat ? vat : 0);
+    const pA = {accent:'#1E4633', late:'#B4502F', ink:'#17251C', muted:'#6E7C71', line:'rgba(23,37,28,.28)'};
+    const pB = {accent:'#1B47B4', late:'#A32118', ink:'#131313', muted:'rgba(19,19,19,.55)', line:'rgba(19,19,19,.28)'};
+    const pC = {accent:'#D2A24C', late:'#C9482F', ink:'#F0EBE1', muted:'#9A9287', line:'rgba(240,235,225,.25)'};
+    const ringLen = 2 * Math.PI * 82;
+    return {
+      table:this.props.tableNumber || '12',
+      promiseLabel:'Promised in ' + (promise/60) + ' minutes',
+      promiseShort:(promise/60) + ' min',
+      clock:{
+        rem:this.mmss(rem),
+        remMin:Math.ceil(rem/60) + ' min',
+        pct:Math.min(100, Math.round((promise - rem) / promise * 1000) / 10),
+        promisePct:Math.round(promise / (promise + over) * 1000) / 10,
+        overPct:Math.round(over / (promise + over) * 1000) / 10,
+        elapsed:this.mmss(promise + over),
+        lateLabel:Math.floor(over/60) + ' minutes late',
+        overLabel:'+' + this.mmss(over),
+        ring:(rem / promise * ringLen).toFixed(1) + ' ' + ringLen.toFixed(1),
+        ringFull:ringLen.toFixed(1) + ' ' + ringLen.toFixed(1)
+      },
+      steps:this.stepper('run', pA), stepsLate:this.stepper('late', pA),
+      stepsB:this.stepper('run', pB), stepsLateB:this.stepper('late', pB),
+      stepsC:this.stepper('run', pC), stepsLateC:this.stepper('late', pC),
+      order:this.ORDER.map(o => {
+        const d = this.dish(o.id);
+        return {qty:o.qty, name:d.name, minsLabel:d.mins + ' min', priceLabel:this.naira(o.qty * d.price)};
+      }),
+      subtotalLabel:this.naira(subtotal), vatLabel:this.naira(vat), totalLabel:this.naira(total),
+      payLabel:'Pay ' + this.naira(total), showVat,
+      A:this.pack('A'), B:this.pack('B'), C:this.pack('C')
+    };
+  }
+}
+</script>
+</body>
+</html>

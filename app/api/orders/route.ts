@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { assertUnderLimit, windowStart } from "@/lib/rate-limit";
 import { orderCreateSchema, parseWith } from "@/lib/schemas";
 import { requireCustomer } from "@/lib/session";
+import { vatKobo } from "@/lib/money";
 import { calculateWaitMinutes } from "@/lib/wait-time";
 
 const ORDERS_PER_WINDOW = 5;
@@ -52,7 +53,10 @@ export function POST(request: Request) {
       throw new HttpError(400, `Not on the menu right now: ${missing.join(", ")}. Reload the menu and order again.`);
     }
 
-    const lines = menuItems.map((menuItem) => {
+    // Lines in the order the guest added them, which is the order they read back in.
+    const byId = new Map(menuItems.map((m) => [m.id, m]));
+    const lines = [...wanted.keys()].map((id) => {
+      const menuItem = byId.get(id)!;
       const quantity = wanted.get(menuItem.id) ?? 0;
       return {
         menuItemId: menuItem.id,
@@ -62,14 +66,17 @@ export function POST(request: Request) {
         prepTimeMinutes: menuItem.prepTimeMinutes,
       };
     });
-    const totalKobo = lines.reduce((sum, line) => sum + line.subtotalKobo, 0);
+    // The total carries VAT at 7.5%, rounded to whole naira. Subtotal and VAT are read
+    // back from the lines and the total; nothing is stored twice.
+    const subtotalKobo = lines.reduce((sum, line) => sum + line.subtotalKobo, 0);
+    const totalKobo = subtotalKobo + vatKobo(subtotalKobo);
     const waitMinutes = calculateWaitMinutes(lines);
 
-    // The reference is sequential and human readable (CHW-0007). Two orders placed in the
-    // same instant can pick the same number; the unique constraint catches it and the
-    // insert is retried with a fresh count.
+    // The reference is a sequential order number from 1001, shown as "#1042". Two orders
+    // placed in the same instant can pick the same number; the unique constraint catches
+    // it and the insert is retried with a fresh count.
     for (let attempt = 0; attempt < 5; attempt++) {
-      const reference = `CHW-${String((await prisma.order.count()) + 1).padStart(4, "0")}`;
+      const reference = String(1001 + (await prisma.order.count()));
       try {
         const order = await prisma.$transaction(async (tx) => {
           const created = await tx.order.create({

@@ -1,16 +1,7 @@
 import { NextResponse } from "next/server";
+import { HttpError } from "./errors";
 
-// An error that already knows its HTTP status. Route handlers throw these and the
-// handle() wrapper turns them into JSON, so the message a person reads is the one the
-// code chose, never a stack trace.
-export class HttpError extends Error {
-  readonly status: number;
-
-  constructor(status: number, message: string) {
-    super(message);
-    this.status = status;
-  }
-}
+export { HttpError };
 
 export function jsonError(status: number, message: string): NextResponse {
   return NextResponse.json({ error: message }, { status });

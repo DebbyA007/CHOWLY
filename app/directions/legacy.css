@@ -1,0 +1,195 @@
+
+/*
+  Legacy: The Pass tokens and utilities, kept only for the frozen prototypes under
+  /directions. The product is Night Service; see app/globals.css.
+
+  The customer stands on the kitchen side of the pass. Brushed steel is the room, brass
+  is the rail, thermal paper is everything printed, and the heat lamp is the clock. The
+  lamp's light warms toward amber on a fresh order and cools and dims as the order runs
+  late, slowly, like a lamp that has been on too long. Never a red alert.
+*/
+.legacy {
+  --steel: #3a3d40;
+  --steel-dark: #2c2f31;
+  --steel-light: #4b4f53;
+  --brass: #b08a3e;
+  --brass-dark: #7d5f26;
+  --brass-light: #d6b466;
+  --soot: #1b1a18;
+  --ink: #2a2622;
+  --ink-soft: #625a4f;
+  /* The bright accents are for stamps and button faces with paper text on them. Text on
+     paper uses the ink versions, which hold 4.5:1 on paper at its most aged. */
+  --char: #c9362a;
+  --char-ink: #9b2a20;
+  --served: #3f7d5a;
+  --served-ink: #2f6647;
+
+  /* Heat. --heat runs from 1 (a lamp just switched on over a fresh order) down to 0 (a
+     lamp that has been on far too long). Every colour that belongs to the lamp is mixed
+     from these two ends by that one number, so the whole screen shifts together. */
+  --heat: 1;
+  --lamp-warm: #f2a93b;
+  --lamp-cool: #b8ad90;
+  --paper-fresh: #f4eedd;
+  --paper-aged: #e4d9bf;
+  --lamp: var(--lamp-warm);
+  --paper: var(--paper-fresh);
+  --lamp-opacity: 0.6;
+
+  --font-display: var(--font-fraunces), "Fraunces", Georgia, serif;
+  --font-print: var(--font-plex), "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.legacy-theme {
+  --color-steel: var(--steel);
+  --color-steel-dark: var(--steel-dark);
+  --color-steel-light: var(--steel-light);
+  --color-brass: var(--brass);
+  --color-brass-dark: var(--brass-dark);
+  --color-brass-light: var(--brass-light);
+  --color-soot: var(--soot);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-char: var(--char);
+  --color-char-ink: var(--char-ink);
+  --color-served: var(--served);
+  --color-served-ink: var(--served-ink);
+  --color-lamp: var(--lamp);
+  --color-paper: var(--paper);
+}
+
+/* Brushed steel: fine horizontal lines, light and dark, never perfectly even. */
+.steel {
+  background-color: var(--steel);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='23'%3E%3Cg stroke-width='1'%3E%3Cpath d='M0 2.5 H320' stroke='%23ffffff' stroke-opacity='0.07'/%3E%3Cpath d='M0 6.5 H320' stroke='%23000000' stroke-opacity='0.12'/%3E%3Cpath d='M0 9.5 H320' stroke='%23ffffff' stroke-opacity='0.04'/%3E%3Cpath d='M0 13.5 H320' stroke='%23000000' stroke-opacity='0.08'/%3E%3Cpath d='M0 16.5 H320' stroke='%23ffffff' stroke-opacity='0.09'/%3E%3Cpath d='M0 20.5 H320' stroke='%23000000' stroke-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Thermal paper. Takes the heat: fresh cream under a warm lamp, aged under a cool one.
+   Faint print ruling every 28px, drawn as a pattern like the steel grain, not a gradient. The colour glides over a second so the per-second
+   ticks of the clock never step; under reduced motion it takes one slow step instead. */
+.paper {
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='28'%3E%3Crect y='27' width='4' height='1' fill='%232a2622' fill-opacity='0.06'/%3E%3C/svg%3E");
+  color: var(--ink);
+  transition: background-color 1000ms linear;
+}
+
+/* Torn edges: a zigzag cut, top or bottom, the way a receipt leaves the printer. */
+.torn-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), 97% 100%, 94% calc(100% - 12px), 91% 100%, 88% calc(100% - 12px), 85% 100%, 82% calc(100% - 12px), 79% 100%, 76% calc(100% - 12px), 73% 100%, 70% calc(100% - 12px), 67% 100%, 64% calc(100% - 12px), 61% 100%, 58% calc(100% - 12px), 55% 100%, 52% calc(100% - 12px), 49% 100%, 46% calc(100% - 12px), 43% 100%, 40% calc(100% - 12px), 37% 100%, 34% calc(100% - 12px), 31% 100%, 28% calc(100% - 12px), 25% 100%, 22% calc(100% - 12px), 19% 100%, 16% calc(100% - 12px), 13% 100%, 10% calc(100% - 12px), 7% 100%, 4% calc(100% - 12px), 1% 100%, 0 calc(100% - 12px));
+  padding-bottom: 26px;
+}
+.torn-top {
+  clip-path: polygon(0 12px, 3% 0, 6% 12px, 9% 0, 12% 12px, 15% 0, 18% 12px, 21% 0, 24% 12px, 27% 0, 30% 12px, 33% 0, 36% 12px, 39% 0, 42% 12px, 45% 0, 48% 12px, 51% 0, 54% 12px, 57% 0, 60% 12px, 63% 0, 66% 12px, 69% 0, 72% 12px, 75% 0, 78% 12px, 81% 0, 84% 12px, 87% 0, 90% 12px, 93% 0, 96% 12px, 99% 0, 100% 12px, 100% 100%, 0 100%);
+  padding-top: 24px;
+}
+.torn-both {
+  clip-path: polygon(0 12px, 3% 0, 6% 12px, 9% 0, 12% 12px, 15% 0, 18% 12px, 21% 0, 24% 12px, 27% 0, 30% 12px, 33% 0, 36% 12px, 39% 0, 42% 12px, 45% 0, 48% 12px, 51% 0, 54% 12px, 57% 0, 60% 12px, 63% 0, 66% 12px, 69% 0, 72% 12px, 75% 0, 78% 12px, 81% 0, 84% 12px, 87% 0, 90% 12px, 93% 0, 96% 12px, 99% 0, 100% 12px, 100% calc(100% - 12px), 97% 100%, 94% calc(100% - 12px), 91% 100%, 88% calc(100% - 12px), 85% 100%, 82% calc(100% - 12px), 79% 100%, 76% calc(100% - 12px), 73% 100%, 70% calc(100% - 12px), 67% 100%, 64% calc(100% - 12px), 61% 100%, 58% calc(100% - 12px), 55% 100%, 52% calc(100% - 12px), 49% 100%, 46% calc(100% - 12px), 43% 100%, 40% calc(100% - 12px), 37% 100%, 34% calc(100% - 12px), 31% 100%, 28% calc(100% - 12px), 25% 100%, 22% calc(100% - 12px), 19% 100%, 16% calc(100% - 12px), 13% 100%, 10% calc(100% - 12px), 7% 100%, 4% calc(100% - 12px), 1% 100%, 0 calc(100% - 12px));
+  padding-top: 24px;
+  padding-bottom: 26px;
+}
+
+/* Brass: a flat face with two machined edges. Not a gradient. */
+.brass-bar {
+  background: var(--brass);
+  border-top: 3px solid var(--brass-light);
+  border-bottom: 4px solid var(--brass-dark);
+}
+.brass-plate {
+  background: var(--brass);
+  color: var(--soot);
+  border: 2px solid var(--brass-dark);
+  box-shadow: inset 0 2px 0 var(--brass-light);
+}
+
+/* Display type: Fraunces with its soft and wonk axes up, the only curve in the room. */
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.display-print {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 60, "WONK" 0, "opsz" 48;
+  font-weight: 600;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Buttons are stamped: a flat face, a hard offset, and they press in. */
+.stamp-button {
+  font-family: var(--font-print);
+  font-weight: 700;
+  border: 3px solid var(--soot);
+  box-shadow: 4px 4px 0 var(--soot);
+  transition: transform 100ms ease, box-shadow 100ms ease;
+}
+.stamp-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--soot);
+}
+.stamp-button:disabled {
+  opacity: 0.6;
+  transform: none;
+  box-shadow: 4px 4px 0 var(--soot);
+}
+
+.legacy {
+  color: var(--paper-fresh);
+  font-family: var(--font-print);
+  min-height: 100dvh;
+}
+
+/* Keyboard focus is a heat-coloured ring on steel and a char ring on paper. */
+:focus-visible {
+  outline: 3px solid var(--lamp-warm);
+  outline-offset: 3px;
+}
+.paper :focus-visible,
+.paper:focus-visible {
+  outline-color: var(--char);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper,
+  .heat-transition {
+    transition-duration: 2000ms;
+  }
+}
+
+/* A screen that takes the heat. The derived colours are declared here, on the element
+   that carries --heat, because a custom property resolves where it is declared: on
+   :root they would be mixed once with the root's heat and inherited already decided. */
+.heat {
+  --lamp: color-mix(in oklab, var(--lamp-warm), var(--lamp-cool) calc((1 - var(--heat)) * 100%));
+  --paper: color-mix(in oklab, var(--paper-fresh), var(--paper-aged) calc((1 - var(--heat)) * 100%));
+  --lamp-opacity: calc(0.2 + var(--heat) * 0.4);
+}
+.heat .ticket {
+  transition: background-color 1000ms linear, transform 2000ms ease;
+}
+.lamp-pool {
+  transition: fill 1000ms linear, fill-opacity 1000ms linear, transform 1000ms linear;
+}
+/* Ticket states the stylesheet answers on its own. Paid: the lamp goes out. Late: the
+   paper has hung long enough to curl a little. */
+.heat[data-state="paid"] {
+  --lamp-opacity: 0.06;
+}
+.heat[data-state="late"] .ticket {
+  transform: rotate(0.6deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .heat .ticket,
+  .lamp-pool {
+    transition-duration: 2000ms;
+  }
+}
+
+.legacy .text-brass-light { color: var(--brass-light); }
+.legacy .text-ink-soft { color: var(--ink-soft); }
+.legacy .text-paper\/85 { color: rgba(244, 238, 221, 0.85); }
+.legacy .display { font-family: var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; font-weight: 500; letter-spacing: -0.02em; }
