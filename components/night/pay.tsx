@@ -14,6 +14,7 @@ import { selectOrder } from "./selection";
 import { ConnectionBar, useFreshness } from "./connection";
 import { isPending } from "./pending";
 import { PaySkeleton } from "./skeleton";
+import { receiptFileName, renderReceipt } from "./receipt-image";
 import { useArrival } from "./arrival";
 
 type Method = "CARD" | "MOBILE_MONEY" | "CASH";
@@ -191,6 +192,63 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
   const payment = order.payment!;
   const method = METHODS.find((m) => m.value === payment.method) ?? METHODS[0]!;
   const entrance = useArrival();
+  // The image is drawn as soon as the receipt is on screen and kept, so the button can
+  // hand it straight to the share sheet: iOS only accepts a share inside the tap that
+  // asked for it, and drawing first would spend that.
+  const file = useRef<File | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
+  useEffect(() => {
+    let dropped = false;
+    void renderReceipt(order).then((blob) => {
+      if (!blob || dropped) return;
+      file.current = new File([blob], receiptFileName(order), { type: "image/png" });
+    });
+    return () => {
+      dropped = true;
+    };
+  }, [order]);
+  async function save() {
+    setSaved(null);
+    let ready = file.current;
+    if (!ready) {
+      setSaving(true);
+      const blob = await renderReceipt(order);
+      setSaving(false);
+      if (!blob) {
+        setSaved("The receipt could not be saved. Take a screenshot instead.");
+        return;
+      }
+      ready = new File([blob], receiptFileName(order), { type: "image/png" });
+      file.current = ready;
+    }
+    // The share sheet is the way a phone saves a picture, and on iOS it is the only one
+    // that reliably puts it in Photos. A browser without it gets a plain download.
+    try {
+      if (navigator.canShare?.({ files: [ready] })) {
+        await navigator.share({ files: [ready], title: `CHOWLY receipt ${payment.receiptNo ?? ""}`.trim() });
+        return;
+      }
+    } catch (e) {
+      if ((e as Error)?.name === "AbortError") return;
+    }
+    try {
+      const url = URL.createObjectURL(ready);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = ready.name;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      // the link has to outlive the click: removing it in the same tick cancels the
+      // download in some engines
+      window.setTimeout(() => link.remove(), 0);
+      window.setTimeout(() => URL.revokeObjectURL(url), 20_000);
+      setSaved("Saved to your downloads.");
+    } catch {
+      setSaved("The receipt could not be saved. Take a screenshot instead.");
+    }
+  }
   useLayoutEffect(() => {
     const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
       const parts = [".receipt", ".line", ".stamp", ".after"];
@@ -260,7 +318,9 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
           {order.rating ? (
             <p className="mt-3 text-[13.5px] leading-[1.55]" data-rating>You rated it <span className="font-semibold">{order.rating.score} of 5</span>{order.rating.comment ? `. ${order.rating.comment}` : "."}</p>
           ) : null}
+          {saved ? <p role="status" className="mt-3 text-[12.5px] leading-[1.5] text-fg-muted">{saved}</p> : null}
           <div className="mt-5 flex flex-col gap-[10px] pb-[26px]">
+            <button type="button" data-save-receipt onClick={save} disabled={saving} className="btn-outline press !py-4 !text-[14.5px]">{saving ? "Preparing the receipt" : "Save the receipt"}</button>
             <button type="button" data-rate-open onClick={() => setRating(true)} className="btn-outline press !py-4 !text-[14.5px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
             <Link href="/menu" data-go-menu className="btn-outline press !py-4 !text-[14.5px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
           </div>

@@ -2224,3 +2224,44 @@ escape from under the splash reproduced either way; the fix covers both.
   guest never polled the change in. The evidence now serves over the same open route
   the waiter's button calls, from the guest's own page, so the guest stays focused and
   the transition is captured as it really runs.
+
+### Commit: `feat: the receipt can be saved to the phone`
+
+- **No dependency was added.** The two obvious packages, `html2canvas` and
+  `html-to-image`, were both rejected. `html-to-image` serialises the node into an SVG
+  `foreignObject`, which on iOS Safari, the device this is for, drops self-hosted
+  webfonts often enough not to be trusted; `html2canvas` reimplements CSS painting and
+  reproduces neither the `clip-path` that tears the foot nor an SVG background image,
+  which is what the fibre and the ruled lines are. Both would also have been dead weight
+  in the bundle. The receipt is drawn again on a canvas instead, about two hundred
+  lines, in `components/night/receipt-image.ts`. It is exact, it behaves the same in
+  every engine, and because it is drawn rather than captured the file is sharp at
+  whatever scale is asked for instead of a screenshot blown up. The project rule is to
+  prefer thirty lines over a package; this was two hundred, and worth it.
+- The file carries what the receipt carries: the restaurant and address, the date and
+  time, "Order #1023 · Table 12 · Receipt 0005", every line with its price, the subtotal,
+  VAT, "Paid by card" against the total struck into the paper, "Pretend payment. No
+  money moved.", and who served, cooked and mixed. The paper is there too: the fibre
+  from the same fixed sequence, the perforation under the header, the ruled lines at the
+  same uneven widths and weights the stylesheet uses, the numerals struck with the same
+  bone highlight, the PAID stamp at its eight degrees, and the torn foot.
+- One drawing pass both measures and paints, so the canvas is exactly as tall as the
+  paper and the two can never disagree.
+- **Saving on a phone.** The share sheet is tried first, because on iOS it is the only
+  thing that puts a picture in Photos, and a plain download is the fallback. iOS only
+  honours a share inside the tap that asked for it, so the image is drawn and kept the
+  moment the receipt appears and the button hands over a file it already has. A share
+  the person cancels is left alone rather than turned into a download they did not ask
+  for.
+- **What the iOS testing does and does not prove.** There is no iPhone here, so this was
+  tested in Playwright's WebKit with an iPhone 13 profile, which is the same engine
+  family as Mobile Safari but not the same browser. Both paths were driven: the share
+  sheet was stubbed so the call could be observed and it received
+  `chowly-receipt-0006-order-1024.png`, `image/png`, 143585 bytes; with sharing reported
+  unavailable the download ran and the file arrived, 1170 by 1251 at a device pixel
+  ratio of 3. Chromium gave the same, 1170 by 1251. What that does not prove is the
+  behaviour of the real iOS share sheet, which cannot be driven from a test: on a device
+  the sheet should offer "Save Image". Two things were fixed along the way that would
+  have bitten there: the anchor was being removed in the same tick as its click, which
+  cancels the download in some engines, and the image is now prepared ahead of the tap
+  rather than during it.
