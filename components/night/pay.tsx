@@ -11,6 +11,9 @@ import { ActionSheet } from "./order";
 import { preloadMenu } from "./use-menu";
 import { useMyOrders, useOrder } from "./use-order";
 import { selectOrder } from "./selection";
+import { ConnectionBar, useFreshness } from "./connection";
+import { isPending } from "./pending";
+import { PaySkeleton } from "./skeleton";
 
 type Method = "CARD" | "MOBILE_MONEY" | "CASH";
 const METHODS: { value: Method; label: string; paid: string }[] = [
@@ -26,11 +29,12 @@ export function PayScreen({ id }: { id?: string } = {}) {
   useEffect(() => {
     if (id) selectOrder(id);
   }, [id]);
-  const o = useOrder(mine.current?.id ?? null);
+  const o = useOrder(mine.current && !isPending(mine.current.id) ? mine.current.id : null);
   const order = o.order ?? mine.current;
+  const fresh = useFreshness(o.error ?? mine.error, o.seenAt ?? mine.seenAt);
   return (
     <>
-      {!order ? <NoOrder loaded={mine.loaded} /> : order.payment ? <Receipt order={order} api={o} /> : <PayBody order={order} api={o} />}
+      {!order ? (mine.loaded ? <NoOrder /> : <PaySkeleton />) : isPending(order.id) ? <NoOrder sending /> : order.payment ? <Receipt order={order} api={o} /> : <PayBody order={order} api={o} fresh={fresh} />}
       <Foot>
         <TabBar tabs={GUEST_TABS} active="Pay" onHover={(label) => { if (label === "Menu") preloadMenu(); }} />
       </Foot>
@@ -38,13 +42,13 @@ export function PayScreen({ id }: { id?: string } = {}) {
   );
 }
 
-function NoOrder({ loaded }: { loaded: boolean }) {
+function NoOrder({ sending = false }: { sending?: boolean }) {
   return (
     <Screen>
       <Header title="Pay" subtitle="The Golden Gate" />
       <div className="px-[22px]">
-        <p className="text-[13.5px] leading-[1.55] text-fg-muted">{loaded ? "Nothing to pay yet. Order from the menu, and this is where you settle up once it has been served." : "Finding your order."}</p>
-        {loaded ? <Link href="/menu" className="btn-primary press mt-5">Menu</Link> : null}
+        <p className="text-[13.5px] leading-[1.55] text-fg-muted">{sending ? "Your order is on its way to the kitchen. This is where you settle up once it has been served." : "Nothing to pay yet. Order from the menu, and this is where you settle up once it has been served."}</p>
+        {sending ? <Link href="/order" className="btn-primary press mt-5">Your order</Link> : <Link href="/menu" className="btn-primary press mt-5">Menu</Link>}
       </div>
     </Screen>
   );
@@ -69,7 +73,7 @@ function Summary({ order }: { order: SerializedOrder }) {
   );
 }
 
-function PayBody({ order, api }: { order: SerializedOrder; api: ReturnType<typeof useOrder> }) {
+function PayBody({ order, api, fresh }: { order: SerializedOrder; api: ReturnType<typeof useOrder>; fresh: { stale: boolean; since: number | null } }) {
   const [method, setMethod] = useState<Method>("CARD");
   const served = order.status === "SERVED";
   const busy = api.busy === "pay";
@@ -100,6 +104,7 @@ function PayBody({ order, api }: { order: SerializedOrder; api: ReturnType<typeo
     <Screen>
       <div ref={root}>
       <Header title="Pay" subtitle={`Order #${order.reference}`} pill={`Table ${order.tableNo}`} />
+      <ConnectionBar stale={fresh.stale} since={fresh.since} what="your order" />
       <div className="summary" style={{ opacity: 0 }}><Summary order={order} /></div>
       <div className="px-[22px] pt-6">
         <p className="text-[12.5px] text-fg-muted">How would you like to pay?</p>

@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { MAX_PER_ITEM, cartCount, cartLines, cartTotalKobo, type Cart } from "@/lib/cart";
 import type { MenuItemView, MenuView } from "@/lib/menu";
-import { vatKobo } from "@/lib/money";
-import { mutate } from "swr";
-import { MENU_KEY } from "./use-menu";
+import { formatNaira, vatKobo } from "@/lib/money";
 import type { SerializedOrder } from "@/lib/orders";
+import { calculateWaitMinutes } from "@/lib/wait-time";
+import { CART_EVENT, PENDING_PREFIX, startPlacement, usePending } from "./pending";
 import { readTable, writeTable } from "./table";
 
 const CART_KEY = "chowly-cart";
@@ -28,11 +28,16 @@ export function useCart(menu: MenuView | null) {
   const [tableNo, setTableNoState] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [placing, setPlacing] = useState(false);
+  const pending = usePending();
+  const placing = pending?.status === "sending";
   useEffect(() => {
     setCart(readCart());
     setTableNoState(readTable());
     setHydrated(true);
+    // the placement store edits the kept order when the kitchen has it or refuses a dish
+    const reread = () => setCart(readCart());
+    window.addEventListener(CART_EVENT, reread);
+    return () => window.removeEventListener(CART_EVENT, reread);
   }, []);
   useEffect(() => {
     if (!hydrated) return;
@@ -67,7 +72,11 @@ export function useCart(menu: MenuView | null) {
   const subtotalKobo = cartTotalKobo(lines);
   const totalKobo = subtotalKobo + vatKobo(subtotalKobo);
 
-  async function place(): Promise<SerializedOrder | null> {
+  // Placing answers at once: a provisional order, with the promise from the same
+  // formula the server uses, goes to the Order tab and the request runs from there.
+  // The kitchen's figures replace these the moment they land; a refusal shows there
+  // too, with the order kept here so nothing is typed twice.
+  function place(): SerializedOrder | null {
     setError(null);
     if (lines.length === 0) {
       setError("Your order is empty. Add something from the menu first.");
@@ -77,34 +86,45 @@ export function useCart(menu: MenuView | null) {
       setError("Enter your table number so we know where to bring it.");
       return null;
     }
-    setPlacing(true);
-    try {
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ tableNo: tableNo.trim(), items: lines.map((l) => ({ menuItemId: l.item.id, quantity: l.quantity })) }),
-      });
-      const json = (await response.json().catch(() => null)) as (SerializedOrder & { error?: string; unavailable?: string[] }) | null;
-      if (!response.ok || !json) {
-        // A dish that sold out while it sat on the order comes off the order here, by
-        // id, and the message names it; the menu is refreshed so the row is gone too.
-        if (json?.unavailable && json.unavailable.length > 0) {
-          const gone = new Set(json.unavailable);
-          setCart((c) => Object.fromEntries(Object.entries(c).filter(([id]) => !gone.has(id))));
-          void mutate(MENU_KEY);
-        }
-        setError(json?.error ?? "The order could not be placed. Check the connection and try again.");
-        return null;
-      }
-      setCart({});
-      return json;
-    } catch {
-      setError("The order could not be placed. Check the connection and try again.");
-      return null;
-    } finally {
-      setPlacing(false);
-    }
+    const now = new Date();
+    const waitMinutes = calculateWaitMinutes(lines.map((l) => ({ prepTimeMinutes: l.item.prepTimeMinutes, quantity: l.quantity })));
+    const provisional: SerializedOrder = {
+      id: `${PENDING_PREFIX}${now.getTime()}`,
+      reference: "",
+      status: "PLACED",
+      tableNo: tableNo.trim(),
+      placedAt: now.toISOString(),
+      waitMinutes,
+      dueAt: new Date(now.getTime() + waitMinutes * 60_000).toISOString(),
+      isDelayed: false,
+      servedAt: null,
+      paidAt: null,
+      subtotalKobo,
+      subtotal: formatNaira(subtotalKobo),
+      vatKobo: totalKobo - subtotalKobo,
+      vat: formatNaira(totalKobo - subtotalKobo),
+      totalKobo,
+      total: formatNaira(totalKobo),
+      items: lines.map((l, i) => ({
+        id: `line-${i}`,
+        menuItemId: l.item.id,
+        name: l.item.name,
+        quantity: l.quantity,
+        unitPriceKobo: l.item.priceKobo,
+        unitPrice: l.item.price,
+        subtotalKobo: l.item.priceKobo * l.quantity,
+        subtotal: formatNaira(l.item.priceKobo * l.quantity),
+        prepTimeMinutes: l.item.prepTimeMinutes,
+      })),
+      staff: { waiter: null, chef: null, bartender: null },
+      payment: null,
+      rating: null,
+      complaints: [],
+    };
+    startPlacement(provisional, { tableNo: tableNo.trim(), items: lines.map((l) => ({ menuItemId: l.item.id, quantity: l.quantity })) });
+    return provisional;
   }
 
-  return { cart, hydrated, add, remove, clear, lines, count, subtotalKobo, totalKobo, tableNo, setTableNo, error, setError, placing, place };
+  const shownError = error ?? (pending?.status === "failed" ? pending.message : null);
+  return { cart, hydrated, add, remove, clear, lines, count, subtotalKobo, totalKobo, tableNo, setTableNo, error: shownError, setError, placing, place };
 }

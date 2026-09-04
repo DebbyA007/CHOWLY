@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
-import { mutate } from "swr";
 import type { MenuItemView, MenuView } from "@/lib/menu";
 import { formatNaira } from "@/lib/money";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
@@ -12,7 +11,9 @@ import { DishPhoto } from "./photo";
 import { useTicker } from "./ticker";
 import { useCart } from "./use-cart";
 import { useMenu } from "./use-menu";
-import { MINE_KEY, preloadMine } from "./use-order";
+import { preloadMine } from "./use-order";
+import { ConnectionBar, useOnline } from "./connection";
+import { MenuSkeleton } from "./skeleton";
 
 // Screen 2. Header, category chips, the dish list, the persistent cart bar, the tabs.
 // Tapping a category filters in place with no animation. The add control morphs into
@@ -23,7 +24,7 @@ export function Menu() {
   const cart = useCart(menu);
   return (
     <>
-      {menu ? <MenuBody menu={menu} cart={cart} /> : <Screen><Header title="The Golden Gate" subtitle="13 Ubah Street, Berger" /><p className="px-[22px] text-[13px] text-fg-muted" role={error ? "alert" : undefined}>{error ? error.message : "Loading the menu."}</p></Screen>}
+      {menu ? <MenuBody menu={menu} cart={cart} /> : error ? <Screen><Header title="The Golden Gate" subtitle="13 Ubah Street, Berger" /><p className="px-[22px] text-[13px] font-semibold text-late" role="alert">{error.message}</p></Screen> : <Screen foot={128}><MenuSkeleton /></Screen>}
       <Foot>
         <CartBar count={cart.count} totalKobo={cart.totalKobo} ready={!!menu && cart.hydrated} />
         <TabBar tabs={GUEST_TABS} active="Menu" onHover={(label) => { if (label !== "Menu") preloadMine(); }} />
@@ -43,6 +44,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
   const [review, setReview] = useState(false);
   const [tableSheet, setTableSheet] = useState(false);
   const [tableDraft, setTableDraft] = useState("");
+  const net = useOnline();
   const section = menu.menus.find((m) => m.name === category) ?? menu.menus[0];
 
   useEffect(() => {
@@ -84,15 +86,14 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
   }, [review]);
 
   const [placedRef, setPlacedRef] = useState<string | null>(null);
-  async function place() {
+  function place() {
     scope.current?.methods.sending?.();
-    const placed = await cart.place();
+    const placed = cart.place();
     if (!placed) {
       scope.current?.methods.unsend?.();
       return;
     }
-    setPlacedRef(placed.reference);
-    void mutate(MINE_KEY, (current: { orders: typeof placed[] } | undefined) => ({ orders: [placed, ...(current?.orders ?? [])] }), { revalidate: true });
+    setPlacedRef(placed.id);
     const go = () => router.push("/order");
     if (scope.current?.methods.placed) scope.current.methods.placed(go);
     else go();
@@ -102,6 +103,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
     <Screen foot={cart.count > 0 ? 150 : 128}>
       <div ref={root as React.RefObject<HTMLDivElement>}>
         <Header title={menu.restaurant.name} subtitle={menu.restaurant.location.replace(/, Lagos$/, "")} pill={cart.hydrated ? (cart.tableNo ? `Table ${cart.tableNo}` : "Which table?") : undefined} onPill={() => { setTableDraft(cart.tableNo); setTableSheet(true); }} />
+        <ConnectionBar stale={!net.online} since={net.since} what="the menu" />
         {tableSheet ? (
           <div className="fixed inset-0 z-30 flex items-end justify-center" role="presentation">
             <button type="button" className="absolute inset-0 h-full w-full bg-[rgba(20,18,15,0.7)]" aria-label="Close" onClick={() => setTableSheet(false)} />
@@ -152,7 +154,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
                 <input value={cart.tableNo} onChange={(e) => cart.setTableNo(e.target.value)} inputMode="numeric" maxLength={8} aria-label="Table number" className="tabular mt-[10px] block w-full rounded-[12px] border border-[color:var(--chip-border)] bg-transparent px-[17px] py-4 text-[14.5px] text-fg" />
               </label>
               {cart.error ? <p role="alert" className="mt-3 text-[13px] font-semibold text-late">{cart.error}</p> : null}
-              <button type="submit" data-place className="btn-primary press mt-5" disabled={cart.placing || cart.count === 0 || placedRef !== null}>{placedRef ? `Order #${placedRef} placed` : cart.placing ? "Placing your order" : "Place order"}</button>
+              <button type="submit" data-place className="btn-primary press mt-5" disabled={cart.placing || cart.count === 0 || placedRef !== null}>{placedRef || cart.placing ? "Sending to the kitchen" : "Place order"}</button>
               <button type="button" onClick={() => setReview(false)} className="press mt-4 block w-full text-center text-[12.5px] text-fg-muted underline">Keep browsing</button>
             </form>
           </div>

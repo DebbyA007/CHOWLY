@@ -10,6 +10,9 @@ import { Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
 import { preloadMenu } from "./use-menu";
 import { orderClock, useMyOrders, useOrder, type Clock } from "./use-order";
 import { selectOrder } from "./selection";
+import { ConnectionBar, useFreshness } from "./connection";
+import { abandonPlacement, isPending, retryPlacement, type Pending } from "./pending";
+import { OrderSkeleton } from "./skeleton";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
 // Once the promise is spent, the arc closes again and ochre crosses to red over this long.
@@ -35,12 +38,13 @@ export function OrderScreen({ id }: { id?: string } = {}) {
   useEffect(() => {
     if (id) selectOrder(id);
   }, [id]);
-  const o = useOrder(mine.current?.id ?? null);
+  const o = useOrder(mine.current && !isPending(mine.current.id) ? mine.current.id : null);
   const order = o.order ?? mine.current;
   const clock = order ? orderClock(order, o.now) : null;
+  const fresh = useFreshness(o.error ?? mine.error, o.seenAt ?? mine.seenAt);
   return (
     <div className="ring-scope">
-      {order && clock ? <OrderBody order={order} clock={clock} api={o} open={mine.open} others={mine.others} /> : <NoOrder loaded={mine.loaded} />}
+      {order && clock ? <OrderBody order={order} clock={clock} api={o} open={mine.open} others={mine.others} pending={mine.pending} fresh={fresh} /> : mine.loaded ? <NoOrder /> : <OrderSkeleton />}
       <Foot>
         <TabBar tabs={GUEST_TABS} active="Order" tone="ring" onHover={(label) => { if (label === "Menu") preloadMenu(); }} />
       </Foot>
@@ -48,13 +52,13 @@ export function OrderScreen({ id }: { id?: string } = {}) {
   );
 }
 
-function NoOrder({ loaded }: { loaded: boolean }) {
+function NoOrder() {
   return (
     <Screen>
       <Header title="Your order" subtitle="The Golden Gate" />
       <div className="px-[22px]">
-        <p className="text-[13.5px] leading-[1.55] text-fg-muted">{loaded ? "Nothing ordered yet. Anything you add from the menu shows up here, with the kitchen's time." : "Finding your order."}</p>
-        {loaded ? <Link href="/menu" className="btn-primary press mt-5" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Menu</Link> : null}
+        <p className="text-[13.5px] leading-[1.55] text-fg-muted">Nothing ordered yet. Anything you add from the menu shows up here, with the kitchen&apos;s time.</p>
+        <Link href="/menu" className="btn-primary press mt-5" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Menu</Link>
       </div>
     </Screen>
   );
@@ -62,8 +66,13 @@ function NoOrder({ loaded }: { loaded: boolean }) {
 
 type Api = ReturnType<typeof useOrder>;
 
-function OrderBody({ order, clock, api, open, others }: { order: SerializedOrder; clock: Clock; api: Api; open: SerializedOrder[]; others: SerializedOrder[] }) {
+type Fresh = { stale: boolean; since: number | null };
+
+function OrderBody({ order, clock, api, open, others, pending, fresh }: { order: SerializedOrder; clock: Clock; api: Api; open: SerializedOrder[]; others: SerializedOrder[]; pending: Pending | null; fresh: Fresh }) {
   const root = useRef<HTMLDivElement>(null);
+  // Still on its way to the kitchen, or refused: the same screen, said plainly.
+  const sending = isPending(order.id);
+  const failed = sending && pending?.status === "failed";
   const ring = useRef<SVGCircleElement>(null);
   const reduce = usePrefersReducedMotion();
   const [sheet, setSheet] = useState<"report" | "rate" | null>(null);
@@ -84,6 +93,7 @@ function OrderBody({ order, clock, api, open, others }: { order: SerializedOrder
   // The arc's first value, set once per order: React never writes the offset again,
   // because the animation owns it and a per-tick rewrite would step it backwards.
   const [firstOffset] = useState(() => (reduce ? CIRCUMFERENCE * Math.min(1, clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)) : CIRCUMFERENCE));
+  const drawnFor = useRef<string | null>(null);
 
   // The ring. One animation from real elapsed time against placedAt, so a refresh lands
   // exactly where the clock is and the arc sweeps continuously from there. Under
@@ -116,13 +126,22 @@ function OrderBody({ order, clock, api, open, others }: { order: SerializedOrder
       return;
     }
     const proxy = { t: Math.max(0, tNow) };
-    // The arc draws in from empty to where the clock is, then the sweep takes over.
-    el.style.strokeDashoffset = String(CIRCUMFERENCE);
-    scope.style.setProperty("--ring-tone", tone(ringAt(proxy.t, crossT).k));
-    const draw = animate(el, { strokeDashoffset: [CIRCUMFERENCE, ringAt(proxy.t, crossT).offset], duration: 700, ease: "outQuart" });
-    const sweep = animate(proxy, { t: tEnd, duration: Math.max(0, (tEnd - proxy.t) * promisedS * 1000), ease: "linear", delay: 700, onUpdate: () => apply(proxy.t) });
+    // When the kitchen's order replaces the provisional one the arc is already on
+    // screen, so it carries on from where it is instead of drawing in again.
+    const continuing = drawnFor.current !== null && isPending(drawnFor.current) && !isPending(order.id);
+    drawnFor.current = order.id;
+    let draw: ReturnType<typeof animate> | null = null;
+    if (continuing) {
+      apply(proxy.t);
+    } else {
+      // The arc draws in from empty to where the clock is, then the sweep takes over.
+      el.style.strokeDashoffset = String(CIRCUMFERENCE);
+      scope.style.setProperty("--ring-tone", tone(ringAt(proxy.t, crossT).k));
+      draw = animate(el, { strokeDashoffset: [CIRCUMFERENCE, ringAt(proxy.t, crossT).offset], duration: 700, ease: "outQuart" });
+    }
+    const sweep = animate(proxy, { t: tEnd, duration: Math.max(0, (tEnd - proxy.t) * promisedS * 1000), ease: "linear", delay: continuing ? 0 : 700, onUpdate: () => apply(proxy.t) });
     return () => {
-      draw.pause();
+      draw?.pause();
       sweep.pause();
     };
   }, [order.id, order.status, order.placedAt, order.waitMinutes, reduce]);
@@ -183,15 +202,26 @@ function OrderBody({ order, clock, api, open, others }: { order: SerializedOrder
   return (
     <Screen>
       <div ref={root}>
-        <Header title={`Order #${order.reference}`} subtitle={isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
+        <Header title={sending ? "Your order" : `Order #${order.reference}`} subtitle={failed ? "Not sent" : sending ? "Sending to the kitchen" : isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate || failed ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
+        <ConnectionBar stale={fresh.stale} since={fresh.since} what="your order" />
         {open.length > 1 ? (
           <div className="flex gap-2 overflow-x-auto px-[22px] pb-3" role="tablist" aria-label="Open orders">
             {open.map((o) => (
-              <button key={o.id} type="button" role="tab" aria-selected={o.id === order.id} data-switch={o.id} onClick={() => selectOrder(o.id)} className="chip press !px-[14px] !py-2 !text-[12.5px]" aria-pressed={o.id === order.id}>#{o.reference}</button>
+              <button key={o.id} type="button" role="tab" aria-selected={o.id === order.id} data-switch={o.id} onClick={() => selectOrder(o.id)} className="chip press !px-[14px] !py-2 !text-[12.5px]">{o.reference ? `#${o.reference}` : "Sending"}</button>
             ))}
           </div>
         ) : null}
-        <div className="flex flex-col items-center px-[22px] pb-[26px] pt-[14px]" data-state={clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
+        {failed ? (
+          <div className="mx-[22px] mb-6 rounded-[12px] border border-[color:var(--late)] p-4" role="alert" data-failed>
+            <p className="text-[14px] font-semibold text-late">The kitchen did not get this order.</p>
+            <p className="mt-[6px] text-[13px] leading-[1.5] text-fg-muted">{pending?.message} Your order is kept on the menu.</p>
+            <div className="mt-4 flex flex-col gap-[10px]">
+              {pending && pending.payload.items.length > 0 ? <button type="button" data-retry onClick={retryPlacement} className="btn-primary press !py-[15px] !text-[14px]">Try again</button> : null}
+              <Link href="/menu" data-go-menu onClick={abandonPlacement} className="btn-outline press !py-[15px] !text-[14px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Back to the menu</Link>
+            </div>
+          </div>
+        ) : null}
+        <div className={`flex flex-col items-center px-[22px] pb-[26px] pt-[14px] ${failed ? "hidden" : ""}`} data-state={failed ? "failed" : sending ? "sending" : clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle className="ring-track" cx="92" cy="92" r="82" fill="none" stroke={isLate ? "var(--track-late)" : "var(--track)"} strokeWidth="9" />
@@ -203,7 +233,8 @@ function OrderBody({ order, clock, api, open, others }: { order: SerializedOrder
             </div>
           </div>
           <p className="caption mt-4 text-[12px] text-fg-muted" style={{ opacity: 0 }}>{promiseLabel(order.waitMinutes)} · placed {clockTime(placedAt)}</p>
-          {isLate ? (
+          {sending ? <p className="mt-3 flex items-center gap-2 text-[12.5px] text-fg-muted" data-sending><span className="spinner" aria-hidden="true" />Sending to the kitchen</p> : null}
+          {sending ? null : isLate ? (
             <>
               <p className="late-note pretty mt-5 text-center text-[13.5px] leading-[1.55]">Sorry, your food is taking longer than we said. It&apos;s with the chef now.</p>
               <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
@@ -219,7 +250,7 @@ function OrderBody({ order, clock, api, open, others }: { order: SerializedOrder
             </div>
           ) : null}
         </div>
-        <ol className={`px-[22px] ${isLate ? "pt-1" : ""}`} aria-label="Progress">
+        <ol className={`px-[22px] ${isLate ? "pt-1" : ""} ${failed ? "hidden" : ""}`} aria-label="Progress">
           {steps.map((step, i) => {
             const pending = !step.done;
             return (
