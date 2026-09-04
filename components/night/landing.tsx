@@ -22,7 +22,7 @@ export function Landing() {
     preloadMine();
     preloadRail();
     const scope = createScope({ root, mediaQueries: { reduceMotion: "(prefers-reduced-motion)" } }).add((self) => {
-      const all = [".room", ".name", ".address", ".door", ".table"];
+      const all = [".room", ".name", ".address", ".door", ...(root.current?.querySelector(".table") ? [".table"] : [])];
       if (self?.matches.reduceMotion || !firstVisit("landing")) {
         animate(all, { opacity: [0, 1], duration: 200 });
         return;
@@ -33,7 +33,8 @@ export function Landing() {
         .add(".name", { opacity: [0, 1], y: [10, 0], duration: 600 }, 250)
         .add(".address", { opacity: [0, 1], duration: 400 }, "-=300")
         .add(".door", { opacity: [0, 1], y: [12, 0], duration: 450, delay: stagger(90) }, "-=200")
-        .add(".table", { opacity: [0, 1], duration: 300 }, "-=200");
+        .add(".door", { opacity: 1, duration: 1 }, "-=1");
+      if (root.current?.querySelector(".table")) animate(".table", { opacity: [0, 1], duration: 300, delay: 900 });
     });
     return () => scope.revert();
   }, []);
