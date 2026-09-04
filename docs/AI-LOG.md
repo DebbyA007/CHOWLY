@@ -1450,3 +1450,54 @@ The full critique, with the screenshots, is `docs/directions/README.md`. The dec
 - **Production.** Still locked until this branch is deployed, because the code that is
   live is the old seam. Reported to the user with the production responses before and
   after the push.
+
+## Phase 5b: repair
+
+### The verdict
+
+- **Two reports described work that was invisible or misdescribed.** The waiter side of
+  production was locked by a fail-closed default that contradicted a repeated
+  instruction. Nearly every animation was gated once per session or once per order, so
+  on any revisit nothing moved. The paper treatment was imperceptible. Placing an order
+  and marking one served, the two most important actions, had no motion at all, and the
+  ring stepped once a second under a CSS transition. From here the evidence is crops
+  and frames across the motion, captured on the deployed URL in Chromium and WebKit, and
+  prose is not evidence.
+
+### Commit: `feat: motion that plays every visit and answers every action`
+
+- **The gating is gone.** `once.ts` is deleted; every entrance plays on every visit:
+  the landing, the menu rows, the order screen, the pay screen, the receipt print.
+- **Placing an order answers the tap.** The lines on the sheet leave upward one by one
+  while the request runs, the totals dim, and on success the sheet lifts away and the
+  Order tab opens with the ring drawing in; on failure the lines return and the error
+  prints. Found by frames: the first version waited for the network round trip before
+  anything moved, so eight frames across the tap showed only a dimmed button.
+- **Mark as served answers the press.** The pill settles and its fill dims on the press,
+  and on success it drains from the filled pill to the outline that records the time,
+  the clock line crossfades and the chips fade back. Same finding, same fix.
+- **The waiter's order screen, the Tables tab and the waiter's menu tab enter piece by
+  piece**; rows that appear later slide in from the right. **Choosing a payment method**
+  swells the row and springs the dot; the fill crosses over 220ms. Choosing a chef, a
+  bartender or a score swells the chip.
+
+### Commit: `feat: the ring, driven from placedAt by one animation`
+
+- One value, elapsed over promised, drives the arc and the tone. On mount the arc draws
+  in from empty to where the clock is, then one linear anime.js animation sweeps it
+  continuously to the end of the crossfade, computed from `placedAt`, so a refresh lands
+  exactly where the clock is. Below the promise the arc empties in ochre; from the
+  promise to two minutes past it the arc closes again while ochre crosses to red; past
+  that it holds. The tone is written to one CSS variable the numerals, the pill, the tab
+  and the stepper read, so nothing on the screen can disagree with the ring. Under
+  reduced motion the arc and the tone are set once per state and step slowly.
+- Also corrected: the stepper showed "In the kitchen" at two minutes after placing even
+  when the order was served inside two minutes, so the times ran backwards.
+
+### Commit: `feat: paper that reads on a phone`
+
+- The fibre was raised in two steps, each looked at as a crop at phone scale. The first
+  step read as a grid of dots; the tile is now larger and irregular, flecks of three
+  sizes and short fibres at many angles. The rule is two pixels of uneven weight with
+  small breaks. The struck numerals carry a bone hairline above them, ink sitting on the
+  surface, in place of a drop shadow that vanished into the ground.
