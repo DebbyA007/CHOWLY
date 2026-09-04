@@ -264,6 +264,23 @@ it happened.
     and a licence count in the log that said seven share-alike images when there were
     eight.
 
+### A review that found what I had missed
+
+The splash, the static door and the logo-as-home link were reviewed by a fan-out of
+agents before being called done: four reviewers over the diff, each given a different
+lens (server rendering and hydration, the splash's lifecycle and races, the link and its
+accessibility, and cross-cutting regressions), and every finding then put to three
+independent verifiers whose instruction was to refute it and to default to refuted when
+unsure. Sixty-seven agents, twenty-one findings raised, sixty-three verdicts, fifty-two
+refutations. Eleven verdicts survived, which deduplicate to thirteen distinct defects,
+two of them serious: the splash replayed on a navigation to the door for anyone who had
+entered the app at another route, which is exactly what the walkthrough below tells a
+reader to do, and the landing under the splash was still in the tab order, so two
+presses of Tab reached a link beneath an opaque cover and activated it. Every one was
+reproduced by hand before it was fixed and re-tested on the deployed app afterwards; the
+findings and the fixes are in `docs/AI-LOG.md`. The value was not the code it wrote, it
+was the defects it found in code that had already passed a green gate and a manual pass.
+
 ### Where the AI was strongest and weakest
 
 Strongest at holding a large rule set steady across a long build, at writing the

@@ -2141,3 +2141,25 @@ every line.
 | Reduced motion | Progress climbs and never restarts: 0.00, 0.55, 1.00 in Chromium; 0.00, 0.30, 0.55, 1.00 in WebKit |
 | The header | 104.5px tall, the title's top at y=40, the link 90 by 44 at the 22px gutter, `display: flex`, identical in both engines |
 | The focus ring | Chromium: reached by Tab, `:focus-visible` matches, `solid rgb(210, 162, 76)`, drawn at y=2, not clipped. WebKit: Tab does not reach links, which is macOS Safari's own setting; the rule applies when the link is focused |
+
+### The review that found them
+
+The nine fixes above came from a deliberate adversarial pass rather than from reading
+the diff again. Four reviewers were run over it in parallel, each with a different lens:
+server rendering and hydration, the splash's lifecycle and races, the link and its
+accessibility, and cross-cutting regressions and project rules. Every finding was then
+put to three independent verifiers, each with its own lens (correctness, does it
+actually reproduce, is it already handled elsewhere), told to try to refute it and to
+default to refuted when uncertain; a finding survived only on two of three.
+
+Sixty-seven agents, no errors. Twenty-one findings raised, sixty-three verdicts,
+fifty-two refutations, eleven survivors, which deduplicate to thirteen distinct defects.
+The refutation rate is the point: without it the list would have been three times
+longer and mostly wrong. Three dimensions independently found the same highest-severity
+defect from different directions, which is the strongest signal in the run.
+
+All thirteen were reproduced by hand before being fixed, and re-tested on the deployed
+app in both engines afterwards. Two of the verifiers also corrected the finding they
+were checking: one pointed out that the first Tab reaches "I'm a guest", which refuses
+to leave without a table, and the second reaches "I'm a waiter", which does not, so the
+escape from under the splash reproduced either way; the fix covers both.
