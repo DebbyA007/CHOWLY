@@ -15,9 +15,9 @@ design handoff the build follows closely.
 - The photographs and their licences: [`PHOTOGRAPHY.md`](PHOTOGRAPHY.md)
 - The first three art directions and their critique: [`directions/README.md`](directions/README.md), and live at https://chowly-theta.vercel.app/directions
 
-This document has the four required sections: how it was built, how AI was used, the
-behaviour of every feature step by step, and a walkthrough a stranger can follow on the
-live link. First, one thing that must not be buried.
+This document has the four required sections. They are not in numbered order: the
+walkthrough is placed first because it is the one that proves the application works.
+First, one thing that must not be buried.
 
 ## There is no authentication, by design
 
@@ -44,6 +44,101 @@ The assignment forbids logins and requires the live link to be usable by anyone.
   variable had never been set. Its unit tests cover every shape of the flag.
 
 ---
+
+## Verify it in five minutes
+
+- **The app.** https://chowly-theta.vercel.app opens on the door. There are no logins
+  anywhere and nothing to install.
+- **The eight requirements** can all be seen in one pass of about two minutes. The
+  walkthrough immediately below is that pass, written out step by step.
+- **To see a complaint, order a Bottled water and nothing else.** The kitchen's promise
+  is the longest preparation time in the order, water takes one minute, so the order runs
+  late in one minute and the complaint appears then. It is offered once an order is late
+  and not before, which is what the brief describes. Any other dish means a longer wait:
+  Zobo is four minutes, Jollof rice twelve.
+- **To switch roles**, tap the CHOWLY lockup at the top of any screen to return to the
+  door, then "I'm a guest" or "I'm a waiter". Both sides are open to anyone with the link.
+- **A recording**, if you would rather watch than tap: [`media/walkthrough.mp4`](media/walkthrough.mp4),
+  two and a half minutes on the live app through the whole story.
+- **The four required sections** are all here: the walkthrough is section 4 and comes
+  first; how it was built is section 1, how AI was used is section 2, and the behaviour of
+  every feature is section 3, in that order after it.
+
+## 4. A walkthrough for a stranger
+
+This is the fourth required section. It is placed here, before the other three, because
+it is the part that proves the application works, and a reader who has five minutes
+should spend them on it.
+
+You need a phone or a browser and the live link. Nothing to install, nothing to sign in
+to. Keep two tabs: one is the guest at the table, the other is the waiter.
+
+1. **Open https://chowly-theta.vercel.app/?table=12.** The dining room, the name, and
+   "You're at table 12": the link is what the card on a table would carry. Open it
+   without `?table=` and the door asks for the number instead.
+2. **Tap "I'm a guest".** The menu opens on Mains. Tap **Drinks** and add a **Bottled
+   water**, and nothing else, with the ochre circle; it becomes a stepper. This is the
+   one thing to get right if you are short of time: the kitchen's promise is the longest
+   prep time in the order, water takes one minute, so an order of water alone runs late
+   in one minute and is fully red two minutes after that. **That is the only way to see
+   the complaint**, which the app offers once an order is late and not before, so an
+   order carrying a Jollof rice would keep you waiting twelve minutes for it. The order
+   screen says as much while you wait. Add a **Zobo** for four minutes or a **Jollof
+   rice** for twelve if you would rather watch a longer wait.
+3. **View the order.** The cart bar has risen with the count and total. Tap "View order",
+   check the table, and tap "Place order". The Order tab opens at once, with "Sending to
+   the kitchen" under the ring until the kitchen has it and the number appears.
+4. **Watch the pot and the ring.** The pot simmers above the ring; the ring empties as
+   the minutes are used, and the numerals count down.
+   Reload the page: the clock is exactly where it was, because it is computed from when
+   you placed the order, not from when the page loaded.
+5. **Running late, and the complaint.** After a minute the promise is spent: the ring
+   closes, everything ochre crosses to red slowly, the glass reddens with it, and the
+   note reads "Sorry, your food is taking longer than we said." **Report a problem**
+   appears here, and only here. Tap it, write a line, send it, and the waiter's list
+   shows the count against your table within three seconds. Then tap **Rate your
+   order**, pick a low number, and send it; rate again to change it. Both are stored
+   against the order and both come back on the waiter's copy of it.
+6. **Switch to the waiter.** In the second tab open https://chowly-theta.vercel.app and
+   tap **"I'm a waiter"**, or open https://chowly-theta.vercel.app/waiter directly.
+   There is no PIN and no prompt. Your table is in the list, marked Late with the
+   minutes over, and a count of your report.
+7. **Serve it.** Tap the pill, "Who's serving?", and pick yourself from the roster; it
+   is kept for the session. Tap the card: your report is there under "From the table".
+   Choose a chef and a bartender and tap **"Mark as served"**. The button becomes the time
+   it happened before the server has even answered.
+8. **The other two tabs.** **Tables** is the floor by table with what each still has to
+   pay. **Menu** is the 86 board: switch **Zobo** to "Sold out". To see what that does to
+   a guest, tap the CHOWLY lockup at the top to go home, then "I'm a guest", and Zobo is
+   greyed on the menu with a "Sold out" tag. Switch it back on from the waiter side
+   afterwards.
+9. **Back at the table.** Within three seconds and with no reload, the guest tab reads
+   "Served" with the time and the stepper is complete. Rate it here if you like, late or
+   not. Tap **Pay**.
+10. **Pay.** The summary shows the subtotal, VAT and total. Pick a method and tap
+   **"Pay ₦… (pretend)"**. The receipt prints: the perforation, the lines, the stamp, the
+   torn foot, and who served, cooked and mixed. Tap it twice if you like; the record is
+   one payment. "Save the receipt" draws it again on a canvas, at the phone's own pixel
+   ratio, and hands it to the share sheet so it can be kept in Photos, with a plain
+   download where there is no share sheet. Nothing was added to the dependencies for
+   that: the packages that do it render through an SVG foreignObject, which drops
+   self-hosted fonts on iOS, or reimplement CSS painting and lose the torn foot.
+11. **The role switch** is the front door: two buttons, one tap each, and the tab bars on
+    each side. Both sides are open to anyone with the link; that is the assignment's
+    rule.
+12. **One more thing to try.** Turn on Reduce Motion in your system settings and reload:
+    every entrance becomes a fade, and the late crossfade still happens, slower.
+13. **Offline.** Turn the connection off: every screen says since when it has been
+    offline and that what it shows is as of then, and says once when it is back.
+14. **The first directions.** https://chowly-theta.vercel.app/directions shows the three
+    art directions built before The Pass was chosen and, in turn, replaced; each is a
+    working menu screen.
+
+---
+
+The three remaining required sections follow: how it was built, how AI was used, and the
+behaviour of every feature step by step.
+
 
 ## 1. How it was built
 
@@ -268,6 +363,40 @@ it happened.
 11. **A retired bartender that survived the seed** because a test order still named him,
     and a licence count in the log that said seven share-alike images when there were
     eight.
+
+### The failure four green checks could not see
+
+Late in the build I gave the client's placement store the ids of the food on an order, so
+that a dish selling out could change what the order was waiting on. I put them on the
+`Payload` type. `Payload` is the object the store posts as the request body, verbatim, and
+the order API validates with a strict schema that rejects any key it does not expect. So
+every order placed on the live application came back `400 Unknown field: foodIds`. Nobody
+could order for about forty minutes.
+
+Two things that should have stayed apart had been folded into one type: what the client
+knows, and what the client is allowed to send.
+
+The part worth recording is not the mistake, it is what did not catch it. **Typecheck,
+lint, thirty tests and a production build all passed.** Typecheck passed because the two
+sides each agreed with themselves: the client's type was internally consistent, and the
+Zod schema is a runtime value that TypeScript never compares it against. Lint passed
+because nothing about it is lint-shaped. The tests passed because every one of them
+examined a single module in isolation, the schema against objects written by hand and the
+cart not at all; no test ever built a request body the way the application builds one and
+gave it to the schema the way the server does. The build passed because the code compiles
+and the route only runs when someone calls it. Four checks, each measuring one side of a
+seam, and nothing measuring across it. The join between client and server existed nowhere
+but in production.
+
+What caught it was walking the deployed application as a facilitator would, which is a
+step I had been treating as evidence-gathering rather than as testing. It took ninety
+seconds. The test added with the fix asserts the wire shape from both directions, that
+the body the client constructs parses and that an extra field is refused by name, and it
+is the only test in the suite that would have failed on that commit.
+
+The lesson I would carry forward: a green gate tells you the parts agree with themselves,
+not that they agree with each other, and the cheapest check on a deployed application is
+to use it.
 
 ### A review that found what I had missed
 
@@ -547,69 +676,3 @@ replaced. The customer id is never read from a request.
 
 
 ---
-
-## 4. A walkthrough for a stranger
-
-You need a phone or a browser and the live link. Nothing to install, nothing to sign in
-to. Keep two tabs: one is the guest at the table, the other is the waiter.
-
-1. **Open https://chowly-theta.vercel.app/?table=12.** The dining room, the name, and
-   "You're at table 12": the link is what the card on a table would carry. Open it
-   without `?table=` and the door asks for the number instead.
-2. **Tap "I'm a guest".** The menu opens on Mains. Tap **Drinks** and add a **Bottled
-   water**, and nothing else, with the ochre circle; it becomes a stepper. This is the
-   one thing to get right if you are short of time: the kitchen's promise is the longest
-   prep time in the order, water takes one minute, so an order of water alone runs late
-   in one minute and is fully red two minutes after that. **That is the only way to see
-   the complaint**, which the app offers once an order is late and not before, so an
-   order carrying a Jollof rice would keep you waiting twelve minutes for it. The order
-   screen says as much while you wait. Add a **Zobo** for four minutes or a **Jollof
-   rice** for twelve if you would rather watch a longer wait.
-3. **View the order.** The cart bar has risen with the count and total. Tap "View order",
-   check the table, and tap "Place order". The Order tab opens at once, with "Sending to
-   the kitchen" under the ring until the kitchen has it and the number appears.
-4. **Watch the pot and the ring.** The pot simmers above the ring; the ring empties as
-   the minutes are used, and the numerals count down.
-   Reload the page: the clock is exactly where it was, because it is computed from when
-   you placed the order, not from when the page loaded.
-5. **Running late, and the complaint.** After a minute the promise is spent: the ring
-   closes, everything ochre crosses to red slowly, the glass reddens with it, and the
-   note reads "Sorry, your food is taking longer than we said." **Report a problem**
-   appears here, and only here. Tap it, write a line, send it, and the waiter's list
-   shows the count against your table within three seconds. Then tap **Rate your
-   order**, pick a low number, and send it; rate again to change it. Both are stored
-   against the order and both come back on the waiter's copy of it.
-6. **Switch to the waiter.** In the second tab open https://chowly-theta.vercel.app and
-   tap **"I'm a waiter"**, or open https://chowly-theta.vercel.app/waiter directly.
-   There is no PIN and no prompt. Your table is in the list, marked Late with the
-   minutes over, and a count of your report.
-7. **Serve it.** Tap the pill, "Who's serving?", and pick yourself from the roster; it
-   is kept for the session. Tap the card: your report is there under "From the table".
-   Choose a chef and a bartender and tap **"Mark as served"**. The button becomes the time
-   it happened before the server has even answered.
-8. **The other two tabs.** **Tables** is the floor by table with what each still has to
-   pay. **Menu** is the 86 board: switch **Zobo** to "Sold out". To see what that does to
-   a guest, tap the CHOWLY lockup at the top to go home, then "I'm a guest", and Zobo is
-   greyed on the menu with a "Sold out" tag. Switch it back on from the waiter side
-   afterwards.
-9. **Back at the table.** Within three seconds and with no reload, the guest tab reads
-   "Served" with the time and the stepper is complete. Rate it here if you like, late or
-   not. Tap **Pay**.
-10. **Pay.** The summary shows the subtotal, VAT and total. Pick a method and tap
-   **"Pay ₦… (pretend)"**. The receipt prints: the perforation, the lines, the stamp, the
-   torn foot, and who served, cooked and mixed. Tap it twice if you like; the record is
-   one payment. "Save the receipt" draws it again on a canvas, at the phone's own pixel
-   ratio, and hands it to the share sheet so it can be kept in Photos, with a plain
-   download where there is no share sheet. Nothing was added to the dependencies for
-   that: the packages that do it render through an SVG foreignObject, which drops
-   self-hosted fonts on iOS, or reimplement CSS painting and lose the torn foot.
-11. **The role switch** is the front door: two buttons, one tap each, and the tab bars on
-    each side. Both sides are open to anyone with the link; that is the assignment's
-    rule.
-12. **One more thing to try.** Turn on Reduce Motion in your system settings and reload:
-    every entrance becomes a fade, and the late crossfade still happens, slower.
-13. **Offline.** Turn the connection off: every screen says since when it has been
-    offline and that what it shows is as of then, and says once when it is back.
-14. **The first directions.** https://chowly-theta.vercel.app/directions shows the three
-    art directions built before The Pass was chosen and, in turn, replaced; each is a
-    working menu screen.
