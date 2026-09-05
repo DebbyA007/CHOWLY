@@ -286,7 +286,12 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
               {order.rating ? <p className="text-center text-[13.5px] leading-[1.55]">You rated it {order.rating.score} of 5.</p> : null}
               <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
             </div>
-          ) : null}
+          ) : (
+            // While it is still on time, say what the screen will offer if it is not. The
+            // complaint is earned rather than always present, and a person waiting should
+            // not have to discover that by being kept waiting.
+            <p className="late-actions mt-5 text-center text-[12.5px] leading-[1.55] text-fg-muted" data-when-late>If it goes past {promiseLabel(order.waitMinutes).replace(/^Promised in /, "")}, you can report a problem and rate it from here.</p>
+          )}
         </div>
         <ol className={`px-[22px] ${isLate ? "pt-1" : ""} ${failed ? "hidden" : ""}`} aria-label="Progress">
           {steps.map((step, i) => {
