@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const directions = [
   { href: "/directions/signwriter", name: "Signwriter", line: "A painted bukka signboard and a chalked slate." },
-  { href: "/directions/pass", name: "The Pass", line: "A kitchen pass in steel, brass and thermal paper under heat lamps. The one that was chosen." },
+  { href: "/directions/pass", name: "The Pass", line: "A kitchen pass in steel, brass and thermal paper under heat lamps. Chosen here, then replaced." },
   { href: "/directions/enamel", name: "Cast Enamel", line: "Chipped enamel bowls on one tray, sized by how long each dish takes." },
 ];
 

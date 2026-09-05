@@ -10,3 +10,6 @@ id_*
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# Editor and tool configuration, not part of the project.
+.claude/
