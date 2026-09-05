@@ -270,8 +270,6 @@ one shoot. The source, author and licence of every image are in
 
 ## Walkthrough video
 
-https://github.com/DebbyA007/chowly/raw/main/docs/media/walkthrough.mp4
-
 <p align="center">
   <a href="docs/media/walkthrough.mp4"><img src="docs/screens/order-late-390.png" alt="An order running late on the deployed app: the ring closed in red, the elapsed time, and the two actions that appear" width="30%"></a>
   <br><em>Two and a half minutes, recorded on the deployed app: the door and the table, the menu,
