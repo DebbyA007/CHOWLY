@@ -1,4 +1,4 @@
-// Seed for CHOWLY: one restaurant, three menus (Mains, Soups, Drinks), the ten dishes
+// Seed for CHOWLY: one restaurant, three menus (Mains, Soups, Drinks), the eleven dishes
 // of the Night Service handoff, and the staff a waiter picks from. Every row has a
 // stable id and is written with upsert, so running the seed twice leaves the same rows
 // in place. Dishes that left the menu are kept but marked unavailable, because old

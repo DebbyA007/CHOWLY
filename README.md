@@ -6,7 +6,7 @@
 
 A dining app for a guest already seated in the restaurant. On their own phone they read
 the menu, add dishes, place the order against their table, watch a ring count down the
-minutes the kitchen promised, report a problem and rate the meal if it runs late, and pay
+minutes the kitchen promised, report a problem if it runs late, rate the meal, and pay
 before they leave. A waiter sees every live order, opens one, records who cooked and who
 mixed the drinks, and marks it served.
 
@@ -212,7 +212,6 @@ are there. Open `http://localhost:3000/?table=12` to arrive as a guest at table 
 | `SESSION_SECRET` | Signs the guest's session cookie. `openssl rand -hex 32` |
 | `STAFF_PIN` | The staff PIN the server-side seam compares, in constant time |
 | `STAFF_PIN_REQUIRED` | The seam's switch. On only when exactly `true`; absent, `false` or anything else leaves the waiter routes open. The demo sets `false` |
-| `DEMO_CONTROLS` | Enables the endpoint the verification script uses to make an order late. Only exactly `true` enables it; production leaves it unset and the endpoint is a 404 |
 
 No secret is ever prefixed `NEXT_PUBLIC_`.
 
@@ -227,8 +226,8 @@ No secret is ever prefixed `NEXT_PUBLIC_`.
 | `npm run build` | `prisma generate && next build` |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
-| `npm test` | Node's built-in test runner over `lib`, 28 tests |
-| `node prisma/seed.mts` | Seeds the restaurant, the three menus, the ten dishes and the staff |
+| `npm test` | Node's built-in test runner over `lib`, 32 tests |
+| `node prisma/seed.mts` | Seeds the restaurant, the three menus, the eleven dishes and the staff |
 
 Every commit passed typecheck, lint and build first, and every screen was clicked
 through in headless Chromium and rendered again in WebKit.
@@ -251,7 +250,7 @@ authentication, by design; the server-side seam for the waiter routes stays behi
 ## Photography
 
 Every photograph is served from this repository, because the Content Security Policy
-allows images from its own origin only. Each was downloaded from an openly licensed
+allows no external image host. Each was downloaded from an openly licensed
 source, cropped square, resized, and given one CSS treatment so twelve sources read as
 one shoot. The source, author and licence of every image are in
 [`docs/PHOTOGRAPHY.md`](docs/PHOTOGRAPHY.md).

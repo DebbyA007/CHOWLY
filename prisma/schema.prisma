@@ -132,7 +132,7 @@ model Bartender {
 
 model Order {
   id        String      @id @default(cuid())
-  reference String      @unique // human readable, e.g. CHW-0007
+  reference String      @unique // human readable, sequential from 1001, shown as #1042
   status    OrderStatus @default(PLACED)
 
   // DELTA 2: computed server side at submit from the items' prep times.

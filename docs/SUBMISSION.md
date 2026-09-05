@@ -53,11 +53,11 @@ The build was held to two written documents from the first commit: a rulebook,
 [`CLAUDE.md`](../CLAUDE.md), with hard rules for git, dependencies, security, editing,
 writing and motion safety, and a plan, [`BUILD-PLAN.md`](BUILD-PLAN.md), with one commit
 per step in the order the work would actually happen. The assignment grades the commit
-history, so nothing was squashed and nothing was batched into one drop at the end: 58
-commits on the main line, each gated by `npm run typecheck && npm run lint && npm run
-build` before it was made, and each with an entry in the AI log written at the time. A
-further 24 commits on a side branch hold two rounds of art-direction walkthroughs that
-were built, critiqued and set aside.
+history, so nothing was squashed and nothing was batched into one drop at the end: 113
+commits, each gated by `npm run typecheck && npm run lint && npm run build` before it
+was made, and each with an entry in the AI log written at the time. Among them are two
+rounds of art directions that were built, critiqued and set aside, which is why the
+history contains screens the product no longer wears.
 
 | Phase | What landed |
 |---|---|
@@ -430,7 +430,7 @@ replaced. The customer id is never read from a request.
    placed. It is computed at read time on the server and on every tick in the browser,
    and never stored. Crossing it flips the screen: the subtitle reads "6 minutes late",
    the table pill, the ring, its track, the numerals and the active tab cross from ochre
-   to late red over two seconds, never a snap and never a flash, and the ring closes
+   to late red over two minutes, never a snap and never a flash, and the ring closes
    while the numerals count up. Under reduced motion the crossfade stays, slower, because
    it is a colour, not a movement.
 4. The stepper below shows the three steps the data can vouch for: Order placed with
@@ -528,7 +528,7 @@ replaced. The customer id is never read from a request.
 | Route | Method | Checks |
 |---|---|---|
 | `/api/session` | GET | Creates the customer row on first call |
-| `/api/menu` | GET | Public; unavailable items excluded; cached thirty seconds |
+| `/api/menu` | GET | Public; every dish on the card, each with whether it is available |
 | `/api/orders` | POST | Strict body; server-side prices, VAT, total and promise; rate limited |
 | `/api/orders/mine` | GET | The session's own orders, newest first |
 | `/api/orders/{id}` | GET | Ownership in the query; delay derived at read time |
@@ -539,7 +539,7 @@ replaced. The customer id is never read from a request.
 | `/api/waiter/menu` | GET | Every dish on the card with whether it is on; the same seam |
 | `/api/waiter/menu` | PATCH | `{ id, available }`, strict; takes a dish off or puts it back; the same seam |
 | `/api/orders/{id}/assign` | PATCH | Placed only; staff ids verified; the same seam |
-| `/api/demo` | POST | 404 unless `DEMO_CONTROLS` is exactly `true`; moves one of the session's own orders' clocks for verification |
+
 
 ---
 
@@ -552,10 +552,14 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
    "You're at table 12": the link is what the card on a table would carry. Open it
    without `?table=` and the door asks for the number instead.
 2. **Tap "I'm a guest".** The menu opens on Mains. Tap **Drinks** and add a **Bottled
-   water** with the ochre circle; it becomes a stepper. Water takes one minute, and the
-   kitchen's promise is the longest prep time in the order, so an order of only water is
-   late in one minute and fully red two minutes later, which is short enough to watch
-   the whole story. Add a **Zobo** for four minutes, or a **Jollof rice** for twelve.
+   water**, and nothing else, with the ochre circle; it becomes a stepper. This is the
+   one thing to get right if you are short of time: the kitchen's promise is the longest
+   prep time in the order, water takes one minute, so an order of water alone runs late
+   in one minute and is fully red two minutes after that. **That is the only way to see
+   the complaint**, which the app offers once an order is late and not before, so an
+   order carrying a Jollof rice would keep you waiting twelve minutes for it. The order
+   screen says as much while you wait. Add a **Zobo** for four minutes or a **Jollof
+   rice** for twelve if you would rather watch a longer wait.
 3. **View the order.** The cart bar has risen with the count and total. Tap "View order",
    check the table, and tap "Place order". The Order tab opens at once, with "Sending to
    the kitchen" under the ring until the kitchen has it and the number appears.
@@ -563,10 +567,13 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
    the minutes are used, and the numerals count down.
    Reload the page: the clock is exactly where it was, because it is computed from when
    you placed the order, not from when the page loaded.
-5. **Running late.** When the promise is spent the ring closes and everything ochre has
-   crossed to red, slowly. "Sorry, your food is taking longer than we said." Tap
-   **Report a problem**, write a line, send it. Tap **Rate your order**, pick a number,
-   send it; rate again to change it.
+5. **Running late, and the complaint.** After a minute the promise is spent: the ring
+   closes, everything ochre crosses to red slowly, the glass reddens with it, and the
+   note reads "Sorry, your food is taking longer than we said." **Report a problem**
+   appears here, and only here. Tap it, write a line, send it, and the waiter's list
+   shows the count against your table within three seconds. Then tap **Rate your
+   order**, pick a low number, and send it; rate again to change it. Both are stored
+   against the order and both come back on the waiter's copy of it.
 6. **Switch to the waiter.** In the second tab open https://chowly-theta.vercel.app and
    tap **"I'm a waiter"**, or open https://chowly-theta.vercel.app/waiter directly.
    There is no PIN and no prompt. Your table is in the list, marked Late with the
@@ -576,9 +583,10 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
    Choose a chef and a bartender and tap **"Mark as served"**. The button becomes the time
    it happened before the server has even answered.
 8. **The other two tabs.** **Tables** is the floor by table with what each still has to
-   pay. **Menu** is the 86 board: switch **Zobo** to "Sold out", go back to the guest tab,
-   add a Zobo and place it, and the order comes back refused by name with Zobo taken
-   off; switch it back on afterwards.
+   pay. **Menu** is the 86 board: switch **Zobo** to "Sold out". To see what that does to
+   a guest, tap the CHOWLY lockup at the top to go home, then "I'm a guest", and Zobo is
+   greyed on the menu with a "Sold out" tag. Switch it back on from the waiter side
+   afterwards.
 9. **Back at the table.** Within three seconds and with no reload, the guest tab reads
    "Served" with the time and the stepper is complete. Rate it here if you like, late or
    not. Tap **Pay**.
@@ -595,9 +603,8 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
     rule.
 12. **One more thing to try.** Turn on Reduce Motion in your system settings and reload:
     every entrance becomes a fade, and the late crossfade still happens, slower.
-13. **The first directions.** Also try turning the connection off: every screen says
-    since when it has been offline and what it shows is as of then, and says once when
-    it is back.
+13. **Offline.** Turn the connection off: every screen says since when it has been
+    offline and that what it shows is as of then, and says once when it is back.
 14. **The first directions.** https://chowly-theta.vercel.app/directions shows the three
     art directions built before The Pass was chosen and, in turn, replaced; each is a
     working menu screen.
