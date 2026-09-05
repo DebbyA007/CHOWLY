@@ -26,9 +26,9 @@ red, and a deliberately conventional structure. Every screen and state is captur
 in [`docs/screens`](docs/screens/README.md).
 
 <p align="center">
-  <img src="docs/screens/02-menu-390.png" alt="The menu: round photographs of the dishes, name, description, price and minutes, an ochre add circle on each row, and the persistent cart bar" width="32%">
-  <img src="docs/screens/04-order-late-390.png" alt="An order six minutes late: the ring closed in red, the elapsed time, the apology, Report a problem and Rate your order, the stepper" width="32%">
-  <img src="docs/screens/08-receipt-390.png" alt="The receipt: a perforation under the header, ruled lines, the total struck into the surface, a PAID stamp, a torn foot" width="32%">
+  <img src="docs/screens/menu-390.png" alt="The menu: round photographs of the dishes, name, description, price and minutes, an ochre add circle on each row, and the persistent cart bar" width="32%">
+  <img src="docs/screens/order-late-390.png" alt="An order six minutes late: the ring closed in red, the elapsed time, the apology, Report a problem and Rate your order, the stepper" width="32%">
+  <img src="docs/screens/receipt-390.png" alt="The receipt: a perforation under the header, ruled lines, the total struck into the surface, a PAID stamp, a torn foot" width="32%">
 </p>
 
 1. **Landing.** On a cold start, a splash where the mark's arc fills as a progress ring
@@ -226,7 +226,7 @@ No secret is ever prefixed `NEXT_PUBLIC_`.
 | `npm run build` | `prisma generate && next build` |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
-| `npm test` | Node's built-in test runner over `lib`, 32 tests |
+| `npm test` | Node's built-in test runner over `lib`, 30 tests |
 | `node prisma/seed.mts` | Seeds the restaurant, the three menus, the eleven dishes and the staff |
 
 Every commit passed typecheck, lint and build first, and every screen was clicked
@@ -262,6 +262,7 @@ one shoot. The source, author and licence of every image are in
 - [`docs/screens/README.md`](docs/screens/README.md): every screen and state at 390, in Chromium and in WebKit.
 - [`docs/PHOTOGRAPHY.md`](docs/PHOTOGRAPHY.md): the photographs, their sources and licences.
 - [`docs/BRAND.md`](docs/BRAND.md): the mark, the lockups, the colour rules and the voice.
+- [`docs/assignment/`](docs/assignment): the brief this is marked against, and the engineered model it was built on.
 - [`docs/design-ref`](docs/design-ref/design_handoff_chowly_night_service/README.md): the design handoff the build follows.
 - [`docs/directions/README.md`](docs/directions/README.md): the first three art directions and their critique, from before the handoff.
 - [`docs/BUILD-PLAN.md`](docs/BUILD-PLAN.md): the order of work, one commit per step.
@@ -269,8 +270,13 @@ one shoot. The source, author and licence of every image are in
 
 ## Walkthrough video
 
+https://github.com/DebbyA007/chowly/raw/main/docs/media/walkthrough.mp4
+
 <p align="center">
-  <!-- MEDIA PLACEHOLDER: docs/media/walkthrough.mp4, a short screen recording from the landing page through placing an order, the ring running late, the waiter marking it served, and the receipt printing. -->
-  <img src="docs/screens/01-landing-390.png" alt="Placeholder for the walkthrough video: the landing page, the dining room above the name and the two ways in" width="40%">
-  <br><em>Walkthrough video placeholder. The recording goes at docs/media/walkthrough.mp4.</em>
+  <a href="docs/media/walkthrough.mp4"><img src="docs/screens/order-late-390.png" alt="An order running late on the deployed app: the ring closed in red, the elapsed time, and the two actions that appear" width="30%"></a>
+  <br><em>Two and a half minutes, recorded on the deployed app: the door and the table, the menu,
+  an order of bottled water, the one minute promise running out, the complaint and a low
+  rating, the switch to the waiter who records the chef and the bartender and marks it
+  served, then back to the table to pay and take the receipt.
+  <a href="docs/media/walkthrough.mp4">docs/media/walkthrough.mp4</a></em>
 </p>

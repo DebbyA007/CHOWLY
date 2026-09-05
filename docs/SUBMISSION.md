@@ -119,8 +119,13 @@ docs/                     this document, the AI log, the plan, the handoff, the 
 
 ### The data model as finally implemented
 
-`prisma/schema.prisma` is the source of truth. It departs from the coursework ERD in
-eleven deliberate ways, each annotated `DELTA` in the schema:
+`prisma/schema.prisma` is the source of truth. The model it was built on is in this
+repository at [`assignment/chowly-engineered-model.pdf`](assignment/chowly-engineered-model.pdf),
+and the brief this is marked against is beside it at
+[`assignment/assignment-brief.pdf`](assignment/assignment-brief.pdf). All twelve entities
+of that model are implemented, and every foreign key it lists is present, including the
+customer key on Complaint, Rating and Payment. The schema departs from it in eleven
+deliberate ways, each annotated `DELTA`:
 
 1. `MenuItem.prepTimeMinutes` exists; the assignment requires it, and the promise is
    computed from it: the longest prep time in the order, as the handoff specifies.

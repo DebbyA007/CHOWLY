@@ -10,10 +10,10 @@ apart the frames are. **Raw frames** in `motion/chromium` and `motion/webkit` ar
 individual captures those sheets are built from, kept as the underlying evidence. **States**
 in `states` are single screens and element crops of everything off the happy path.
 
-An earlier numbered set, `01-landing-390.png` through `08-receipt-390.png`, was removed:
-it was captured on the dev server before several redesigns and had begun to show a version
-of the app that no longer exists. The README's showcase images are now taken from
-production.
+`landing-390.png`, `menu-390.png`, `order-late-390.png` and `receipt-390.png` are the
+four the root README shows, captured from production in one pass. An earlier numbered set
+was removed: it had been captured on the dev server before several redesigns, carried the
+dev badge, and had begun to show a version of the app that no longer exists.
 
 ## Contact sheets
 
