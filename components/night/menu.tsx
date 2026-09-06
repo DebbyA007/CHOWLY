@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import type { MenuItemView, MenuView } from "@/lib/menu";
+import { greetingFor, type Greeting } from "@/lib/greeting";
 import { formatNaira } from "@/lib/money";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Chip, Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
@@ -31,6 +32,32 @@ export function Menu() {
         <TabBar tabs={GUEST_TABS} active="Menu" onHover={(label) => { if (label !== "Menu") preloadMine(); }} />
       </Foot>
     </>
+  );
+}
+
+// The greeting, read from the guest's own clock. It is set after mount rather than
+// during render, because the server does not know what hour it is where the phone is and
+// a value that differs between the two is a hydration mismatch. The block keeps its
+// height from the first paint, so nothing below it moves when the words arrive.
+function Greeting() {
+  const [greeting, setGreeting] = useState<Greeting | null>(null);
+  const reduce = usePrefersReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => setGreeting(greetingFor(new Date().getHours())), []);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !greeting) return;
+    animate(el, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [6, 0], duration: 420, ease: "outQuad" });
+  }, [greeting, reduce]);
+  return (
+    <div className="px-[22px] pb-[14px]" style={{ minHeight: 48 }} data-greeting={greeting ? "shown" : "waiting"}>
+      {greeting ? (
+        <div ref={ref} style={{ opacity: 0 }}>
+          <p className="serif text-[21px] leading-[1.15]">{greeting.hello}</p>
+          <p className="mt-[3px] text-[12.5px] text-fg-muted">{greeting.ask}</p>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -122,6 +149,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
             </form>
           </div>
         ) : null}
+        <Greeting />
         <div className={`flex gap-[9px] overflow-x-auto px-[22px] ${chosen && chosen.groups.length > 1 ? "pb-[11px]" : "pb-4"}`} role="tablist" aria-label="Menu">
           {menu.sections.map((s) => (
             <Chip key={s.name} tab data-heading={s.name} on={s.name === heading} onClick={() => { setHeading(s.name); setSubId(null); }}>{s.name}</Chip>
