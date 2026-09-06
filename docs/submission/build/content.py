@@ -10,7 +10,7 @@ LIVE = "https://chowly-theta.vercel.app"
 DOC = [
 ("h1", "Deliverable 1: The git repository"),
 ("p", f"The codebase is at {REPO}. It is public, so facilitators need no invitation to read it."),
-("p", "The commit author name reads Deborah Akinbolade throughout the history. That is a typo in the git configuration; the correct name is Deborah Akinbola."),
+("p", "The commit objects carry the author name Deborah Akinbolade, a typo in the git configuration that stood for most of the project; a committed .mailmap corrects it, so git log, git shortlog and git blame all read the correct name, which is Deborah Akinbola."),
 ("p", "The commit history is the work as it was done, not a tidy retelling of it. Nothing was squashed and no history was rewritten. The repository therefore contains commits that fix things earlier commits broke, and their messages say so. Three worth opening, because they show the method rather than the result:"),
 ("bullet", "\"fix: placing an order was returning 400 on production\". A commit had added a field the client needed to the request body it posts. The order endpoint validates strictly, so it refused every order with \"Unknown field: foodIds\". Typecheck, lint, thirty tests and a build were all green, because nothing in any of them compared the body the client sends with the schema the server accepts. The fix separates the two and adds a test that asserts the wire shape both ways."),
 ("bullet", "\"feat: replace the menu with The Lagos Table card, and four model deltas\". The menu was replaced late, from ninety two rows in the assignment's own menu document, and four changes to the data model came with it."),

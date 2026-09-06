@@ -2869,3 +2869,73 @@ reads plausibly. The server now says "The order could not be saved.", the card s
 order did not reach the restaurant.", and the line under it adds that nothing has been
 charged and the order is kept on the menu. All true whatever the failure was, and naming
 no cause. Try again and Back to the menu are unchanged.
+
+---
+
+## The misspelled author name: a mailmap taken, a rewrite declined
+
+The git configuration carried "Deborah Akinbolade" for most of the project. **149 of the
+154 commits on `main` have it, in the author and the committer field alike; 173 of 178
+across all ten branches.** The email was identical throughout, which is what made a
+one-line fix possible.
+
+**Both options were tested rather than reasoned about**, in a scratch clone and a mirror,
+with nothing in the real repository touched until the decision was made.
+
+### What the mailmap actually fixes, measured
+
+A `.mailmap` was committed in a scratch clone, then cloned again from it, and each command
+run against `d1fc4e5`, a commit whose raw author is the misspelling:
+
+| | Reads |
+|---|---|
+| `git log`, default format | Deborah Akinbola |
+| `git show` | Deborah Akinbola |
+| `git shortlog -sn` | one line, Deborah Akinbola |
+| `git blame` | Deborah Akinbola |
+| `git log --format=%aN` | Deborah Akinbola |
+| `git log --format=%an` | Akinbolade, the raw field |
+| `git cat-file commit` | Akinbolade, the commit object |
+
+**A correction to my own first reading.** I tested with `--format=%an`, saw the misspelling,
+and concluded that plain `git log` shows the wrong name and a mailmap therefore barely
+helps. That was wrong. `%an` is the raw placeholder by design; the default log format is
+mailmapped. The difference between those two tests is the difference between recommending a
+history rewrite and not needing one, and I only found it because the instruction was to
+test rather than assume.
+
+### What a rewrite would have done, measured
+
+`git-filter-repo` is not installed here; it was put in a throwaway virtualenv and run
+against a mirror. Comparing all 154 commits on author date, committer date, tree hash and
+subject, before and after:
+
+```
+IDENTICAL across all 154 commits
+HEAD tree ae7af06… before and after      TREE IDENTICAL: yes
+authors: 154 Deborah Akinbola            committers: 154 Deborah Akinbola
+```
+
+Dates, order, messages and file contents all survive exactly. It works. **It was declined
+anyway**, because of what it takes with it:
+
+- **Every SHA changes.** Zero of 154 commits overlap between the old history and the new.
+- **Four commit hashes named in the graded documents stop resolving**: `1022d53`,
+  `5775a14` and `82fe6ed` in this log, and `b511fc2` in `docs/SUBMISSION.md`. Verified by
+  running `git cat-file -e` against the rewritten history: all four gone.
+- **Vercel's deployment records point at commits that would no longer exist**, including
+  the production deployment a marker might check.
+- **Ten remote branches would need force-pushing**, and any clone already taken diverges
+  permanently.
+
+The rewrite buys one thing the mailmap does not: GitHub's web interface does not read a
+mailmap, so the commits list on the website keeps showing the misspelling. That is
+cosmetic. The four broken hashes are not, and they are in the documents being marked.
+
+So: the mailmap is committed, the history stands, and the submission document says in one
+sentence where the repository is named that the commit objects carry the misspelling, that
+git tooling shows the corrected name, and that the correct name is Deborah Akinbola.
+
+Verified after pushing, from a clone taken straight from the remote rather than from the
+local copy: `git log` and `git blame` read Deborah Akinbola, and `git shortlog -sn` is a
+single line, `157 Deborah Akinbola`.
