@@ -2563,3 +2563,51 @@ Every flow it shows still behaves the way it shows them, but the card is the old
 dishes and the waiter records a chef and a bartender for an order that would now need
 neither. Re-recording it was not part of this task. The README says all of that where the
 video sits, rather than keeping a caption that describes an app that no longer exists.
+
+### The evidence run, and two things it turned up
+
+Both engines, at 390, against the branch's production build. The frames across the cancel
+window closing are the part worth keeping, because "no layout shift" is a claim that has
+to be measured rather than looked at. The progress stepper's y position, every two
+seconds, through the close:
+
+```
+t+ 0s open    You can cancel for 00:11 more      stepper y=617
+t+ 8s open    You can cancel for 00:03 more      stepper y=617
+t+10s open    You can cancel for 00:01 more      stepper y=617
+t+12s closed  Your order is on its way, so it ca stepper y=617
+t+22s closed  Your order is on its way, so it ca stepper y=617
+```
+
+The first run of that measurement read 616 while the button was there and 613 after it
+went, a three pixel jump. The reserved block was a `min-height` and the open state was two
+pixels taller than the reservation. A fixed height that centres what it holds takes it to
+zero, and the numbers above are the second run. Three pixels is not visible; the point is
+that the claim was checked instead of asserted.
+
+**WebKit could not be walked against the production build at all**, and the reason is a
+directive in our own CSP. `upgrade-insecure-requests` is set outside development, WebKit
+applies it to `localhost` where Chromium exempts it, and every same origin fetch failed
+with a TLS error, leaving a header and an empty menu. It is not a product defect: the
+deployed app is https throughout. It is a local testing artifact worth writing down,
+because the first reading of that screen was "WebKit does not render the new menu". The
+WebKit pass was run against the development server instead, and matched Chromium on every
+frame, including y=617.
+
+**The evidence is not from the deployed preview, which the brief asked for.** Vercel's
+preview deployments on this account are behind SSO, and a capture run gets a 302 to
+`vercel.com/sso-api` that it cannot pass. Production could not be used either, because it
+runs the old code. What was captured is the branch's own production build, `next build`
+and `next start`, against the same Neon database the deployed app uses. That is the same
+code and the same data over a different origin, and it is said plainly here rather than
+described as production.
+
+### One live consequence, stated plainly
+
+Development and production share one Neon database. Reseeding it replaced the eleven dish
+card everywhere, and production still runs the old code, which selects dishes by a
+hardcoded list of the old ids. So the live app currently shows six rows, four of them
+marked sold out. Nothing is corrupt and no order was lost, but the live link is degraded
+until this branch merges, and merging is the fix. It was not merged, because the
+instruction was not to merge before the branch had been walked. Worth recording as the
+cost of a single shared database: a data change on a branch is a production change.
