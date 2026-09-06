@@ -18,7 +18,7 @@ export function Header({ title, subtitle, subtitleTone = "muted", pill, pillTone
           <Link href={back.href} className="press block text-[11.5px] text-fg-muted">{back.label}</Link>
           <Lockup />
         </div>
-        <div className="mt-[7px] flex items-end justify-between gap-3">
+        <div className="mt-[1px] flex items-end justify-between gap-3">
           <h1 className={titleClass}>{title}</h1>
           {pillNode}
         </div>
@@ -28,7 +28,7 @@ export function Header({ title, subtitle, subtitleTone = "muted", pill, pillTone
   return (
     <header className="px-[22px] pb-4 pt-[14px]">
       <Lockup />
-      <div className="mt-[10px] flex items-end justify-between gap-3">
+      <div className="mt-[4px] flex items-end justify-between gap-3">
         <div className="min-w-0">
           <h1 className={titleClass}>{title}</h1>
           {subtitle ? <p className={`tone mt-[5px] text-[11.5px] ${subtitleTone === "late" ? "font-semibold text-late" : "text-fg-muted"}`}>{subtitle}</p> : null}
