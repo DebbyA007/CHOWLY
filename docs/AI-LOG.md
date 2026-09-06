@@ -2764,3 +2764,30 @@ it. Four hundred and thirty eight candidates were looked at that way across five
 A test could assert that every dish on the card has a file and that every file loads,
 which is worth having and is already covered by the evidence run, but it cannot assert
 that the file shows food.
+
+### What test data ships, and the one thing it cannot keep true
+
+The database is the deployed one, so the orders in it are what a marker sees. Five of the
+six orders left from the capture runs were deleted. **#1009 was kept deliberately**,
+because the walkthrough recording pays for it and a marker checking the video against the
+live application should find that order rather than a gap.
+
+Everything on it matches the recording: one Premium Still Water at ₦4,500, ₦4,838 paid by
+card, served by Ada Okafor with no chef and no bartender, the complaint typed on camera,
+and the rating of 2 of 5.
+
+**One field cannot match, and it is worth naming rather than hoping nobody looks.** The
+receipt number is not stored. It is derived at read time as the payment's place in the
+sequence of payments, so deleting the four test payments recorded around #1009 moved it:
+the video shows Receipt 0007 and the live application now computes 0006. That is a
+property of a derived number, and the choice was between a receipt number that drifts and
+a stored one that can disagree with the payments table. The derived one is still right;
+it is the recording that is a snapshot. Both the submission document and the README say so
+next to the video.
+
+**A process note against myself.** These two changes, the author name correction and the
+#1009 decision, were meant to be two commits. A single `git add -A docs` swept both into
+`1022d53`, whose message describes only the name. The history is not rewritten to fix it,
+for the same reason the misspelled author on the older commits is not rewritten: a
+hundred and twenty commits days before submission is not worth the risk over a tidiness
+problem. Recorded here instead, which is what this log is for.
