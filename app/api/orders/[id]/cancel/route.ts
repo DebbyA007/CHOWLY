@@ -4,7 +4,7 @@ import { orderInclude, presentOrder } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 import { orderIdSchema } from "@/lib/schemas";
 import { requireCustomer } from "@/lib/session";
-import { canCancel, cancelDeadline } from "@/lib/wait-time";
+import { canCancel } from "@/lib/wait-time";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -19,16 +19,14 @@ type Context = { params: Promise<{ id: string }> };
 //
 // Ownership is part of the query. The order id comes from the path and the customer id
 // from the signed session cookie; neither is ever read from the body.
-export function POST(request: Request, context: Context) {
+// The request is deliberately unused: nothing about this decision comes from the client,
+// so there is nothing for a client to send, and anything sent is ignored rather than
+// parsed into a shape that might later be trusted.
+export function POST(_request: Request, context: Context) {
   return handle(async () => {
     const { id } = await context.params;
     if (!orderIdSchema.safeParse(id).success) throw new HttpError(404, "No order with that id for this table.");
     const customer = await requireCustomer();
-
-    // A body is not read at all. Nothing about this decision comes from the client, so
-    // there is nothing for a client to send, and anything sent is ignored rather than
-    // parsed into a shape that might later be trusted.
-    void request;
 
     const order = await prisma.order.findFirst({
       where: { id, customerId: customer.id },
@@ -56,7 +54,6 @@ export function POST(request: Request, context: Context) {
     if (count === 0) {
       throw new HttpError(409, "Your waiter reached this order first. Ask them about it.");
     }
-    void cancelDeadline;
     const updated = await prisma.order.findUniqueOrThrow({ where: { id: order.id }, include: orderInclude });
     return NextResponse.json(presentOrder(updated));
   });
