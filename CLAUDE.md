@@ -113,6 +113,14 @@ Security review is part of every change, not a phase at the end.
 Use Neon's **pooled** connection string for `DATABASE_URL` and the direct one for
 `DIRECT_URL`, which Prisma migrations need.
 
+**Development points at its own Neon branch, never at production.** They shared one
+database once and a reseed on a feature branch took the live menu down to six rows until
+the branch merged. `PRODUCTION_DB_HOST` in `.env` names the live host and anything
+destructive refuses to touch it; `lib/db-target.ts` is the check and it is tested. Run
+`npm run db:where` before anything that writes. `prisma migrate dev` no longer migrates
+production as a side effect, so a schema change needs `npm run db:deploy` pointed at
+production as an explicit step. All of it is in `docs/DATABASE.md`.
+
 ---
 
 ## anime.js v4, read this before writing a single animation

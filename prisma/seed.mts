@@ -14,7 +14,20 @@
 //
 // A dish that leaves the menu is never deleted if an order points at it. It is marked
 // unavailable and kept, so that historical orders, receipts and totals still resolve.
+//
+// It refuses to run against the production database. See lib/db-target.ts for why.
 import { MenuType, PrismaClient, Station } from "@prisma/client";
+import { checkDestructive, guardState } from "../lib/db-target.ts";
+
+const verdict = checkDestructive(process.env);
+console.log(`Seeding ${verdict.target.database} at ${verdict.target.host} (guard ${guardState(process.env)})`);
+if (!verdict.allowed) {
+  console.error("\nRefused.\n" + verdict.reason);
+  process.exit(1);
+}
+if (guardState(process.env) === "off") {
+  console.warn("PRODUCTION_DB_HOST is not set, so nothing is stopping this from writing to production. See docs/DATABASE.md.");
+}
 
 const prisma = new PrismaClient();
 

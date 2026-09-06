@@ -237,8 +237,11 @@ No secret is ever prefixed `NEXT_PUBLIC_`.
 | `npm run build` | `prisma generate && next build` |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
-| `npm test` | Node's built-in test runner over `lib`, 32 tests |
-| `node prisma/seed.mts` | Seeds the restaurant, the fourteen menu sections, the ninety two dishes and the staff |
+| `npm test` | Node's built-in test runner over `lib`, 40 tests |
+| `npm run db:where` | Names the database this environment points at and whether the write guard is armed |
+| `npm run db:seed` | Seeds the restaurant, the fourteen menu sections, the ninety two dishes and the staff. Refuses to run against production |
+| `npm run db:migrate` | `prisma migrate dev`, on the development branch |
+| `npm run db:deploy` | `prisma migrate deploy`, the one command meant for production |
 
 Every commit passed typecheck, lint and build first, and every screen was clicked
 through in headless Chromium and rendered again in WebKit.
