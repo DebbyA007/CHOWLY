@@ -1,42 +1,19 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { handle, HttpError } from "@/lib/http";
-import { DISH_ORDER, byDesignOrder, photoFor } from "@/lib/menu-order";
-import { formatNaira } from "@/lib/money";
+import { getMenu } from "@/lib/menu";
 import { prisma } from "@/lib/prisma";
 import { parseWith } from "@/lib/schemas";
 import { assertStaffPin } from "@/lib/staff-pin";
 
 // The waiter's menu: every dish with whether it is on, and the switch that takes a
-// dish off when the kitchen runs out. The guests' menu leaves a sold-out dish out, and
-// an order that still carries one is refused by name.
+// dish off when the kitchen runs out. It is the guests' card exactly, sold-out dishes
+// included, because the board and the card have to agree about what the restaurant has.
+// A retired dish is off both: it stays in the database only for the orders that name it.
 export function GET(request: Request) {
   return handle(async () => {
     assertStaffPin(request);
-    const restaurant = await prisma.restaurant.findFirst({
-      include: { menus: { orderBy: [{ type: "asc" }, { name: "asc" }], include: { items: { orderBy: { name: "asc" } } } } },
-    });
-    if (!restaurant) throw new HttpError(503, "The menu has not been set up yet. Run the seed, then reload.");
-    return NextResponse.json({
-      restaurant: { name: restaurant.name, location: restaurant.location },
-      menus: restaurant.menus.map((menu) => ({
-        id: menu.id,
-        name: menu.name,
-        type: menu.type,
-        // Retired dishes stay in the database for the orders that name them, but they
-        // are not on the card, so they are not on the board either.
-        items: byDesignOrder(menu.items.filter((item) => DISH_ORDER.includes(item.id))).map((item) => ({
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          priceKobo: item.priceKobo,
-          price: formatNaira(item.priceKobo),
-          prepTimeMinutes: item.prepTimeMinutes,
-          photo: photoFor(item.id),
-          available: item.available,
-        })),
-      })),
-    });
+    return NextResponse.json(await getMenu());
   });
 }
 

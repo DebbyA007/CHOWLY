@@ -77,6 +77,9 @@ export function Screen({ children, foot = 65 }: { children: React.ReactNode; foo
   return <main className="flex min-h-dvh flex-col" style={{ paddingBottom: foot }}>{children}</main>;
 }
 
-export function Chip({ on, children, onClick, className = "" }: { on: boolean; children: React.ReactNode; onClick?: () => void; className?: string }) {
-  return <button type="button" className={`chip press ${className}`} aria-pressed={on} onClick={onClick}>{children}</button>;
+// A chip is a pressed button by default. Inside a tablist it has to be a tab instead,
+// or the group announces a list of toggles rather than one choice among several.
+export function Chip({ on, children, onClick, className = "", tab = false, ...rest }: { on: boolean; children: React.ReactNode; onClick?: () => void; className?: string; tab?: boolean } & React.HTMLAttributes<HTMLButtonElement>) {
+  const semantics = tab ? { role: "tab" as const, "aria-selected": on } : { "aria-pressed": on };
+  return <button type="button" className={`chip press ${className}`} {...semantics} {...rest} onClick={onClick}>{children}</button>;
 }

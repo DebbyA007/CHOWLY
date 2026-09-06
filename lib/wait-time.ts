@@ -1,3 +1,5 @@
+import type { OrderStatus } from "@prisma/client";
+
 // The wait time is the spine of the whole flow: order, wait, delay, complain, rate.
 // It is computed here and only here, on the server, from prep times read from the
 // database. Nothing the client sends can move it.
@@ -34,7 +36,7 @@ export function calculateWaitMinutes(lines: readonly WaitLine[]): number {
 
 // Delay is derived, never stored (delta 4). PLACED and past the promised wait.
 export function isOrderDelayed(
-  order: { status: "PLACED" | "SERVED" | "PAID"; placedAt: Date; waitMinutes: number },
+  order: { status: OrderStatus; placedAt: Date; waitMinutes: number },
   now: Date = new Date(),
 ): boolean {
   return order.status === "PLACED" && now.getTime() > dueAt(order).getTime();
@@ -48,9 +50,30 @@ export function dueAt(order: { placedAt: Date; waitMinutes: number }): Date {
 // still PLACED past the promised wait, or served after it. A paid order that was served
 // late is still late; paying does not erase the wait.
 export function isOrderLate(
-  order: { status: "PLACED" | "SERVED" | "PAID"; placedAt: Date; waitMinutes: number; servedAt: Date | null },
+  order: { status: OrderStatus; placedAt: Date; waitMinutes: number; servedAt: Date | null },
   now: Date = new Date(),
 ): boolean {
   if (order.servedAt) return order.servedAt.getTime() > dueAt(order).getTime();
   return isOrderDelayed(order, now);
+}
+
+// DELTA 13: a guest may withdraw their own order, but only in the first quarter of the
+// promised wait. After that the kitchen has started on it and cancelling would throw
+// away food. The window is a fraction of the promise rather than a fixed number of
+// minutes so it stays proportionate: a glass of water gives fifteen seconds, the
+// tasting menu gives twenty two and a half minutes.
+//
+// It is computed here, on the server, from placedAt and waitMinutes on every request.
+// The client hiding the button is presentation. This is the enforcement.
+export const CANCEL_WINDOW_FRACTION = 0.25;
+
+export function cancelDeadline(order: { placedAt: Date; waitMinutes: number }): Date {
+  return new Date(order.placedAt.getTime() + Math.round(order.waitMinutes * 60_000 * CANCEL_WINDOW_FRACTION));
+}
+
+export function canCancel(
+  order: { status: OrderStatus; placedAt: Date; waitMinutes: number },
+  now: Date = new Date(),
+): boolean {
+  return order.status === "PLACED" && now.getTime() <= cancelDeadline(order).getTime();
 }

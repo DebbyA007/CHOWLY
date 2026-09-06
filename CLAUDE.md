@@ -234,8 +234,15 @@ a fade. No sound feature.
 
 Real, licensed and self-hosted under `public/photos/`, because the CSP allows images from
 this origin only. The sources and licences are in `docs/PHOTOGRAPHY.md`. One CSS
-treatment sits over all of them so eleven sources read as one shoot. Never ship a
+treatment sits over all of them so forty odd sources read as one shoot. Never ship a
 placeholder.
+
+Forty two of the ninety two dishes carry a photograph. The rest carry a **monogram
+tile**: the same 76px circle, surface tone, a hairline rim, and the dish's initial in
+Newsreader. It is a second treatment, not a missing image, and it is not an icon. The
+floor for a photograph is that it clearly beats the tile at 76px, under the real
+treatment, on the real ground. Do not fill the gap with stock, with generated images, or
+with a photograph that goes to mud at that size.
 
 ### Superseded: The Pass
 
@@ -396,15 +403,16 @@ Everything after that answers an action and shows what changed:
 
 ## Data model
 
-`prisma/schema.prisma` is the source of truth and it already carries eleven deliberate
+`prisma/schema.prisma` is the source of truth and it already carries fifteen deliberate
 changes from the original coursework ERD. Do not simplify them back:
 
 1. `MenuItem.prepTimeMinutes` exists. The assignment requires it.
 2. `Order.waitMinutes` is a computed integer, never a string like "25 mins".
 3. `Order.waiterId`, `chefId` and `bartenderId` are nullable. They are assigned after the
    customer submits, not at insert.
-4. `OrderStatus` is an enum: `PLACED`, `SERVED`, `PAID`. **Delayed is not a status.** It is
-   derived: `now() > placedAt + waitMinutes AND status = 'PLACED'`. Never store it.
+4. `OrderStatus` is an enum: `PLACED`, `SERVED`, `PAID`, `CANCELLED`. **Delayed is not a
+   status.** It is derived: `now() > placedAt + waitMinutes AND status = 'PLACED'`. Never
+   store it.
 5. `placedAt`, `servedAt` and `paidAt` are timestamps. The original split date and time
    into two columns, which cannot be compared or sorted.
 6. `OrderItem.unitPriceKobo` snapshots the price at order time, so editing the menu does
@@ -414,6 +422,24 @@ changes from the original coursework ERD. Do not simplify them back:
 9. `Payment.isPretend` defaults true and is surfaced in the UI.
 10. `Rating.orderId` is unique with a `CHECK (score BETWEEN 1 AND 5)` added by migration.
 11. `Customer.sessionToken` is unique, since there are no logins.
+12. `MenuItem.station` is `KITCHEN`, `BAR` or `NONE`. The order's staff is derived from
+    it: a chef only if something is cooked, a bartender only if something is mixed, and
+    still or sparkling water needs neither. The original ERD implied every order has
+    both, which is false, and it puts a name on a receipt for work nobody did.
+13. `CANCELLED` and `Order.cancelledAt`. A guest may withdraw their own order while it is
+    `PLACED` and no more than a quarter of `waitMinutes` has passed since `placedAt`. The
+    window is computed server side on every request, in `lib/wait-time.ts`, and never
+    stored. **There is no waiter cancel**, and that is a security decision, not an
+    omission: on a surface with no login it would be authorised by nothing and would be
+    the only destructive action a stranger with the link could take.
+14. `MenuItem.priceFrom`. Three bottles are listed "from ₦75,000" and have no fixed
+    price. Storing the floor and charging it would produce a quietly wrong bill, so the
+    row shows the floor, says it is a starting price, and is refused by the order
+    endpoint.
+15. `Menu.section` and `Menu.sortOrder`, plus `MenuItem.sortOrder`. A printed card has
+    two levels (Lunch, then Starters) and an order that is not alphabetical. One flat
+    name could carry neither. `sortOrder` of -1 means retired: off the card, still in the
+    database for the orders that name it.
 
 Every one of these is a talking point in the required document. As each is implemented,
 append the reason to `docs/AI-LOG.md` while it is fresh.

@@ -21,11 +21,12 @@ import { useArrival } from "./arrival";
 const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 const KITCHEN_AFTER_SECONDS = 120;
 const READY_WITHIN_SECONDS = 60;
-type Status = "Ready" | "Late" | "In the kitchen" | "Just placed" | "Served" | "Paid";
+type Status = "Ready" | "Late" | "In the kitchen" | "Just placed" | "Served" | "Paid" | "Cancelled";
 type Filter = "All" | "Cooking" | "Late" | "Served";
 
 // What a row says about an order, and in which colour.
 function statusOf(order: SerializedOrder, now: number | null): { status: Status; time: string; colour: string } {
+  if (order.status === "CANCELLED") return { status: "Cancelled", time: `Cancelled ${clockTime(order.cancelledAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   if (order.status === "PAID") return { status: "Paid", time: `Paid ${clockTime(order.paidAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   if (order.status !== "PLACED") return { status: "Served", time: `Served ${clockTime(order.servedAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   const c = orderClock(order, now);
@@ -135,7 +136,7 @@ export function LiveOrders() {
   const listRef = useRef<HTMLUListElement>(null);
   const drinkIds = new Set(menu?.menus.filter((m) => m.type === "DRINKS").flatMap((m) => m.items.map((i) => i.id)) ?? []);
   const fresh = useFreshness(rail.error, rail.seenAt);
-  const rows = rail.orders.filter((o) => o.status !== "PAID").map((order) => ({ order, ...statusOf(order, rail.now) }));
+  const rows = rail.orders.filter((o) => o.status === "PLACED" || o.status === "SERVED").map((order) => ({ order, ...statusOf(order, rail.now) }));
   const open = rows.filter((r) => r.status !== "Served").length;
   const drinksPending = rows.filter((r) => r.status !== "Served" && r.order.items.some((l) => drinkIds.has(l.menuItemId))).length;
   const subtitle = `${WORDS[open] ?? open} open · ${(WORDS[drinksPending] ?? String(drinksPending)).toLowerCase()} ${drinksPending === 1 ? "drink" : "drinks"} pending`;
@@ -187,9 +188,17 @@ export function WaiterOrder({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const staff = rail.staff;
-  const chefId = chef ?? order?.staff.chef?.id ?? staff?.chefs[0]?.id ?? null;
-  const bartenderId = bartender ?? order?.staff.bartender?.id ?? staff?.bartenders[0]?.id ?? null;
+  // DELTA 12: only the pickers the order actually needs are shown, and only those are
+  // sent. A water only order records the waiter and nobody else, so the receipt does not
+  // name a chef who never touched it.
+  const needsChef = order?.needs.chef ?? false;
+  const needsBartender = order?.needs.bartender ?? false;
+  const chefId = needsChef ? chef ?? order?.staff.chef?.id ?? staff?.chefs[0]?.id ?? null : null;
+  const bartenderId = needsBartender ? bartender ?? order?.staff.bartender?.id ?? staff?.bartenders[0]?.id ?? null : null;
   const served = !!order && order.status !== "PLACED";
+  // DELTA 13: the table may withdraw an order while the waiter has it open. It stops
+  // being actionable, and the screen says what happened rather than reading as served.
+  const cancelled = order?.status === "CANCELLED";
   const c = order ? orderClock(order, rail.now) : null;
   const entered = useRef(false);
   const wasServed = useRef(served);
@@ -233,7 +242,8 @@ export function WaiterOrder({ id }: { id: string }) {
     if (!reduce) animate(target, { scale: [1, 1.06, 1], duration: 260, ease: "outQuad" });
   }
   async function serve(target: HTMLElement) {
-    if (!order || !staff || !chefId || !bartenderId) return;
+    if (!order || !staff) return;
+    if ((needsChef && !chefId) || (needsBartender && !bartenderId)) return;
     if (!waiterId) {
       setError("Choose who is serving first.");
       return;
@@ -243,7 +253,7 @@ export function WaiterOrder({ id }: { id: string }) {
     // the press is answered before the request returns: the pill settles and its fill dims
     const pressed = reduce ? null : animate(target, { scale: [1, 0.985], backgroundColor: ["rgba(210,162,76,1)", "rgba(210,162,76,0.55)"], duration: 220, ease: "outQuad" });
     try {
-      await rail.serve(order.id, { waiterId, chefId, bartenderId });
+      await rail.serve(order.id, { waiterId, ...(chefId ? { chefId } : {}), ...(bartenderId ? { bartenderId } : {}) });
     } catch (e) {
       pressed?.pause();
       if (!reduce) animate(target, { scale: 1, backgroundColor: "rgba(210,162,76,1)", duration: 220 });
@@ -265,7 +275,7 @@ export function WaiterOrder({ id }: { id: string }) {
               <section className="card-in card fibre mx-[22px] p-[18px]" style={{ opacity: 0 }} aria-label="Order">
                 <div className="flex justify-between text-[12px] text-fg-muted">
                   <span>Placed {clockTime(order.placedAt)}</span>
-                  {served ? <span className="clock tabular font-semibold text-accent">Served {clockTime(order.servedAt ?? order.placedAt)}</span> : c?.state === "late" ? <span className="clock tone tabular font-semibold text-late">{Math.max(1, Math.floor(c.lateSeconds / 60))} min late</span> : <span className="clock tone tabular font-semibold text-accent">{mmss(c?.remainingSeconds ?? 0)} left</span>}
+                  {cancelled ? <span className="clock tabular font-semibold text-fg-muted">Cancelled {clockTime(order.cancelledAt ?? order.placedAt)}</span> : served ? <span className="clock tabular font-semibold text-accent">Served {clockTime(order.servedAt ?? order.placedAt)}</span> : c?.state === "late" ? <span className="clock tone tabular font-semibold text-late">{Math.max(1, Math.floor(c.lateSeconds / 60))} min late</span> : <span className="clock tone tabular font-semibold text-accent">{mmss(c?.remainingSeconds ?? 0)} left</span>}
                 </div>
                 <div className="mt-[14px]">
                   {order.items.map((line) => (
@@ -302,27 +312,38 @@ export function WaiterOrder({ id }: { id: string }) {
                   ) : null}
                 </section>
               ) : null}
+              {!cancelled ? (
               <div className="field px-[22px] pt-6" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Waiter</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Waiter">
                   {(staff?.waiters ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === waiterId} disabled={served} onClick={(e) => { pick(chooseWaiter, p.id, e.currentTarget); }} className="chip press !px-[15px] !py-[11px] !font-semibold" data-waiter={p.id}>{p.name}</button>)}
                 </div>
               </div>
+              ) : null}
+              {needsChef && !cancelled ? (
               <div className="field px-[22px] pt-[22px]" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Chef</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Chef">
                   {(staff?.chefs ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === chefId} disabled={served} onClick={(e) => pick(setChef, p.id, e.currentTarget)} className="chip press !px-[15px] !py-[11px] !font-semibold" data-chef={p.id}>{p.name}</button>)}
                 </div>
               </div>
+              ) : null}
+              {needsBartender && !cancelled ? (
               <div className="field px-[22px] pt-[22px]" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Bartender</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Bartender">
                   {(staff?.bartenders ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === bartenderId} disabled={served} onClick={(e) => pick(setBartender, p.id, e.currentTarget)} className="chip press !px-[15px] !py-[11px] !font-semibold" data-bartender={p.id}>{p.name}</button>)}
                 </div>
               </div>
+              ) : null}
+              {order && !cancelled && !needsChef && !needsBartender ? (
+                <p className="field px-[22px] pt-[22px] text-[13px] leading-[1.5] text-fg-muted" style={{ opacity: 0 }} data-nobody-prepared>Nothing on this order is cooked or mixed, so it records the waiter and nobody else.</p>
+              ) : null}
               <div className="action px-[22px] pb-[26px] pt-7" style={{ opacity: 0 }}>
                 {error ? <p role="alert" className="mb-3 text-[13px] font-semibold text-late">{error}</p> : null}
-                {served ? (
+                {cancelled ? (
+                  <p className="rounded-full border py-[17px] text-center text-[15px] font-semibold text-fg-muted" style={{ borderColor: "var(--hairline)" }} data-cancelled-at>Cancelled by the table at {clockTime(order.cancelledAt ?? order.placedAt)}</p>
+                ) : served ? (
                   <p className="rounded-full border py-[17px] text-center text-[15px] font-semibold text-accent" style={{ borderColor: "var(--accent-served-border)" }} data-served-at>Served at {clockTime(order.servedAt ?? order.placedAt)}</p>
                 ) : (
                   <button type="button" data-serve onClick={(e) => serve(e.currentTarget)} disabled={saving || !staff || !waiterId} className="btn-primary" style={{ transition: "none" }}>{saving ? "Marking as served" : waiterId ? "Mark as served" : "Choose who is serving"}</button>
@@ -351,7 +372,7 @@ export function Tables() {
   for (const order of rail.orders) byTable.set(order.tableNo, [...(byTable.get(order.tableNo) ?? []), order]);
   const tables = [...byTable.entries()]
     .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
-    .map(([tableNo, orders]) => ({ tableNo, orders, owing: orders.filter((o) => o.status !== "PAID").reduce((n, o) => n + o.totalKobo, 0) }));
+    .map(([tableNo, orders]) => ({ tableNo, orders, owing: orders.filter((o) => o.status === "PLACED" || o.status === "SERVED").reduce((n, o) => n + o.totalKobo, 0) }));
   const toSettle = tables.filter((t) => t.owing > 0).length;
   const owing = tables.reduce((n, t) => n + t.owing, 0);
   const subtitle = `${WORDS[toSettle] ?? toSettle} ${toSettle === 1 ? "table" : "tables"} to settle · ${formatNaira(owing)} outstanding`;
@@ -415,14 +436,19 @@ export function WaiterMenu() {
   const entrance = useArrival();
   useLayoutEffect(() => {
     if (!menu || entered.current || !root.current) return;
-    const rows = root.current.querySelectorAll(".row");
+    const rows = [...root.current.querySelectorAll<HTMLElement>(".row")];
     if (rows.length === 0) return;
     entered.current = true;
     if (!entrance) {
       utils.set(rows, { opacity: 1 });
       return;
     }
-    animate(rows, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(40, { start: 60 }) });
+    // The board is ninety two rows long. Only the screenful a person can see is
+    // staggered in; the rest are simply there, because a forty millisecond step across
+    // the whole board would leave the bottom of it blank for most of four seconds.
+    const seen = rows.slice(0, 8);
+    utils.set(rows.slice(8), { opacity: 1 });
+    animate(seen, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(40, { start: 60 }) });
   }, [menu, reduce, entrance]);
   const off = menu?.menus.flatMap((m) => m.items).filter((i) => !i.available).length ?? 0;
   async function toggle(item: { id: string; available: boolean }, target: HTMLElement) {
@@ -442,16 +468,16 @@ export function WaiterMenu() {
           {!menu && !error ? <DishRowsSkeleton label="Loading the menu" /> : null}
           {menu?.menus.map((section) => (
             <section key={section.id} aria-labelledby={`w-${section.id}`}>
-              <h2 id={`w-${section.id}`} className="px-[22px] pb-2 pt-4 text-[12.5px] text-fg-muted">{section.name}</h2>
+              <h2 id={`w-${section.id}`} className="px-[22px] pb-2 pt-4 text-[12.5px] text-fg-muted">{section.section === section.name ? section.name : `${section.section} · ${section.name}`}</h2>
               <ul>
                 {section.items.map((item) => (
                   <li key={item.id} className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" style={{ opacity: 0 }} data-dish={item.id} data-available={item.available}>
                     <div className={`flex min-w-0 flex-1 items-center gap-[17px] ${item.available ? "" : "opacity-55"}`} style={{ transition: "opacity 300ms" }}>
-                      <DishPhoto src={item.photo} alt="" size={56} />
+                      <DishPhoto src={item.photo} alt="" name={item.name} size={56} />
                       <div className="min-w-0 flex-1">
                         <h3 className={`serif text-[20px] leading-[1.2] ${item.available ? "" : "line-through"}`}>{item.name}</h3>
                         <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
-                        <div className="mt-[10px] flex items-baseline gap-[10px]"><span className="text-[14px] font-semibold text-accent">{item.price}</span><span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span></div>
+                        <div className="mt-[10px] flex items-baseline gap-[10px]"><span className="text-[14px] font-semibold text-accent">{item.priceFrom ? `from ${item.price}` : item.price}</span><span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span></div>
                       </div>
                     </div>
                     <button type="button" role="switch" aria-checked={item.available} aria-label={`${item.name} on the menu`} data-toggle={item.id} onClick={(e) => toggle(item, e.currentTarget)} className="chip press shrink-0 !px-[14px] !py-2 !text-[12.5px]">{item.available ? "On" : "Sold out"}</button>

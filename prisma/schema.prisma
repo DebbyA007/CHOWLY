@@ -11,8 +11,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")       // Neon pooled
-  directUrl = env("DIRECT_URL")         // Neon direct, for migrations
+  url       = env("DATABASE_URL") // Neon pooled
+  directUrl = env("DIRECT_URL") // Neon direct, for migrations
 }
 
 // DELTA 4: Delayed is deliberately absent. It is a derived condition
@@ -22,6 +22,21 @@ enum OrderStatus {
   PLACED
   SERVED
   PAID
+
+  // DELTA 13: a guest may cancel their own order, but only in the first quarter of the
+  // promised wait, after which the kitchen has started on it. The original ERD had no
+  // way to say an order was withdrawn: its statuses only ran forward.
+  CANCELLED
+}
+
+// DELTA 12: where an item is prepared. The original ERD hung a chef and a bartender off
+// every order, which is false for an order neither of them touches: nobody cooks a
+// bottle of water. The station is on the item, so who is required is derived from what
+// was ordered rather than assumed.
+enum Station {
+  KITCHEN
+  BAR
+  NONE
 }
 
 enum MenuType {
@@ -49,8 +64,15 @@ model Restaurant {
 }
 
 model Menu {
-  id           String     @id @default(cuid())
-  name         String
+  id   String @id @default(cuid())
+  name String
+
+  // DELTA 15: the printed menu has two levels, a heading such as Lunch and a
+  // sub-heading such as Starters. The original ERD had one flat name, which cannot
+  // carry a card that reads Lunch then Starters, Main courses, Lunch drinks.
+  section   String
+  sortOrder Int    @default(0)
+
   type         MenuType
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
@@ -60,28 +82,40 @@ model Menu {
 }
 
 model MenuItem {
-  id          String  @id @default(cuid())
+  id          String @id @default(cuid())
   name        String
   description String
 
   // DELTA 7: integer kobo. Floats do not belong anywhere near a total.
-  priceKobo   Int
+  priceKobo Int
 
   // DELTA 1: required by the build spec, absent from the original ERD.
   // Feeds the wait time the customer is shown and the delay derivation.
   prepTimeMinutes Int
 
-  available   Boolean @default(true)
-  menuId      String
-  menu        Menu    @relation(fields: [menuId], references: [id], onDelete: Cascade)
-  orderItems  OrderItem[]
+  available Boolean @default(true)
+
+  // DELTA 12: kitchen, bar, or neither. See the Station enum.
+  station Station @default(KITCHEN)
+
+  // DELTA 15: a printed menu has an order, and it is not alphabetical.
+  sortOrder Int @default(0)
+
+  // DELTA 14: a bottle listed at "from 75,000" has no fixed price. Storing the floor and
+  // charging it would produce a quietly wrong bill, so the item shows its floor, says it
+  // is a starting price, and cannot be added to an order at all.
+  priceFrom Boolean @default(false)
+
+  menuId     String
+  menu       Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
 
   @@index([menuId])
 }
 
 model Customer {
-  id         String   @id @default(cuid())
-  name       String
+  id   String @id @default(cuid())
+  name String
 
   // DELTA 11: no logins are permitted, so identity is an opaque token carried in a
   // signed httpOnly cookie. This is what survives a refresh and what every ownership
@@ -89,15 +123,15 @@ model Customer {
   sessionToken String @unique
 
   // Optional: a walk-in customer gives a table number and nothing else.
-  phone      String?
-  email      String?
-  tableNo    String
+  phone   String?
+  email   String?
+  tableNo String
 
   orders     Order[]
   complaints Complaint[]
   ratings    Rating[]
   payments   Payment[]
-  createdAt  DateTime @default(now())
+  createdAt  DateTime    @default(now())
 }
 
 model Waiter {
@@ -140,13 +174,16 @@ model Order {
   waitMinutes Int
 
   // DELTA 7: derived server side by summing line snapshots. Never sent by the client.
-  totalKobo   Int
+  totalKobo Int
 
   // DELTA 5: real timestamps. The original split date and time across two columns,
   // which makes sorting and the delay comparison impossible.
-  placedAt  DateTime  @default(now())
-  servedAt  DateTime?
-  paidAt    DateTime?
+  placedAt DateTime  @default(now())
+  servedAt DateTime?
+  paidAt   DateTime?
+
+  // DELTA 13: when the guest withdrew it, if they did.
+  cancelledAt DateTime?
 
   tableNo    String
   customerId String
@@ -205,12 +242,12 @@ model Complaint {
 }
 
 model Rating {
-  id      String @id @default(cuid())
+  id        String   @id @default(cuid())
   // DELTA 10: CHECK (score BETWEEN 1 AND 5) is added by hand in the migration SQL,
   // since Prisma cannot express a check constraint. Validate in Zod as well, but the
   // database is the last line, not the first.
-  score   Int
-  comment String?
+  score     Int
+  comment   String?
   createdAt DateTime @default(now())
 
   // DELTA 10: one rating per order. Without unique, a customer can rate the same
@@ -229,9 +266,9 @@ model Payment {
 
   // DELTA 9: the assignment requires the payment be clearly labelled as pretend.
   // It is labelled in the row as well as in the UI, so the record is honest on its own.
-  isPretend  Boolean @default(true)
+  isPretend Boolean @default(true)
 
-  paidAt     DateTime @default(now())
+  paidAt DateTime @default(now())
 
   // DELTA 8: unique, and the insert plus the status flip run inside one transaction.
   // The original model declared 1:1 without enforcing it, so a double-clicked pay

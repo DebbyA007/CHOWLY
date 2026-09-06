@@ -26,7 +26,8 @@ export function preloadRail() {
 // Live orders, polled every three seconds and kept while they revalidate, the staff
 // lists, a ticking clock, when the list last arrived, and serve(), which marks the
 // order served on screen at once, records who served, cooked and mixed, and puts the
-// order back the way it was if the server refuses.
+// order back the way it was if the server refuses. A chef and a bartender are sent
+// only when the order holds something cooked or something mixed (delta 12).
 export function useRail() {
   const [seenAt, setSeenAt] = useState<number | null>(null);
   const { data, error, mutate } = useSWR<Rail>(RAIL_KEY, railFetcher, { refreshInterval: 3000, keepPreviousData: true, onSuccess: () => setSeenAt(Date.now()) });
@@ -37,9 +38,9 @@ export function useRail() {
     return () => window.clearInterval(t);
   }, []);
   const orders = data?.orders ?? [];
-  async function serve(orderId: string, staff: { waiterId: string; chefId: string; bartenderId: string }): Promise<SerializedOrder> {
+  async function serve(orderId: string, staff: { waiterId: string; chefId?: string; bartenderId?: string }): Promise<SerializedOrder> {
     const before = data;
-    const by = (list: { id: string; name: string }[] | undefined, id: string) => list?.find((p) => p.id === id) ?? null;
+    const by = (list: { id: string; name: string }[] | undefined, id: string | undefined) => (id ? list?.find((p) => p.id === id) ?? null : null);
     const provisional = (o: SerializedOrder): SerializedOrder => ({
       ...o,
       status: "SERVED",

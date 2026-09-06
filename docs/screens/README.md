@@ -11,9 +11,16 @@ individual captures those sheets are built from, kept as the underlying evidence
 in `states` are single screens and element crops of everything off the happy path.
 
 `landing-390.png`, `menu-390.png`, `order-late-390.png` and `receipt-390.png` are the
-four the root README shows, captured from production in one pass. An earlier numbered set
-was removed: it had been captured on the dev server before several redesigns, carried the
-dev badge, and had begun to show a version of the app that no longer exists.
+four the root README shows, captured in one pass. An earlier numbered set was removed: it
+had been captured on the dev server before several redesigns, carried the dev badge, and
+had begun to show a version of the app that no longer exists.
+
+**These four were re-captured when the menu was replaced, and not from production.** They
+come from the production build of the `menu-and-roles` branch, run locally against the
+same database, because Vercel's preview deployments for that branch sit behind the
+account's SSO and cannot be opened by a capture run. Everything else in this folder is
+still from https://chowly-theta.vercel.app and predates the new card. When the branch
+merges, the whole folder is worth re-capturing from production in one pass.
 
 ## Contact sheets
 

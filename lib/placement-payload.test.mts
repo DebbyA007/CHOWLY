@@ -12,8 +12,8 @@ test("the placement body the client sends is exactly what the schema accepts", (
 });
 
 test("an extra field on the placement body is refused, and says which", () => {
-  const body = { tableNo: "12", items: [{ menuItemId: "item_jollof_rice", quantity: 1 }], foodIds: ["item_jollof_rice"] };
+  const body = { tableNo: "12", items: [{ menuItemId: "item_jollof_rice", quantity: 1 }], kitchenIds: ["item_jollof_rice"] };
   const parsed = parseWith(orderCreateSchema, body);
   assert.equal(parsed.ok, false);
-  if (!parsed.ok) assert.match(parsed.message, /foodIds/);
+  if (!parsed.ok) assert.match(parsed.message, /kitchenIds/);
 });
