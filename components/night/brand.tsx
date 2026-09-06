@@ -31,7 +31,11 @@ export function Wordmark({ size = 12, className = "" }: { size?: number; classNa
 }
 
 // Horizontal for the headers and the waiter chrome, where it is the way home: a real
-// link to the door, mark and wordmark together, tall enough to tap. Stacked for the
+// link to the door, mark and wordmark together, tall enough to tap. It is the only
+// navigation the app has, so it is sized to be seen: the mark 22 and the wordmark 15.
+// The negative margin against the padding keeps the tap target at 44 without the link
+// taking 44 of layout height, and the headers give back the six pixels it grew by, so
+// the title sits exactly where it did. Stacked for the
 // landing, which is home, where the mark draws in once.
 export function Lockup({ variant = "horizontal", className = "" }: { variant?: "horizontal" | "stacked"; className?: string }) {
   if (variant === "stacked") {
@@ -43,9 +47,9 @@ export function Lockup({ variant = "horizontal", className = "" }: { variant?: "
     );
   }
   return (
-    <Link href="/" aria-label="CHOWLY, home" onClick={clearTabPress} className={`home press -my-[14px] flex w-fit min-h-[44px] items-center gap-[8px] py-[14px] ${className}`} data-lockup="horizontal" data-home>
-      <Mark size={16} />
-      <Wordmark size={12} className="translate-y-[1px]" />
+    <Link href="/" aria-label="CHOWLY, home" onClick={clearTabPress} className={`home press -my-[14px] flex w-fit min-h-[44px] items-center gap-[9px] py-[14px] ${className}`} data-lockup="horizontal" data-home>
+      <Mark size={22} />
+      <Wordmark size={15} className="translate-y-[1px]" />
     </Link>
   );
 }

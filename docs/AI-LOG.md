@@ -2676,3 +2676,59 @@ on that order was cooked or mixed.
 The previous file was left in place with a note saying it was out of date rather than
 being deleted or described as something it was not. It is now replaced, and the note is
 gone with it.
+
+---
+
+## Every dish gets a photograph, and the floor comes off
+
+The instruction reversed an earlier decision of mine, and it was right to. I had set a
+quality floor: a candidate had to clearly beat the monogram tile at 76 pixels, which left
+fifty dishes with a struck initial. The correction was that a weaker photograph of the
+actual dish beats a monogram, and that the floor was protecting a design idea at the cost
+of the thing a guest actually wants, which is to see the food.
+
+**What was relaxed and what was not.** Only the quality bar moved. The licence rule stayed
+absolute: CC0, public domain or CC BY, no share-alike, nothing unlicensed. The final set is
+31 CC0, 49 CC BY 2.0, 5 CC BY 4.0, 3 CC BY 3.0 and 4 public domain. The subject rule stayed
+too, and it did work: the passes threw out an engraving of a lobster, a portrait for the
+tasting menu, a nude torso for a mango spritz, two sports water bottles, a porcelain vase
+and six photographs of a concert, because a band is called Suya.
+
+**The finding worth keeping is that the Nigerian name is a different search.** Two hundred
+and eight candidates came back for the English menu names and left five dishes with
+nothing usable. A targeted pass on the local names alone finished the card in one go: moi
+moi steamed in its leaves, egusi beside a ball of swallow, akara straight out of the pan,
+ofada rice served on its leaves. None of those came back for "bean pudding", "melon seed
+soup", "bean fritters" or "rice and stew". Searching in the language the food is named in
+returns the food.
+
+Thirty two rows carry a photograph of a similar dish rather than the exact one, and each
+says so in its own column in `docs/PHOTOGRAPHY.md`. That was a condition of relaxing the
+floor and it is the part that keeps the document truthful: akara frying stands for the
+Nigerian Breakfast Platter, poached eggs stand for Moi Moi and Poached Eggs, and the
+reader can see which is which without opening the images.
+
+## The ERD in the README was three deltas out of date
+
+Found while rendering it for the submission document. It still showed `PLACED SERVED PAID`
+with no `CANCELLED`, and had no `station`, `priceFrom`, `section` or `sortOrder`. The
+schema had moved four times and the diagram had not moved once. It is regenerated from the
+schema as it stands, and the same source now renders to the image both documents carry.
+
+Worth recording as a class of failure rather than a one-off: **a diagram is documentation
+that no test reads**. The gate is green whatever the ERD says. Nothing in typecheck, lint
+or the test run compares a picture of the model to the model.
+
+## What could not be verified, and is said so rather than implied
+
+- **The receipt save on a real iPhone.** There is no device here. The change is reasoned
+  from the Web Share API contract: a share carrying only files gives iOS the image-centric
+  sheet, and adding a title or text alongside it makes the share a message with an
+  attachment and pushes Save Image down. Both engines here report that they can share a
+  file, so both take that path, and the fallback was walked as well. But the specific
+  complaint, what the sheet looks like on an iPhone, was not observed.
+- **The Word file opened in Word.** There is no Word and no LibreOffice on this machine.
+  It was verified by reading its structure back out of the file: heading styles, tables,
+  the image, the table of contents field and the footer page-number field, and every block
+  of the source content present. The PDF, by contrast, was rendered to images page by page
+  and read, all thirteen of them.

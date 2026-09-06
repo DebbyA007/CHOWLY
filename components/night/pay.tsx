@@ -198,6 +198,11 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
   const file = useRef<File | null>(null);
   const [ready, setReady] = useState(false);
   const [notice, setNotice] = useState("");
+  // Whether this browser will hand the picture to the phone's own sheet, asked of the
+  // browser rather than guessed from the user agent. It decides what the caption under
+  // the button promises, so the guest is told what they are about to see before they
+  // see it.
+  const [viaSheet, setViaSheet] = useState(false);
   // The receipt only changes when the order it prints does, so the drawing is keyed on
   // what is actually on the paper rather than on the polled object, which would redraw
   // the canvas every few seconds for nothing.
@@ -214,29 +219,42 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
         setNotice("The receipt could not be prepared. Take a screenshot instead.");
         return;
       }
-      file.current = new File([blob], receiptFileName(latest.current), { type: "image/png" });
+      const image = new File([blob], receiptFileName(latest.current), { type: "image/png" });
+      file.current = image;
+      setViaSheet(!!navigator.canShare?.({ files: [image] }));
       setReady(true);
     });
     return () => {
       dropped = true;
     };
   }, [printed]);
+  // Saving is the action a guest wants. On a phone the share sheet is not an
+  // alternative to saving, it is how saving is done: iOS puts a picture in Photos
+  // through "Save Image" there and nowhere else. So the primary control says save, uses
+  // the sheet when there is one, and the caption under it names the item to tap.
+  //
+  // The share carries the file and nothing else. A title or a text alongside it makes
+  // iOS treat the share as a message with an attachment and pushes the image actions
+  // down the sheet, which is exactly the complaint: a sheet offering Copy and Mail
+  // where a guest was looking for Save.
   async function save() {
     const image = file.current;
     if (!image) return;
     setNotice("");
-    // The share sheet is the way a phone saves a picture, and on iOS it is the only one
-    // that reliably puts it in Photos. A browser without it gets a plain download. The
-    // image is already drawn, so the tap is not spent making it, which is what iOS
-    // needs: it only honours a share inside the gesture that asked for one.
     try {
       if (navigator.canShare?.({ files: [image] })) {
-        await navigator.share({ files: [image], title: `CHOWLY receipt ${payment.receiptNo ?? ""}`.trim() });
+        await navigator.share({ files: [image] });
         return;
       }
     } catch (e) {
       if ((e as Error)?.name === "AbortError") return;
     }
+    await download(image);
+  }
+
+  // The escape, and the whole of it on a browser with no share sheet.
+  async function download(image: File) {
+    setNotice("");
     try {
       const url = URL.createObjectURL(image);
       const link = document.createElement("a");
@@ -329,7 +347,17 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
               already watching it when it does */}
           <p role="status" aria-live="polite" className="text-[12.5px] leading-[1.5] text-fg-muted" style={{ marginTop: notice ? 12 : 0 }}>{notice}</p>
           <div className="mt-5 flex flex-col gap-[10px] pb-[26px]">
-            <button type="button" data-save-receipt onClick={save} disabled={!ready} className="btn-outline press !py-4 !text-[14.5px]">{ready ? "Save the receipt" : "Preparing the receipt"}</button>
+            <button type="button" data-save-receipt onClick={save} disabled={!ready} className="btn-primary press !py-4 !text-[14.5px]">{ready ? "Save the receipt" : "Preparing the receipt"}</button>
+            <p className="-mt-[2px] text-center text-[12px] leading-[1.5] text-fg-muted" data-save-hint>
+              {ready
+                ? viaSheet
+                  ? "Your phone opens its own sheet. Tap Save Image and the receipt goes to your photos."
+                  : "It saves as a picture in your downloads."
+                : "Drawing the picture."}
+            </p>
+            {viaSheet ? (
+              <button type="button" data-download-receipt onClick={() => file.current && download(file.current)} disabled={!ready} className="press -mt-[2px] text-[12.5px] text-fg-muted underline">Download the file instead</button>
+            ) : null}
             <button type="button" data-rate-open onClick={() => setRating(true)} className="btn-outline press !py-4 !text-[14.5px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
             <Link href="/menu" data-go-menu className="btn-outline press !py-4 !text-[14.5px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
           </div>
