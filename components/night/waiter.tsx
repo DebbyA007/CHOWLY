@@ -147,7 +147,7 @@ export function LiveOrders() {
   return (
     <>
       <Screen>
-        <Header title="Live orders" subtitle={rail.data ? (fresh.stale ? `${asOf(fresh.since)} · ${WORDS[open] ?? open} open` : subtitle) : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
+        <Header role="waiter" title="Live orders" subtitle={rail.data ? (fresh.stale ? `${asOf(fresh.since)} · ${WORDS[open] ?? open} open` : subtitle) : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
         {picking && rail.data ? <WaiterPicker rail={rail.data} chosen={who.chosen} onChoose={who.choose} onClose={() => setPicking(false)} /> : null}
         <div className="flex gap-2 overflow-x-auto px-[22px] pb-[14px]" role="tablist" aria-label="Filter">
           {(["All", "Cooking", "Late", "Served"] as Filter[]).map((f) => (
@@ -266,7 +266,7 @@ export function WaiterOrder({ id }: { id: string }) {
     <>
       <Screen>
         <div ref={root}>
-          <Header back={{ href: "/waiter", label: "Live orders" }} title={order ? `Order #${order.reference}` : "Order"} pill={order ? `Table ${order.tableNo}` : undefined} pillTone={c?.state === "late" ? "late" : "accent"} />
+          <Header role="waiter" back={{ href: "/waiter", label: "Live orders" }} title={order ? `Order #${order.reference}` : "Order"} pill={order ? `Table ${order.tableNo}` : undefined} pillTone={c?.state === "late" ? "late" : "accent"} />
           <ConnectionBar stale={fresh.stale} since={fresh.since} what="this order" />
           {!order ? (
             rail.data ? <p className="px-[22px] text-[13px] text-fg-muted">That order is not on the floor any more.</p> : rail.error ? <p role="alert" className="px-[22px] text-[13px] font-semibold text-late">{rail.error.message}</p> : <WaiterOrderSkeleton />
@@ -382,7 +382,7 @@ export function Tables() {
   return (
     <>
       <Screen>
-        <Header title="Tables" subtitle={rail.data ? (fresh.stale ? asOf(fresh.since) : subtitle) : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
+        <Header role="waiter" title="Tables" subtitle={rail.data ? (fresh.stale ? asOf(fresh.since) : subtitle) : "Opening the floor"} pill={who.label || undefined} onPill={() => setPicking(true)} />
         {picking && rail.data ? <WaiterPicker rail={rail.data} chosen={who.chosen} onChoose={who.choose} onClose={() => setPicking(false)} /> : null}
         <ConnectionBar stale={fresh.stale} since={fresh.since} what="the tables" />
         {rail.error && !rail.data ? <p role="alert" className="px-[22px] pb-3 text-[13px] font-semibold text-late">{rail.error.message}</p> : null}
@@ -461,7 +461,7 @@ export function WaiterMenu() {
     <>
       <Screen>
         <div ref={root}>
-          <Header title="Menu" subtitle={menu ? (off === 0 ? "Everything is on" : `${WORDS[off] ?? off} sold out`) : "Loading the menu"} />
+          <Header role="waiter" title="Menu" subtitle={menu ? (off === 0 ? "Everything is on" : `${WORDS[off] ?? off} sold out`) : "Loading the menu"} />
           <ConnectionBar stale={!net.online || (!!error && !!menu)} since={net.since} what="the menu" />
           {notice ? <p role="alert" className="px-[22px] pb-3 text-[13px] font-semibold text-late">{notice}</p> : null}
           {error && !menu ? <p role="alert" className="px-[22px] text-[13px] font-semibold text-late">{error.message}</p> : null}

@@ -26,7 +26,7 @@ export function Menu() {
   const cart = useCart(menu);
   return (
     <>
-      {menu ? <MenuBody menu={menu} cart={cart} /> : error ? <Screen><Header title="The Golden Gate" subtitle="13 Ubah Street, Berger" /><p className="px-[22px] text-[13px] font-semibold text-late" role="alert">{error.message}</p></Screen> : <Screen foot={128}><MenuSkeleton /></Screen>}
+      {menu ? <MenuBody menu={menu} cart={cart} /> : error ? <Screen><Header role="guest" title="The Golden Gate" subtitle="13 Ubah Street, Berger" /><p className="px-[22px] text-[13px] font-semibold text-late" role="alert">{error.message}</p></Screen> : <Screen foot={128}><MenuSkeleton /></Screen>}
       <Foot>
         <CartBar count={cart.count} totalKobo={cart.totalKobo} ready={!!menu && cart.hydrated} />
         <TabBar tabs={GUEST_TABS} active="Menu" onHover={(label) => { if (label !== "Menu") preloadMine(); }} />
@@ -136,7 +136,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
   return (
     <Screen foot={cart.count > 0 ? 150 : 128}>
       <div ref={root as React.RefObject<HTMLDivElement>}>
-        <Header title={menu.restaurant.name} subtitle={menu.restaurant.location.replace(/, Lagos$/, "")} pill={cart.hydrated ? (cart.tableNo ? `Table ${cart.tableNo}` : "Which table?") : undefined} onPill={() => { setTableDraft(cart.tableNo); setTableSheet(true); }} />
+        <Header role="guest" title={menu.restaurant.name} subtitle={menu.restaurant.location.replace(/, Lagos$/, "")} pill={cart.hydrated ? (cart.tableNo ? `Table ${cart.tableNo}` : "Which table?") : undefined} onPill={() => { setTableDraft(cart.tableNo); setTableSheet(true); }} />
         <ConnectionBar stale={!net.online} since={net.since} what="the menu" />
         {tableSheet ? (
           <div className="fixed inset-0 z-30 flex items-end justify-center" role="presentation">

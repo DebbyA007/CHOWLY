@@ -102,6 +102,14 @@ html[data-warm] [data-splash] {
   border-radius: 8px;
 }
 
+/* The role switch: the same focus ring as the way home, drawn inside the pill so it is
+   never clipped by the border that surrounds it. */
+.role-switch a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+  border-radius: 999px;
+}
+
 /* The wordmark: Newsreader 400, all caps, tracked 0.15em, bone. The only all-caps setting. */
 .wordmark {
   font-family: var(--font-serif);

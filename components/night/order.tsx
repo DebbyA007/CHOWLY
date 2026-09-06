@@ -57,7 +57,7 @@ export function OrderScreen({ id }: { id?: string } = {}) {
 function NoOrder() {
   return (
     <Screen>
-      <Header title="Your order" subtitle="The Golden Gate" />
+      <Header role="guest" title="Your order" subtitle="The Golden Gate" />
       <div className="px-[22px]">
         <p className="text-[13.5px] leading-[1.55] text-fg-muted">Nothing ordered yet. Anything you add from the menu shows up here, with the kitchen&apos;s time.</p>
         <Link href="/menu" className="btn-primary press mt-5" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Menu</Link>
@@ -286,7 +286,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   return (
     <Screen>
       <div ref={root}>
-        <Header title={sending ? "Your order" : `Order #${order.reference}`} subtitle={failed ? "Not sent" : sending ? "Sending to the kitchen" : cancelled ? "Cancelled" : isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate || failed ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
+        <Header role="guest" title={sending ? "Your order" : `Order #${order.reference}`} subtitle={failed ? "Not sent" : sending ? "Sending to the kitchen" : cancelled ? "Cancelled" : isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate || failed ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
         <ConnectionBar stale={fresh.stale} since={fresh.since} what="your order" />
         {open.length > 1 ? (
           <div className="flex gap-2 overflow-x-auto px-[22px] pb-3" role="tablist" aria-label="Open orders">

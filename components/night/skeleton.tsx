@@ -31,7 +31,7 @@ export function DishRowsSkeleton({ rows = 4, label }: { rows?: number; label: st
 export function MenuSkeleton() {
   return (
     <div data-skeleton="menu">
-      <Header title="The Golden Gate" subtitle="13 Ubah Street, Berger" />
+      <Header role="guest" title="The Golden Gate" subtitle="13 Ubah Street, Berger" />
       <div className="flex gap-2 px-[22px] pb-[14px]" aria-hidden="true">
         {[62, 58, 66].map((w, i) => <Bone key={i} w={w} h={36} className="!rounded-full" />)}
       </div>
@@ -44,7 +44,7 @@ export function OrderSkeleton() {
   return (
     <Screen>
       <div role="status" aria-label="Finding your order" data-skeleton="order">
-        <Header title="Your order" subtitle="The Golden Gate" />
+        <Header role="guest" title="Your order" subtitle="The Golden Gate" />
         <div className="flex flex-col items-center px-[22px] pb-[26px] pt-[14px]">
           <span aria-hidden="true" className="bone block h-[184px] w-[184px] !rounded-full !bg-transparent" style={{ border: "9px solid var(--bone)" }} />
           <Bone w={168} h={12} className="mt-4" />
@@ -79,7 +79,7 @@ export function PaySkeleton() {
   return (
     <Screen>
       <div role="status" aria-label="Finding your order" data-skeleton="pay">
-        <Header title="Pay" subtitle="The Golden Gate" />
+        <Header role="guest" title="Pay" subtitle="The Golden Gate" />
         <div className="card mx-[22px] p-[18px]" aria-hidden="true">
           {[104, 132].map((w, i) => (
             <div key={i} className="flex justify-between py-2"><Bone w={w} h={14} /><Bone w={60} h={14} /></div>
