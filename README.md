@@ -328,5 +328,8 @@ one shoot. The source, author and licence of every image are in
   ring crosses to red, the complaint and a low rating. Then the waiter's side, which asks
   for a waiter and nobody else because nothing on that order is cooked or mixed, and back
   to the table to pay and take a receipt that credits only the person who brought it.
-  <a href="docs/media/walkthrough.mp4">docs/media/walkthrough.mp4</a></em>
+  <a href="docs/media/walkthrough.mp4">docs/media/walkthrough.mp4</a>
+  <br>Order #1009 is kept in the live data so this can be checked against it. Only the
+  receipt number differs, 0006 now against 0007 in the video, because that number is the
+  payment's place in the sequence and the test payments around it have been removed.</em>
 </p>

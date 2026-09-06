@@ -131,5 +131,9 @@ for kind, val in C.DOC:
         th = OxmlElement("w:tblHeader"); th.set(qn("w:val"), "true"); trPr.append(th)
         doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
+# the Word file's own author property, not only the name on the page
+doc.core_properties.author = C.AUTHOR
+doc.core_properties.title = "CHOWLY: submission document"
+doc.core_properties.comments = ""
 doc.save(OUT)
 print("wrote", OUT)

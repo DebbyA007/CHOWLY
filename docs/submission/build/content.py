@@ -3,13 +3,14 @@
 
 TITLE = "CHOWLY"
 SUBTITLE = "A dining platform for The Golden Gate, Lagos"
-AUTHOR = "Deborah Akinbolade"
+AUTHOR = "Deborah Akinbola"
 REPO = "https://github.com/DebbyA007/CHOWLY"
 LIVE = "https://chowly-theta.vercel.app"
 
 DOC = [
 ("h1", "Deliverable 1: The git repository"),
 ("p", f"The codebase is at {REPO}. It is public, so facilitators need no invitation to read it."),
+("p", "The commit author name reads Deborah Akinbolade throughout the history. That is a typo in the git configuration; the correct name is Deborah Akinbola."),
 ("p", "The commit history is the work as it was done, not a tidy retelling of it. Nothing was squashed and no history was rewritten. The repository therefore contains commits that fix things earlier commits broke, and their messages say so. Three worth opening, because they show the method rather than the result:"),
 ("bullet", "\"fix: placing an order was returning 400 on production\". A commit had added a field the client needed to the request body it posts. The order endpoint validates strictly, so it refused every order with \"Unknown field: foodIds\". Typecheck, lint, thirty tests and a build were all green, because nothing in any of them compared the body the client sends with the schema the server accepts. The fix separates the two and adds a test that asserts the wire shape both ways."),
 ("bullet", "\"feat: replace the menu with The Lagos Table card, and four model deltas\". The menu was replaced late, from ninety two rows in the assignment's own menu document, and four changes to the data model came with it."),
@@ -182,6 +183,9 @@ DOC = [
 ("num", "Pick a method and tap \"Pay ... (pretend)\". The receipt prints, with the stamp, the torn foot, and a credit line naming only the waiter, because nothing on that order was cooked or mixed. Tap it twice if you like: the record is one payment. \"Save the receipt\" hands the picture to your phone."),
 ("num", "Two more things worth a minute. On the waiter side, the Menu tab is the 86 board: switch a dish to \"Sold out\", then look at the guests' card and find it greyed with a tag. And turn on Reduce Motion in your system settings and reload: every entrance becomes a fade, and the late colour change still happens, slower, because it is a colour and not a movement."),
 
+("h3", "A recorded walkthrough"),
+("p", "The same pass is recorded end to end at docs/media/walkthrough.mp4 in the repository: three minutes forty five, one continuous take on the deployed app, no cuts and no second tab."),
+("p", "Order #1009 in the live data is the order that recording pays for, kept deliberately so the walkthrough can be checked against it; only its receipt number differs, reading 0006 now rather than the 0007 in the video, because that number is the payment's place in the sequence of payments and the test payments recorded around it have since been removed."),
 ("h2", "Where each requirement is"),
 ("table", (["The brief asks for", "Where it is"], [
   ["1. The menu, with a name, a price and a preparation time on every item", "Ninety two dishes seeded into PostgreSQL, all three fields on every one. Menu browsing, above"],
