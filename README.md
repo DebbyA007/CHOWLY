@@ -87,6 +87,24 @@ credits are below.
 | Data fetching | SWR, the menu and the session's orders cached client-side, the live list polled every 3 seconds |
 | Hosting | Vercel |
 
+### Development has its own database
+
+Neon lets one PostgreSQL database carry branches, the way git carries branches: a second
+copy of the data that starts identical and then goes its own way, at almost no cost. This
+project uses one because it needed one. For most of the build, development and the live
+site shared a single database, which seemed harmless until reseeding it from a feature
+branch replaced the entire menu everywhere at once, and the deployed app, still running
+the older code, dropped to six dishes with four of them marked sold out. Nothing was lost
+and nothing was corrupt, but the live link was degraded until the branch was merged. The
+lesson is not that the seed needs more care: with one database, any data change made while
+developing **is** a change to the live site, and no amount of care makes that untrue. So
+development now points at its own Neon branch, and the live database is named in
+`PRODUCTION_DB_HOST` so that anything destructive checks what it is aimed at and refuses to
+touch it. `npm run db:where` prints which database the current environment is talking to.
+The cost of the split is that migrations no longer reach the live site as a side effect of
+developing, so applying them is now a deliberate release step. All of it is written up in
+[`docs/DATABASE.md`](docs/DATABASE.md).
+
 ## Data model
 
 ```mermaid
