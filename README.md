@@ -286,13 +286,13 @@ one shoot. The source, author and licence of every image are in
 
 <p align="center">
   <a href="docs/media/walkthrough.mp4"><img src="docs/screens/order-late-390.png" alt="An order running late: the ring closed in red, the elapsed time, and the two actions that appear" width="30%"></a>
-  <br><em>Two and a half minutes, recorded on the deployed app: the door and the table, the menu,
-  an order of bottled water, the one minute promise running out, the complaint and a low
-  rating, the switch to the waiter who records the chef and the bartender and marks it
-  served, then back to the table to pay and take the receipt.
-  <a href="docs/media/walkthrough.mp4">docs/media/walkthrough.mp4</a>
-  <br><strong>Recorded before the menu was replaced.</strong> Every flow it shows still
-  behaves the way it shows them, but the card is the old eleven dishes and the waiter
-  records a chef and a bartender for an order that would now need neither. It is left in
-  place rather than described as something it is not, and it wants re-recording.</em>
+  <br><em>Three minutes and forty five seconds, one continuous take on the deployed app:
+  the door and the table, the card's seven headings with the sub-headings under them, the
+  three bottles priced from a floor, the tasting menu's eight courses, then an order of
+  still water. The window to withdraw it counts down and is used, and the order is
+  cancelled. A second order runs the promise out instead: the window closes in place, the
+  ring crosses to red, the complaint and a low rating. Then the waiter's side, which asks
+  for a waiter and nobody else because nothing on that order is cooked or mixed, and back
+  to the table to pay and take a receipt that credits only the person who brought it.
+  <a href="docs/media/walkthrough.mp4">docs/media/walkthrough.mp4</a></em>
 </p>

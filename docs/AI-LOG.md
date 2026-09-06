@@ -2657,3 +2657,22 @@ weakening the header.
 
 **Not a product defect, either time.** The deployed app is https throughout and neither
 Safari nor WebKit has ever been affected on it.
+
+### The walkthrough, re-recorded
+
+One continuous take against the deployed app, three minutes forty five, recorded with
+Playwright's own video capture at 390 by 844 and converted to h264. **One page throughout,
+not two tabs.** The waiter side opens from the same front door with no login, so a person
+really can walk the whole thing on one phone, and a single page keeps the countdown
+unthrottled: an unfocused window has throttled timers, which is what made an earlier
+two-tab attempt show a ring that did not move.
+
+It covers what the old one could not: the seven headings with their sub-headings, the
+three bottles priced from a floor, the tasting menu's eight courses opened, the window to
+withdraw an order counted down and then used, the same window closing in place on a second
+order, and a receipt that reads "Served by Ada O." and credits nobody else because nothing
+on that order was cooked or mixed.
+
+The previous file was left in place with a note saying it was out of date rather than
+being deleted or described as something it was not. It is now replaced, and the note is
+gone with it.
