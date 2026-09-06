@@ -321,9 +321,10 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           {sending ? <p className="mt-3 flex items-center gap-2 text-[12.5px] text-fg-muted" data-sending><span className="spinner" aria-hidden="true" />Sending to the kitchen</p> : null}
           {sending || served || paid || cancelled || isLate ? null : (
             // DELTA 13: the window to withdraw the order, counted down live in the same
-            // tabular treatment as the ring. The block keeps its height when the window
-            // closes, so the button goes away in place and a sentence takes its spot.
-            <div className="late-actions mt-5 flex w-full flex-col items-center gap-[10px]" style={{ minHeight: 74 }} data-cancel-window={cancelOpen ? "open" : "closed"}>
+            // tabular treatment as the ring. The block is a fixed height and centres what
+            // is in it, so when the window closes the button goes away where it stands,
+            // the sentence takes the space, and nothing below it moves by a pixel.
+            <div className="late-actions mt-5 flex w-full flex-col items-center justify-center gap-[10px]" style={{ height: 78 }} data-cancel-window={cancelOpen ? "open" : "closed"}>
               {cancelOpen ? (
                 confirming ? (
                   <>

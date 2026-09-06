@@ -26,9 +26,9 @@ red, and a deliberately conventional structure. Every screen and state is captur
 in [`docs/screens`](docs/screens/README.md).
 
 <p align="center">
-  <img src="docs/screens/menu-390.png" alt="The menu: round photographs of the dishes, name, description, price and minutes, an ochre add circle on each row, and the persistent cart bar" width="32%">
-  <img src="docs/screens/order-late-390.png" alt="An order six minutes late: the ring closed in red, the elapsed time, the apology, Report a problem and Rate your order, the stepper" width="32%">
-  <img src="docs/screens/receipt-390.png" alt="The receipt: a perforation under the header, ruled lines, the total struck into the surface, a PAID stamp, a torn foot" width="32%">
+  <img src="docs/screens/menu-390.png" alt="The menu on Breakfast: the seven printed headings as chips with Food and Drinks under them, a photograph on the first dish and struck monograms on the others, name, description, price and minutes, an ochre add circle on each row, and the persistent cart bar" width="32%">
+  <img src="docs/screens/order-late-390.png" alt="An order of still water two minutes late: the glass and the ring closed in red, the elapsed time, an apology that names the waiter rather than the kitchen, Report a problem and Rate your order, the stepper" width="32%">
+  <img src="docs/screens/receipt-390.png" alt="The receipt: a perforation under the header, ruled lines, the total struck into the surface, a PAID stamp, a torn foot, and one credit line naming only the waiter who brought it" width="32%">
 </p>
 
 1. **Landing.** On a cold start, a splash where the mark's arc fills as a progress ring
@@ -282,7 +282,7 @@ one shoot. The source, author and licence of every image are in
 ## Walkthrough video
 
 <p align="center">
-  <a href="docs/media/walkthrough.mp4"><img src="docs/screens/order-late-390.png" alt="An order running late on the deployed app: the ring closed in red, the elapsed time, and the two actions that appear" width="30%"></a>
+  <a href="docs/media/walkthrough.mp4"><img src="docs/screens/order-late-390.png" alt="An order running late: the ring closed in red, the elapsed time, and the two actions that appear" width="30%"></a>
   <br><em>Two and a half minutes, recorded on the deployed app: the door and the table, the menu,
   an order of bottled water, the one minute promise running out, the complaint and a low
   rating, the switch to the waiter who records the chef and the bartender and marks it
