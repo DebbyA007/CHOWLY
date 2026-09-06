@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import type { SerializedOrder } from "@/lib/orders";
 import { clockDate, clockTime, shortName } from "@/lib/clock";
+import { chooseSaveRoute, isDismissal } from "@/lib/receipt-save";
 import { usePrefersReducedMotion } from "@/components/use-reduced-motion";
 import { Foot, GUEST_TABS, Header, Screen, TabBar } from "./chrome";
 import { ActionSheet } from "./order";
@@ -202,7 +203,7 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
   // browser rather than guessed from the user agent. It decides what the caption under
   // the button promises, so the guest is told what they are about to see before they
   // see it.
-  const [viaSheet, setViaSheet] = useState(false);
+  const [route, setRoute] = useState<"share" | "download">("download");
   // The receipt only changes when the order it prints does, so the drawing is keyed on
   // what is actually on the paper rather than on the polled object, which would redraw
   // the canvas every few seconds for nothing.
@@ -221,7 +222,7 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
       }
       const image = new File([blob], receiptFileName(latest.current), { type: "image/png" });
       file.current = image;
-      setViaSheet(!!navigator.canShare?.({ files: [image] }));
+      setRoute(chooseSaveRoute(navigator, image));
       setReady(true);
     });
     return () => {
@@ -241,13 +242,16 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
     const image = file.current;
     if (!image) return;
     setNotice("");
-    try {
-      if (navigator.canShare?.({ files: [image] })) {
+    if (chooseSaveRoute(navigator, image) === "share") {
+      try {
         await navigator.share({ files: [image] });
         return;
+      } catch (e) {
+        // Closing the sheet without saving is a choice, and nothing is said about it.
+        if (isDismissal(e)) return;
+        // Anything else means the share never carried the picture, so save it the way
+        // that does not need one.
       }
-    } catch (e) {
-      if ((e as Error)?.name === "AbortError") return;
     }
     await download(image);
   }
@@ -350,13 +354,16 @@ export function Receipt({ order, api }: { order: SerializedOrder; api: ReturnTyp
             <button type="button" data-save-receipt onClick={save} disabled={!ready} className="btn-primary press !py-4 !text-[14.5px]">{ready ? "Save the receipt" : "Preparing the receipt"}</button>
             <p className="-mt-[2px] text-center text-[12px] leading-[1.5] text-fg-muted" data-save-hint>
               {ready
-                ? viaSheet
-                  ? "Your phone opens its own sheet. Tap Save Image and the receipt goes to your photos."
+                ? route === "share"
+                  ? "Your phone opens its own sheet. Save the picture from there, or download it below."
                   : "It saves as a picture in your downloads."
                 : "Drawing the picture."}
             </p>
-            {viaSheet ? (
-              <button type="button" data-download-receipt onClick={() => file.current && download(file.current)} disabled={!ready} className="press -mt-[2px] text-[12.5px] text-fg-muted underline">Download the file instead</button>
+            {/* Always reachable when the sheet is in play. A sheet that does not offer to
+                save the picture is not a dead end if the download is one tap away, and
+                the target is 44px like everything else that can be tapped. */}
+            {route === "share" ? (
+              <button type="button" data-download-receipt onClick={() => file.current && download(file.current)} disabled={!ready} className="press -my-[10px] -mt-[2px] min-h-[44px] py-[14px] text-[12.5px] text-fg-muted underline">Download the picture instead</button>
             ) : null}
             <button type="button" data-rate-open onClick={() => setRating(true)} className="btn-outline press !py-4 !text-[14.5px]">{order.rating ? "Change your rating" : "Rate your order"}</button>
             <Link href="/menu" data-go-menu className="btn-outline press !py-4 !text-[14.5px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
