@@ -13,16 +13,44 @@ The lesson is not "be careful with the seed". It is that **with one database, a 
 change on a branch is a production change**, and no amount of care makes that untrue. So
 there are two defences, and the second one holds even when the first has not been set up.
 
-## Defence one: development gets its own Neon branch
+## The split was considered and declined
 
-Neon branches are copy-on-write. A branch is created from production in a second or two,
-costs almost nothing while it is small, and gets **its own endpoint host**, which is what
-makes the second defence possible.
+Neon branches are copy-on-write: a second database, created from production in a second or
+two, with its own endpoint host. Giving development its own branch is the textbook fix for
+what happened above, and it was worked out in full, priced, and **declined**.
 
-These steps are in the Neon console. They cannot be done from this repository, because
-there is no Neon API key here and no `neonctl` installed. If you would rather they were
-scriptable, create a key in the Neon console under **Account settings, API keys**, put it
-in `.env` as `NEON_API_KEY`, and say so: the whole of this section becomes one command.
+The reasoning, recorded so this file does not read as an unfinished task:
+
+- **The guard below already refuses the thing that actually went wrong.** The outage was a
+  reseed pointed at production. `npm run db:seed` now refuses that outright, and refusing
+  is the default rather than something to remember.
+- **The split has a running cost that lands on every schema change.** With one database,
+  `prisma migrate dev` reaches production as a side effect of developing. With two, it does
+  not, so every migration becomes a second deliberate step against the live database. That
+  is a new way to ship a deployment whose schema is behind its code, traded for a way to
+  reseed the wrong database that is already blocked.
+- **It is not proportionate to this project.** One restaurant, one deployment, one person
+  working on it, and a graded submission days away. Two connection strings and a release
+  ritual is the right answer for a team; it is complexity without a reader here.
+
+So there is one database, and the guard is what stands between it and a careless command.
+
+### What that leaves unprotected, stated plainly
+
+The guard covers `npm run db:seed`, which is the command that caused the outage. It does
+**not** cover Prisma's own CLI, because this repository cannot hook it. `prisma migrate
+dev` and `prisma migrate reset` are pointed at whatever `DATABASE_URL` says, and against
+the live database `migrate reset` drops every table. There is no code here that stops it.
+
+What stands in for that is a habit and a command: **run `npm run db:where` before anything
+that writes**, and prefer `npm run db:deploy`, which only applies migrations that already
+exist and never generates, resets or drops.
+
+### If the split is ever wanted after all
+
+The steps, kept because the decision above may not survive contact with a second developer.
+They are in the Neon console; there is no Neon API key in this repository to do them from
+here.
 
 1. Open the Neon console and pick the CHOWLY project.
 2. **Branches**, then **Create branch**.
@@ -42,7 +70,7 @@ in `.env` as `NEON_API_KEY`, and say so: the whole of this section becomes one c
 6. Check it: `npm run db:where`. It should name the development host and say
    `writes allowed`.
 
-## Defence two: destructive commands check the host
+## The guard: destructive commands check the host
 
 `lib/db-target.ts` compares the host in `DATABASE_URL` against `PRODUCTION_DB_HOST` and
 refuses if they are the same Neon endpoint. The pooled and direct hosts of one branch
@@ -73,31 +101,23 @@ The guard is armed **today**, before the Neon branch exists. With `.env` still p
 production it fails closed: the seed refuses to run at all. That is the correct state to
 be in while the branch is being created.
 
-## Migrations, which is the real cost of splitting
+## Migrations
 
 Vercel's build command is `prisma generate && next build`. It does not run migrations, and
 it should not: a deploy that silently changes the database schema is a worse problem than
-this one. While the two shared a database, running `prisma migrate dev` locally migrated
-production as a side effect. **After the split it does not**, and a schema change that is
-deployed but not migrated is a production outage.
+the one it solves.
 
-So the order is always:
+With a single database, `prisma migrate dev` applies a migration to the live database as
+it writes the migration file. That is convenient and it is the sharp edge of the decision
+above, so the order that keeps it safe is:
 
-1. `npm run db:migrate` on the development branch, which writes the migration file.
-2. Commit it, review it, and get the app green against development.
-3. Before or immediately after the deploy, apply it to production:
+1. `npm run db:where`, and read it. It names the host and says whether the guard is armed.
+2. `npm run db:migrate` to write and apply the migration.
+3. Deploy, and open the live link once afterwards. A schema change that is applied but not
+   deployed is invisible until someone hits the route that needs it.
 
-```
-DATABASE_URL="<production pooled>" DIRECT_URL="<production direct>" npm run db:deploy
-```
-
-`prisma migrate deploy` only applies migrations that already exist. It never generates,
-never resets and never drops, so it is the one command that is meant to be pointed at
-production, and the guard does not block it.
-
-Two habits make forgetting harder. Read the deployment log for the migration you expect,
-and open the live link once after every deploy that carried a schema change. Both of those
-are what would have caught the September outage in under a minute.
+`npm run db:deploy` runs `prisma migrate deploy`, which only applies migrations that
+already exist and never generates, resets or drops. It is the safe one to point anywhere.
 
 ## The commands
 
@@ -111,13 +131,12 @@ are what would have caught the September outage in under a minute.
 `prisma migrate reset` is not wrapped, because it is Prisma's own command and this
 repository cannot hook it. It drops every table. Run `npm run db:where` first, every time.
 
-## If the branch is not workable
+## The rule, since there is one database
 
-If the Neon plan will not carry a second branch, or the two connection strings become more
-trouble than they are worth, the fallback rule is:
+**Nothing seeds or resets against the live database except as a deliberate, announced
+step.** `PRODUCTION_DB_HOST` stays set so the seed refuses by default, and the override
+phrase exists for the rare case where reseeding the live menu is genuinely what is wanted.
 
-**Nothing seeds or migrates against production except a deliberate, announced release
-step, and `PRODUCTION_DB_HOST` stays set so the seed refuses by default.** The override
-phrase exists for exactly that release step. This is weaker than two databases, because it
-depends on a person rather than on a boundary, but it is not nothing: the failure in
-September was an unguarded command run without thinking, and the guard stops that one.
+This is weaker than two databases, because it leans on a person for `prisma migrate` and
+on code only for the seed. It is not nothing: the failure in September was an unguarded
+command run without thinking, and that exact command is now blocked.

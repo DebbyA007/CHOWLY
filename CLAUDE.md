@@ -113,13 +113,17 @@ Security review is part of every change, not a phase at the end.
 Use Neon's **pooled** connection string for `DATABASE_URL` and the direct one for
 `DIRECT_URL`, which Prisma migrations need.
 
-**Development points at its own Neon branch, never at production.** They shared one
-database once and a reseed on a feature branch took the live menu down to six rows until
-the branch merged. `PRODUCTION_DB_HOST` in `.env` names the live host and anything
-destructive refuses to touch it; `lib/db-target.ts` is the check and it is tested. Run
-`npm run db:where` before anything that writes. `prisma migrate dev` no longer migrates
-production as a side effect, so a schema change needs `npm run db:deploy` pointed at
-production as an explicit step. All of it is in `docs/DATABASE.md`.
+**There is one database, shared by development and production, and a guard instead of a
+split.** A reseed on a feature branch once took the live menu down to six rows until the
+branch merged. A separate Neon branch for development was worked out and declined: it makes
+every migration a second deliberate step against the live database, which is a new failure
+traded for one that is now blocked. `PRODUCTION_DB_HOST` in `.env` names the live host and
+`npm run db:seed` refuses to touch it; `lib/db-target.ts` is the check and it is tested.
+
+**The guard does not cover Prisma's own CLI**, which this repository cannot hook.
+`prisma migrate reset` against the live database drops every table and nothing here stops
+it. Run `npm run db:where` before anything that writes, and prefer `npm run db:deploy`,
+which only applies existing migrations. All of it is in `docs/DATABASE.md`.
 
 ---
 
