@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, createScope, createTimeline, stagger, utils } from "animejs";
 import type { MenuItemView, MenuView } from "@/lib/menu";
 import { formatNaira } from "@/lib/money";
@@ -124,7 +124,7 @@ function MenuBody({ menu, cart }: { menu: MenuView; cart: CartApi }) {
         ) : null}
         <div className={`flex gap-[9px] overflow-x-auto px-[22px] ${chosen && chosen.groups.length > 1 ? "pb-[11px]" : "pb-4"}`} role="tablist" aria-label="Menu">
           {menu.sections.map((s) => (
-            <Chip key={s.name} on={s.name === heading} onClick={() => { setHeading(s.name); setSubId(null); }}>{s.name}</Chip>
+            <Chip key={s.name} tab data-heading={s.name} on={s.name === heading} onClick={() => { setHeading(s.name); setSubId(null); }}>{s.name}</Chip>
           ))}
         </div>
         {chosen && chosen.groups.length > 1 ? (
@@ -207,21 +207,37 @@ function ReviewTrigger({ onOpen, disabled }: { onOpen: () => void; disabled: boo
 // into a total nobody can compute.
 function DishRow({ item, quantity, onAdd, onRemove, reduce }: { item: MenuItemView; quantity: number; onAdd: () => void; onRemove: () => void; reduce: boolean }) {
   const off = !item.available;
+  // The card's descriptions are one column on the printed menu, ingredients and then
+  // preparation, so some run to four lines and the tasting menu lists eight courses.
+  // Three lines keeps ninety two rows scannable and the rest is a tap away, rather than
+  // gone: a dish whose description is the point of it would lose it.
+  const desc = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [clipped, setClipped] = useState(false);
+  useLayoutEffect(() => {
+    const el = desc.current;
+    if (el && !expanded) setClipped(el.scrollHeight > el.clientHeight + 1);
+  }, [item.description, expanded]);
   return (
     <li className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" data-dish={item.id} data-available={item.available}>
       <div className={`flex min-w-0 flex-1 items-center gap-[17px] ${off ? "opacity-45" : ""}`} style={{ transition: "opacity 300ms" }}>
         <DishPhoto src={item.photo} alt="" name={item.name} size={76} />
         <div className="min-w-0 flex-1">
           <h3 className="serif text-[20px] leading-[1.2]">{item.name}</h3>
-          <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
+                    <p ref={desc} className={`pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted ${expanded ? "" : "line-clamp-3"}`}>{item.description}</p>
+          {clipped ? (
+            <button type="button" data-more={item.id} aria-expanded={expanded} onClick={() => setExpanded((v) => !v)} className="press mt-[6px] text-[11.5px] text-fg-muted underline">{expanded ? "Show less" : "Show all of it"}</button>
+          ) : null}
           <div className="mt-[10px] flex items-baseline gap-[10px]">
-            <span className="text-[14px] font-semibold text-accent">{item.priceFrom ? `from ${item.price}` : item.price}</span>
-            <span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span>
+            <span className="whitespace-nowrap text-[14px] font-semibold text-accent">{item.priceFrom ? `from ${item.price}` : item.price}</span>
+            {/* A bottle nobody can add has no wait to promise, and the tag beside it is
+                wider than "Sold out", so the minutes come off rather than wrap. */}
+            {item.priceFrom ? null : <span className="whitespace-nowrap text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span>}
           </div>
         </div>
       </div>
       <div className="flex shrink-0 items-center">
-        {off ? <span className="rounded-full border px-[12px] py-[7px] text-[12px] font-semibold text-fg-muted" style={{ borderColor: "var(--chip-border)" }} data-sold-out>Sold out</span> : item.priceFrom ? <span className="rounded-full border px-[12px] py-[7px] text-[12px] font-semibold text-fg-muted" style={{ borderColor: "var(--chip-border)" }} data-ask-waiter>Ask your waiter</span> : <Stepper quantity={quantity} onAdd={onAdd} onRemove={onRemove} reduce={reduce} name={item.name} />}
+        {off ? <span className="rounded-full border px-[12px] py-[7px] text-[12px] font-semibold text-fg-muted" style={{ borderColor: "var(--chip-border)" }} data-sold-out>Sold out</span> : item.priceFrom ? <span className="rounded-full border px-[12px] py-[7px] text-[12px] font-semibold text-fg-muted" style={{ borderColor: "var(--chip-border)" }} data-ask-waiter>Ask your&nbsp;waiter</span> : <Stepper quantity={quantity} onAdd={onAdd} onRemove={onRemove} reduce={reduce} name={item.name} />}
       </div>
     </li>
   );

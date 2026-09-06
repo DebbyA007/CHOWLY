@@ -79,6 +79,26 @@ function lateNote(order: SerializedOrder): string {
   return "Sorry, your order is taking longer than we said. Your waiter is bringing it.";
 }
 
+// Who has the order, for the sentences that have to name someone. A glass of water is
+// with nobody, so nothing claims the kitchen has started it.
+function startedBy(order: SerializedOrder): string {
+  if (order.needs.chef) return "The kitchen has started your order";
+  if (order.needs.bartender) return "The bar has started your order";
+  return "Your order is on its way";
+}
+
+function beforeItStarted(order: SerializedOrder): string {
+  if (order.needs.chef) return "before the kitchen started it";
+  if (order.needs.bartender) return "before the bar started it";
+  return "before your waiter brought it";
+}
+
+function notStartedYet(order: SerializedOrder): string {
+  if (order.needs.chef) return "The kitchen has not started it.";
+  if (order.needs.bartender) return "The bar has not started it.";
+  return "Your waiter has not brought it yet.";
+}
+
 function OrderBody({ order, clock, api, open, others, pending, fresh }: { order: SerializedOrder; clock: Clock; api: Api; open: SerializedOrder[]; others: SerializedOrder[]; pending: Pending | null; fresh: Fresh }) {
   const root = useRef<HTMLDivElement>(null);
   // Still on its way to the kitchen, or refused: the same screen, said plainly.
@@ -103,11 +123,11 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   // Three steps the data can vouch for: placed, served, paid. Nothing is invented between.
   const steps = cancelled
     ? [
-        { name: "Order placed", time: `${clockTime(placedAt)}, promised in ${order.waitMinutes} minutes`, done: true },
-        { name: "Cancelled", time: `${clockTime(order.cancelledAt ?? order.placedAt)}, before the kitchen started it`, done: true },
+        { name: "Order placed", time: `${clockTime(placedAt)}, ${promiseLabel(order.waitMinutes).toLowerCase()}`, done: true },
+        { name: "Cancelled", time: `${clockTime(order.cancelledAt ?? order.placedAt)}, ${beforeItStarted(order)}`, done: true },
       ]
     : [
-        { name: "Order placed", time: `${clockTime(placedAt)}, promised in ${order.waitMinutes} minutes`, done: true },
+        { name: "Order placed", time: `${clockTime(placedAt)}, ${promiseLabel(order.waitMinutes).toLowerCase()}`, done: true },
         { name: "Served", time: served ? clockTime(order.servedAt!) : isLate ? "Any moment" : `About ${clockTime(order.dueAt)}`, done: served },
         { name: "Paid", time: paid ? clockTime(order.paidAt!) : served ? "When you are ready" : "After it is served", done: paid },
       ];
@@ -200,6 +220,19 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
     };
     // once per mount of this order, not on every poll
   }, [order.id, reduce, entrance]);
+
+  // Cancelling replaces the last two steps with one, and a step that appears after the
+  // entrance has run would otherwise stay at the opacity the entrance left it at.
+  const stepNames = steps.map((step) => step.name).join("|");
+  const shownSteps = useRef(stepNames);
+  useEffect(() => {
+    if (shownSteps.current === stepNames) return;
+    shownSteps.current = stepNames;
+    const el = root.current;
+    if (!el) return;
+    const hidden = [...el.querySelectorAll<HTMLElement>(".step")].filter((n) => Number(n.style.opacity || "1") === 0);
+    if (hidden.length > 0) animate(hidden, { opacity: [0, 1], duration: reduce ? 200 : 380, ease: "outQuart" });
+  }, [stepNames, reduce]);
 
   // Crossing the promise while the screen is open brings the note and the actions in.
   const wasLate = useRef(isLate);
@@ -294,7 +327,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
               {cancelOpen ? (
                 confirming ? (
                   <>
-                    <p className="pretty text-center text-[13px] leading-[1.5] text-fg-muted">Cancel this order? The kitchen has not started it.</p>
+                    <p className="pretty text-center text-[13px] leading-[1.5] text-fg-muted">Cancel this order? {notStartedYet(order)}</p>
                     <div className="flex w-full gap-[10px]">
                       <button type="button" data-cancel-keep onClick={() => setConfirming(false)} className="btn-outline press flex-1 !py-[15px] !text-[14px]">Keep it</button>
                       <button type="button" data-cancel-confirm disabled={api.busy === "cancel"} onClick={async () => { selectOrder(order.id); const ok = await api.cancel(); if (!ok) setConfirming(false); }} className="btn-outline press flex-1 !py-[15px] !text-[14px] !text-late" style={{ borderColor: "var(--late-border)" }}>{api.busy === "cancel" ? "Cancelling" : "Yes, cancel"}</button>
@@ -307,7 +340,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
                   </>
                 )
               ) : (
-                <p className="pretty text-center text-[12.5px] leading-[1.55] text-fg-muted" data-cancel-closed>The kitchen has started your order, so it can no longer be cancelled. Tell your waiter if something is wrong.</p>
+                <p className="pretty text-center text-[12.5px] leading-[1.55] text-fg-muted" data-cancel-closed>{startedBy(order)}, so it can no longer be cancelled. Tell your waiter if something is wrong.</p>
               )}
             </div>
           )}
