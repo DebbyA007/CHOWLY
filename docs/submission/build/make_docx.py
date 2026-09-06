@@ -7,6 +7,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.enum.section import WD_SECTION
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+import re as _re
 
 OUT, ERD = sys.argv[1], sys.argv[2]
 INK = RGBColor(0x1a, 0x1a, 0x1a)
@@ -30,6 +31,18 @@ for name, size, before, after in (("Heading 1", 17, 20, 10), ("Heading 2", 13.5,
     s.font.name = "Calibri"; s.font.size = Pt(size); s.font.bold = True
     s.font.color.rgb = INK
     s.paragraph_format.space_before = Pt(before); s.paragraph_format.space_after = Pt(after)
+
+# **bold** in the content becomes real bold runs rather than literal asterisks.
+def rich_into(paragraph, text, size=None):
+    for i, part in enumerate(_re.split(r"\*\*(.+?)\*\*", str(text))):
+        if not part:
+            continue
+        run = paragraph.add_run(part)
+        run.bold = i % 2 == 1
+        if size:
+            run.font.size = size
+    return paragraph
+
 
 def field(paragraph, instr, cached_runs=None):
     """A real Word field. Word recomputes it; a viewer that will not shows the cached text."""
@@ -100,12 +113,12 @@ for kind, val in C.DOC:
         doc.add_paragraph(val, style=doc.styles[{"h1": "Heading 1", "h2": "Heading 2", "h3": "Heading 3"}[kind]])
         num = 0
     elif kind == "p":
-        p = doc.add_paragraph(val); p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; num = 0
+        p = doc.add_paragraph(); rich_into(p, val); p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; num = 0
     elif kind == "bullet":
-        p = doc.add_paragraph(val, style="List Bullet"); p.paragraph_format.space_after = Pt(5)
+        p = doc.add_paragraph(style="List Bullet"); rich_into(p, val); p.paragraph_format.space_after = Pt(5)
     elif kind == "num":
         num += 1
-        p = doc.add_paragraph(val, style="List Number"); p.paragraph_format.space_after = Pt(5)
+        p = doc.add_paragraph(style="List Number"); rich_into(p, val); p.paragraph_format.space_after = Pt(5)
     elif kind == "image":
         doc.add_picture(ERD, width=Cm(16.6))
         doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -113,7 +126,7 @@ for kind, val in C.DOC:
         r = cap.add_run("The data model as implemented. Every entity of the engineered model is present; the fields added or changed by the fifteen deltas are visible on Menu, MenuItem and Order.")
         r.font.size = Pt(8.5); r.font.color.rgb = MUTED
     elif kind == "table":
-        head, rows = val
+        head, rows = val[0], val[1]
         t = doc.add_table(rows=1, cols=len(head))
         t.style = "Table Grid"
         for i, htxt in enumerate(head):
@@ -125,7 +138,7 @@ for kind, val in C.DOC:
             cells = t.add_row().cells
             for i, txt in enumerate(row):
                 cells[i].text = ""
-                run = cells[i].paragraphs[0].add_run(str(txt)); run.font.size = Pt(9)
+                rich_into(cells[i].paragraphs[0], txt, size=Pt(9))
         # repeat the header row across a page break
         trPr = t.rows[0]._tr.get_or_add_trPr()
         th = OxmlElement("w:tblHeader"); th.set(qn("w:val"), "true"); trPr.append(th)

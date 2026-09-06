@@ -24,9 +24,9 @@ def st(name, **kw):
     return ParagraphStyle(name, **base)
 
 S_BODY = st("body", alignment=TA_JUSTIFY)
-S_H1 = st("h1", fontName="Helvetica-Bold", fontSize=17, leading=21, spaceBefore=20, spaceAfter=10, textColor=INK)
-S_H2 = st("h2", fontName="Helvetica-Bold", fontSize=13.5, leading=17, spaceBefore=16, spaceAfter=7)
-S_H3 = st("h3", fontName="Helvetica-Bold", fontSize=11.5, leading=15, spaceBefore=12, spaceAfter=5)
+S_H1 = st("h1", fontName="Helvetica-Bold", fontSize=17, leading=21, spaceBefore=20, spaceAfter=10, textColor=INK, keepWithNext=1)
+S_H2 = st("h2", fontName="Helvetica-Bold", fontSize=13.5, leading=17, spaceBefore=16, spaceAfter=7, keepWithNext=1)
+S_H3 = st("h3", fontName="Helvetica-Bold", fontSize=11.5, leading=15, spaceBefore=12, spaceAfter=5, keepWithNext=1)
 S_BUL = st("bul", leftIndent=13, bulletIndent=3, spaceAfter=5)
 S_NUM = st("num", leftIndent=17, bulletIndent=3, spaceAfter=5)
 S_CELL = st("cell", fontSize=9, leading=12.5, spaceAfter=0)
@@ -90,8 +90,14 @@ story.append(Paragraph("Contents", st("contents_title", fontName="Helvetica-Bold
 story.append(toc)
 story.append(PageBreak())
 
+import re as _re
+
+# **bold** in the content becomes bold in the document, in both renderers.
+def rich(text):
+    return _re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", str(text))
+
 def cell(txt, header=False):
-    return Paragraph(str(txt), S_CELLH if header else S_CELL)
+    return Paragraph(rich(txt), S_CELLH if header else S_CELL)
 
 count = {"num": 0}
 for kind, val in C.DOC:
@@ -102,12 +108,12 @@ for kind, val in C.DOC:
     elif kind == "h3":
         story.append(Paragraph(val, S_H3)); count["num"] = 0
     elif kind == "p":
-        story.append(Paragraph(val, S_BODY)); count["num"] = 0
+        story.append(Paragraph(rich(val), S_BODY)); count["num"] = 0
     elif kind == "bullet":
-        story.append(Paragraph(val, S_BUL, bulletText="•"))
+        story.append(Paragraph(rich(val), S_BUL, bulletText="•"))
     elif kind == "num":
         count["num"] += 1
-        story.append(Paragraph(val, S_NUM, bulletText=f'{count["num"]}.'))
+        story.append(Paragraph(rich(val), S_NUM, bulletText=f'{count["num"]}.'))
     elif kind == "image":
         from reportlab.lib.utils import ImageReader
         iw, ih = ImageReader(ERD).getSize()
@@ -117,9 +123,10 @@ for kind, val in C.DOC:
         story.append(Paragraph("The data model as implemented. Every entity of the engineered model is present; the fields added or changed by the fifteen deltas are visible on Menu, MenuItem and Order.", S_CAP))
         story.append(Spacer(1, 6))
     elif kind == "table":
-        head, rows = val
+        head, rows = val[0], val[1]
+        given = val[2] if len(val) > 2 else None
         data = [[cell(h, True) for h in head]] + [[cell(c) for c in r] for r in rows]
-        widths = [166*mm * w for w in ([0.20, 0.34, 0.46] if len(head) == 3 else [0.46, 0.54])]
+        widths = [166*mm * w for w in (given or ([0.20, 0.34, 0.46] if len(head) == 3 else [0.46, 0.54]))]
         t = Table(data, colWidths=widths, repeatRows=1, hAlign="LEFT")
         t.setStyle(TableStyle([
             ("GRID", (0, 0), (-1, -1), 0.4, RULE),
