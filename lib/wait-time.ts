@@ -1,3 +1,5 @@
+import type { OrderStatus } from "@prisma/client";
+
 // The wait time is the spine of the whole flow: order, wait, delay, complain, rate.
 // It is computed here and only here, on the server, from prep times read from the
 // database. Nothing the client sends can move it.
@@ -34,7 +36,7 @@ export function calculateWaitMinutes(lines: readonly WaitLine[]): number {
 
 // Delay is derived, never stored (delta 4). PLACED and past the promised wait.
 export function isOrderDelayed(
-  order: { status: "PLACED" | "SERVED" | "PAID"; placedAt: Date; waitMinutes: number },
+  order: { status: OrderStatus; placedAt: Date; waitMinutes: number },
   now: Date = new Date(),
 ): boolean {
   return order.status === "PLACED" && now.getTime() > dueAt(order).getTime();
@@ -48,7 +50,7 @@ export function dueAt(order: { placedAt: Date; waitMinutes: number }): Date {
 // still PLACED past the promised wait, or served after it. A paid order that was served
 // late is still late; paying does not erase the wait.
 export function isOrderLate(
-  order: { status: "PLACED" | "SERVED" | "PAID"; placedAt: Date; waitMinutes: number; servedAt: Date | null },
+  order: { status: OrderStatus; placedAt: Date; waitMinutes: number; servedAt: Date | null },
   now: Date = new Date(),
 ): boolean {
   if (order.servedAt) return order.servedAt.getTime() > dueAt(order).getTime();
