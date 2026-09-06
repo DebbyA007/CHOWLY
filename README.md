@@ -99,9 +99,9 @@ erDiagram
   Customer ||--o{ Order : places
   Order ||--|{ OrderItem : contains
   MenuItem ||--o{ OrderItem : "snapshotted onto"
-  Waiter o|--o{ Order : serves
-  Chef o|--o{ Order : cooks
-  Bartender o|--o{ Order : mixes
+  Waiter |o--o{ Order : serves
+  Chef |o--o{ Order : cooks
+  Bartender |o--o{ Order : mixes
   Order ||--o{ Complaint : receives
   Order ||--o| Rating : "rated once"
   Order ||--o| Payment : "paid once"
@@ -109,35 +109,63 @@ erDiagram
   Customer ||--o{ Rating : gives
   Customer ||--o{ Payment : makes
 
+  Restaurant {
+    string id PK
+    string name
+    string location
+  }
   Menu {
     string id PK
-    string name "Mains, Soups, Drinks"
+    string name "Starters, Mains, Drinks"
+    string section "Lunch, Dinner, Drinks"
+    int sortOrder "the printed order"
     enum type "FOOD DRINKS"
   }
   MenuItem {
     string id PK
     string name
+    string description
     int priceKobo
     int prepTimeMinutes
-    boolean available
+    boolean available "sold out stays on the card"
+    enum station "KITCHEN BAR NONE"
+    int sortOrder "-1 means retired"
+    boolean priceFrom "a floor, not a price"
   }
   Customer {
     string id PK
     string sessionToken UK
     string tableNo
   }
+  Waiter {
+    string id PK
+    string name
+    string shift
+  }
+  Chef {
+    string id PK
+    string name
+    string specialty
+  }
+  Bartender {
+    string id PK
+    string name
+    string specialty
+  }
   Order {
     string id PK
     string reference UK "1042, shown as #1042"
-    enum status "PLACED SERVED PAID"
+    enum status "PLACED SERVED PAID CANCELLED"
     int waitMinutes "longest prep time"
     int totalKobo "includes VAT"
     datetime placedAt
     datetime servedAt
     datetime paidAt
+    datetime cancelledAt
+    string tableNo
     string waiterId FK "nullable"
-    string chefId FK "nullable"
-    string bartenderId FK "nullable"
+    string chefId FK "nullable, only if cooked"
+    string bartenderId FK "nullable, only if mixed"
   }
   OrderItem {
     string id PK
@@ -146,9 +174,15 @@ erDiagram
     int subtotalKobo
     int prepTimeMinutes "snapshot"
   }
+  Complaint {
+    string id PK
+    string description
+    datetime createdAt
+  }
   Rating {
     string id PK
     int score "CHECK 1 to 5"
+    string comment
     string orderId UK
   }
   Payment {
