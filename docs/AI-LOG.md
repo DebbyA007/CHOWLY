@@ -2611,3 +2611,49 @@ marked sold out. Nothing is corrupt and no order was lost, but the live link is 
 until this branch merges, and merging is the fix. It was not merged, because the
 instruction was not to merge before the branch had been walked. Worth recording as the
 cost of a single shared database: a data change on a branch is a production change.
+
+---
+
+## `upgrade-insecure-requests` on localhost: a recurring cause, not two incidents
+
+This has now cost time twice on this project, and both times the first reading of the
+screen was wrong in the same way. Writing it down as one cause so the third time takes a
+minute.
+
+**The directive.** `next.config.ts` sends `upgrade-insecure-requests` in the Content
+Security Policy outside development. It tells the browser to rewrite every `http://`
+subresource request on the page to `https://`. On the deployed app that is correct and
+costs nothing, because everything is already https.
+
+**What it does to a local server.** Chromium exempts `localhost` from the upgrade;
+WebKit and Safari do not. So a page served from `http://localhost:PORT` with that header
+loads its document, then upgrades every stylesheet, script and `fetch` to `https://` on
+the same port, where nothing is listening. The requests fail on TLS.
+
+**Both times, the symptom looked like a rendering bug in the app.**
+
+1. **Phase 5, the Safari CSS outage.** The dev server sent the directive, Safari loaded
+   the HTML and none of the CSS, and the screen read as a broken stylesheet or a Tailwind
+   build problem. The fix was to keep the directive out of development, which is why the
+   config has an `isDev` branch at all.
+2. **The menu replacement, the WebKit evidence run.** Evidence was being captured against
+   a local **production build**, `next build` then `next start`, which is not development,
+   so the directive is sent. WebKit rendered the header and an empty menu, because
+   `/api/menu` had been upgraded to https and failed. The first reading was "WebKit does
+   not render the new menu", and two screens were re-shot before the console showed
+   `Failed to load resource: A TLS error caused the secure connection to fail.`
+
+**How to recognise it in one minute.** WebKit or Safari, a local server, and content that
+is missing rather than misplaced: the document renders, subresources do not. The console
+says TLS, on an origin that has no TLS. Chromium on the same URL is fine, which is the
+part that misleads, because it looks like a browser bug rather than a header.
+
+**What to do.** For a local production build, capture WebKit against the development
+server instead, and say so in the evidence, which is what
+`docs/screens/menu-and-roles/README.md` does. Do not remove the directive to make the
+capture easier: it is a real security header and the deployed app needs it. If a local
+production build has to be walked in WebKit, terminate TLS in front of it rather than
+weakening the header.
+
+**Not a product defect, either time.** The deployed app is https throughout and neither
+Safari nor WebKit has ever been affected on it.
