@@ -297,8 +297,8 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
         ) : null}
         {failed ? (
           <div className="mx-[22px] mb-6 rounded-[12px] border border-[color:var(--late)] p-4" role="alert" data-failed>
-            <p className="text-[14px] font-semibold text-late">The kitchen did not get this order.</p>
-            <p className="mt-[6px] text-[13px] leading-[1.5] text-fg-muted">{pending?.message} Your order is kept on the menu.</p>
+            <p className="text-[14px] font-semibold text-late">This order did not reach the restaurant.</p>
+            <p className="mt-[6px] text-[13px] leading-[1.5] text-fg-muted">{pending?.message} Nothing has been charged, and your order is kept on the menu.</p>
             <div className="mt-4 flex flex-col gap-[10px]">
               {pending && pending.payload.items.length > 0 ? <button type="button" data-retry onClick={retryPlacement} className="btn-primary press !py-[15px] !text-[14px]">Try again</button> : null}
               <Link href="/menu" data-go-menu onClick={abandonPlacement} className="btn-outline press !py-[15px] !text-[14px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Back to the menu</Link>

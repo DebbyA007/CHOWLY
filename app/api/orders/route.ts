@@ -129,6 +129,7 @@ export function POST(request: Request) {
         if (!collision) throw error;
       }
     }
-    throw new HttpError(503, "The kitchen is busy right now. Try placing the order again.");
+    // Says what is true and names no cause. The kitchen has no part in a failed write.
+    throw new HttpError(503, "The order could not be saved.");
   });
 }
