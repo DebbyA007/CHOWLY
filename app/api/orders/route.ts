@@ -7,6 +7,7 @@ import { assertUnderLimit, windowStart } from "@/lib/rate-limit";
 import { orderCreateSchema, parseWith } from "@/lib/schemas";
 import { requireCustomer } from "@/lib/session";
 import { vatKobo } from "@/lib/money";
+import { nextReferences } from "@/lib/order-reference";
 import { calculateWaitMinutes } from "@/lib/wait-time";
 
 const ORDERS_PER_WINDOW = 5;
@@ -90,11 +91,21 @@ export function POST(request: Request) {
     const totalKobo = subtotalKobo + vatKobo(subtotalKobo);
     const waitMinutes = calculateWaitMinutes(lines);
 
-    // The reference is a sequential order number from 1001, shown as "#1042". Two orders
-    // placed in the same instant can pick the same number; the unique constraint catches
-    // it and the insert is retried with a fresh count.
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const reference = String(1001 + (await prisma.order.count()));
+    // The reference is a sequential order number from 1001, shown as "#1042". It is the
+    // next number above the highest one in use, and NOT 1001 plus the number of orders.
+    //
+    // The count was wrong the moment an order was deleted. With #1009 present and #1006
+    // gone, 1001 plus a count of eight lands on 1009, which is taken. Worse, a failed
+    // insert does not change the count, so the retry below recomputed the same number and
+    // the collision could never clear: every order placed after that failed, permanently,
+    // with a 503. It happened on the deployed app.
+    //
+    // Two orders placed in the same instant can still pick the same number. That is what
+    // the retry is for, and incrementing on each attempt is what makes it a retry rather
+    // than the same request five times.
+    const [highest] = await prisma.$queryRaw<{ max: number | null }[]>`SELECT MAX(reference::int) AS max FROM "Order"`;
+    const candidates = nextReferences(highest?.max ?? null);
+    for (const reference of candidates) {
       try {
         const order = await prisma.$transaction(async (tx) => {
           const created = await tx.order.create({
