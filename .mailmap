@@ -1,0 +1,9 @@
+# The author name was misspelled in the git configuration for most of this project:
+# 149 of the 154 commits on main carry "Deborah Akinbolade". The correct name is
+# "Deborah Akinbola", and the email was correct throughout, which is what lets one line
+# fix it. Git applies this to the author and the committer alike.
+#
+# The history is deliberately not rewritten. See docs/AI-LOG.md for that decision.
+#
+# Proper Name <proper email>                      Commit Name <commit email>
+Deborah Akinbola <akinboladeborah400@gmail.com> Deborah Akinbolade <akinboladeborah400@gmail.com>
