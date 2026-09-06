@@ -18,6 +18,9 @@ import { MenuType, PrismaClient, Station } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// A retired dish is off the printed card but still in the database.
+const OFF_THE_CARD = -1;
+
 const restaurant = {
   id: "rest_golden_gate",
   name: "The Golden Gate",
@@ -191,7 +194,9 @@ async function main() {
   for (const item of stale) {
     const ordered = await prisma.orderItem.count({ where: { menuItemId: item.id } });
     if (ordered > 0) {
-      await prisma.menuItem.update({ where: { id: item.id }, data: { available: false } });
+      // Off the card (sortOrder -1), kept in the database so the order that names it
+      // still reads back in full. Unavailable as well, so nothing can order it again.
+      await prisma.menuItem.update({ where: { id: item.id }, data: { available: false, sortOrder: OFF_THE_CARD } });
       retired.push(item.name);
     } else {
       await prisma.menuItem.delete({ where: { id: item.id } });
