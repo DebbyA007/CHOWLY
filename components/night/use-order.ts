@@ -33,14 +33,18 @@ export function useMyOrders() {
   // An order still on its way to the kitchen is the session's newest until it lands.
   const orders = pending ? [pending.order, ...(data?.orders ?? [])] : (data?.orders ?? []);
   const chosen = selected ? orders.find((o) => o.id === selected) ?? null : null;
-  const current = chosen ?? orders.find((o) => o.status !== "PAID") ?? orders[0] ?? null;
-  const open = orders.filter((o) => o.status !== "PAID");
+  // A cancelled order is not open: it cannot be paid and it is not waiting on anything.
+  // It stays in the list, so the Order tab can still show it after the tap that
+  // cancelled it, and it falls out of the running once anything live is there.
+  const live = (o: SerializedOrder) => o.status !== "PAID" && o.status !== "CANCELLED";
+  const current = chosen ?? orders.find(live) ?? orders[0] ?? null;
+  const open = orders.filter(live);
   const others = orders.filter((o) => o.id !== current?.id);
   return { orders, current, open, others, loaded: !!data || !!pending, error, seenAt, pending };
 }
 
 export type Clock = {
-  state: "waiting" | "late" | "served" | "paid";
+  state: "waiting" | "late" | "served" | "paid" | "cancelled";
   elapsedSeconds: number;
   promisedSeconds: number;
   remainingSeconds: number;
@@ -57,7 +61,7 @@ export function orderClock(order: SerializedOrder, now: number | null): Clock {
   const elapsedSeconds = Math.max(0, Math.floor((end - placed) / 1000));
   const remainingSeconds = Math.max(0, promisedSeconds - elapsedSeconds);
   const lateSeconds = Math.max(0, elapsedSeconds - promisedSeconds);
-  const state: Clock["state"] = order.status === "PAID" ? "paid" : order.status === "SERVED" ? "served" : elapsedSeconds > promisedSeconds ? "late" : "waiting";
+  const state: Clock["state"] = order.status === "CANCELLED" ? "cancelled" : order.status === "PAID" ? "paid" : order.status === "SERVED" ? "served" : elapsedSeconds > promisedSeconds ? "late" : "waiting";
   const fraction = promisedSeconds === 0 ? 0 : Math.max(0, Math.min(1, remainingSeconds / promisedSeconds));
   return { state, elapsedSeconds, promisedSeconds, remainingSeconds, lateSeconds, fraction };
 }
@@ -116,6 +120,28 @@ export function useOrder(id: string | null) {
       setBusy(null);
     }
   }
+  // DELTA 13: the guest withdraws their own order. Nothing about the decision is sent:
+  // the id is in the path and the session cookie says who is asking. The endpoint checks
+  // the window again when this arrives, so a tap that leaves the screen inside it and
+  // lands outside it is refused, and the refusal is what the screen shows.
+  async function cancel() {
+    if (!id) return false;
+    setBusy("cancel");
+    setNotice(null);
+    try {
+      const updated = await post(`/api/orders/${id}/cancel`, {});
+      replace(updated);
+      setNotice("Cancelled. There is nothing to pay.");
+      return true;
+    } catch (e) {
+      setNotice((e as Error).message);
+      refresh();
+      return false;
+    } finally {
+      setBusy(null);
+    }
+  }
+
   // The screen may animate the bill away before the receipt takes its place.
   async function pay(method: "CARD" | "MOBILE_MONEY" | "CASH", before?: () => Promise<void>) {
     if (!id) return null;
@@ -134,5 +160,5 @@ export function useOrder(id: string | null) {
       setBusy(null);
     }
   }
-  return { order: order ?? null, error, now, clock, late, busy, notice, setNotice, justPaid, seenAt, refresh, replace, report, rate, pay };
+  return { order: order ?? null, error, now, clock, late, busy, notice, setNotice, justPaid, seenAt, refresh, replace, report, rate, cancel, pay };
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { calculateWaitMinutes, dueAt, isOrderDelayed, isOrderLate, WAIT_CAP_MINUTES } from "./wait-time.ts";
+import { calculateWaitMinutes, canCancel, cancelDeadline, dueAt, isOrderDelayed, isOrderLate, WAIT_CAP_MINUTES } from "./wait-time.ts";
 
 test("one item waits its own prep time", () => {
   assert.equal(calculateWaitMinutes([{ prepTimeMinutes: 22, quantity: 1 }]), 22);
@@ -55,4 +55,26 @@ test("late means past the wait while placed, or served after the wait", () => {
   assert.equal(isOrderLate({ ...base, status: "SERVED", servedAt: servedOnTime }, new Date("2026-09-03T13:00:00Z")), false);
   assert.equal(isOrderLate({ ...base, status: "SERVED", servedAt: servedLate }, new Date("2026-09-03T13:00:00Z")), true);
   assert.equal(isOrderLate({ ...base, status: "PAID", servedAt: servedLate }, new Date("2026-09-03T14:00:00Z")), true);
+});
+
+// DELTA 13: the cancel window, at both ends of the menu.
+test("the cancel window is a quarter of the promise, and closes", () => {
+  const placedAt = new Date("2026-09-06T21:00:00.000Z");
+  const water = { status: "PLACED" as const, placedAt, waitMinutes: 1 };
+  assert.equal(cancelDeadline(water).toISOString(), "2026-09-06T21:00:15.000Z");
+  assert.equal(canCancel(water, new Date("2026-09-06T21:00:14.000Z")), true);
+  assert.equal(canCancel(water, new Date("2026-09-06T21:00:16.000Z")), false);
+
+  const tasting = { status: "PLACED" as const, placedAt, waitMinutes: 90 };
+  assert.equal(cancelDeadline(tasting).toISOString(), "2026-09-06T21:22:30.000Z");
+  assert.equal(canCancel(tasting, new Date("2026-09-06T21:22:29.000Z")), true);
+  assert.equal(canCancel(tasting, new Date("2026-09-06T21:22:31.000Z")), false);
+});
+
+test("an order that is not placed can never be cancelled, however early", () => {
+  const placedAt = new Date("2026-09-06T21:00:00.000Z");
+  const early = new Date("2026-09-06T21:00:01.000Z");
+  for (const status of ["SERVED", "PAID", "CANCELLED"] as const) {
+    assert.equal(canCancel({ status, placedAt, waitMinutes: 90 }, early), false, status);
+  }
 });

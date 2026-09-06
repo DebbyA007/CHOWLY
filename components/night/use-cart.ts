@@ -5,7 +5,7 @@ import { MAX_PER_ITEM, cartCount, cartLines, cartTotalKobo, type Cart } from "@/
 import type { MenuItemView, MenuView } from "@/lib/menu";
 import { formatNaira, vatKobo } from "@/lib/money";
 import type { SerializedOrder } from "@/lib/orders";
-import { calculateWaitMinutes } from "@/lib/wait-time";
+import { calculateWaitMinutes, CANCEL_WINDOW_FRACTION } from "@/lib/wait-time";
 import { CART_EVENT, PENDING_PREFIX, startPlacement, usePending } from "./pending";
 import { readTable, writeTable } from "./table";
 
@@ -114,6 +114,9 @@ export function useCart(menu: MenuView | null) {
       isDelayed: false,
       servedAt: null,
       paidAt: null,
+      cancelledAt: null,
+      // the same window the server computes, so the button does not appear late
+      cancel: { until: new Date(now.getTime() + Math.round(waitMinutes * 60_000 * CANCEL_WINDOW_FRACTION)).toISOString(), open: true },
       subtotalKobo,
       subtotal: formatNaira(subtotalKobo),
       vatKobo: totalKobo - subtotalKobo,

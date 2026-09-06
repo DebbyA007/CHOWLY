@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { formatNaira } from "./money";
 import { prisma } from "./prisma";
-import { dueAt, isOrderDelayed } from "./wait-time";
+import { canCancel, cancelDeadline, dueAt, isOrderDelayed } from "./wait-time";
 
 // Everything a route returns about an order, in one shape. Delay is derived here at read
 // time from placedAt and waitMinutes (delta 4), never read from a column.
@@ -40,6 +40,11 @@ export function presentOrder(order: OrderWithRelations, now: Date = new Date()) 
     isDelayed: isOrderDelayed(order, now),
     servedAt: order.servedAt,
     paidAt: order.paidAt,
+    cancelledAt: order.cancelledAt,
+    // DELTA 13: when the guest's own window to cancel closes, and whether it is still
+    // open at this instant. The screen counts down to the first and hides the button on
+    // the second; the endpoint checks the same thing again when the tap arrives.
+    cancel: { until: cancelDeadline(order), open: canCancel(order, now) },
     subtotalKobo,
     subtotal: formatNaira(subtotalKobo),
     vatKobo: order.totalKobo - subtotalKobo,
@@ -95,11 +100,13 @@ export async function presentWithReceipt(order: OrderWithRelations, now: Date = 
 
 // The same shape after a JSON round trip, which is what every client component
 // receives: every Date is an ISO string.
-export type SerializedOrder = Omit<PresentedOrder, "placedAt" | "dueAt" | "servedAt" | "paidAt" | "complaints" | "payment"> & {
+export type SerializedOrder = Omit<PresentedOrder, "placedAt" | "dueAt" | "servedAt" | "paidAt" | "cancelledAt" | "cancel" | "complaints" | "payment"> & {
   placedAt: string;
   dueAt: string;
   servedAt: string | null;
   paidAt: string | null;
+  cancelledAt: string | null;
+  cancel: { until: string; open: boolean };
   complaints: { id: string; description: string; createdAt: string }[];
   payment: (Omit<NonNullable<PresentedOrder["payment"]>, "paidAt"> & { paidAt: string; receiptNo?: string }) | null;
 };

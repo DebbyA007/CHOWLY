@@ -21,11 +21,12 @@ import { useArrival } from "./arrival";
 const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 const KITCHEN_AFTER_SECONDS = 120;
 const READY_WITHIN_SECONDS = 60;
-type Status = "Ready" | "Late" | "In the kitchen" | "Just placed" | "Served" | "Paid";
+type Status = "Ready" | "Late" | "In the kitchen" | "Just placed" | "Served" | "Paid" | "Cancelled";
 type Filter = "All" | "Cooking" | "Late" | "Served";
 
 // What a row says about an order, and in which colour.
 function statusOf(order: SerializedOrder, now: number | null): { status: Status; time: string; colour: string } {
+  if (order.status === "CANCELLED") return { status: "Cancelled", time: `Cancelled ${clockTime(order.cancelledAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   if (order.status === "PAID") return { status: "Paid", time: `Paid ${clockTime(order.paidAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   if (order.status !== "PLACED") return { status: "Served", time: `Served ${clockTime(order.servedAt ?? order.placedAt)}`, colour: "var(--served-dot)" };
   const c = orderClock(order, now);
@@ -135,7 +136,7 @@ export function LiveOrders() {
   const listRef = useRef<HTMLUListElement>(null);
   const drinkIds = new Set(menu?.menus.filter((m) => m.type === "DRINKS").flatMap((m) => m.items.map((i) => i.id)) ?? []);
   const fresh = useFreshness(rail.error, rail.seenAt);
-  const rows = rail.orders.filter((o) => o.status !== "PAID").map((order) => ({ order, ...statusOf(order, rail.now) }));
+  const rows = rail.orders.filter((o) => o.status === "PLACED" || o.status === "SERVED").map((order) => ({ order, ...statusOf(order, rail.now) }));
   const open = rows.filter((r) => r.status !== "Served").length;
   const drinksPending = rows.filter((r) => r.status !== "Served" && r.order.items.some((l) => drinkIds.has(l.menuItemId))).length;
   const subtitle = `${WORDS[open] ?? open} open · ${(WORDS[drinksPending] ?? String(drinksPending)).toLowerCase()} ${drinksPending === 1 ? "drink" : "drinks"} pending`;
@@ -195,6 +196,9 @@ export function WaiterOrder({ id }: { id: string }) {
   const chefId = needsChef ? chef ?? order?.staff.chef?.id ?? staff?.chefs[0]?.id ?? null : null;
   const bartenderId = needsBartender ? bartender ?? order?.staff.bartender?.id ?? staff?.bartenders[0]?.id ?? null : null;
   const served = !!order && order.status !== "PLACED";
+  // DELTA 13: the table may withdraw an order while the waiter has it open. It stops
+  // being actionable, and the screen says what happened rather than reading as served.
+  const cancelled = order?.status === "CANCELLED";
   const c = order ? orderClock(order, rail.now) : null;
   const entered = useRef(false);
   const wasServed = useRef(served);
@@ -271,7 +275,7 @@ export function WaiterOrder({ id }: { id: string }) {
               <section className="card-in card fibre mx-[22px] p-[18px]" style={{ opacity: 0 }} aria-label="Order">
                 <div className="flex justify-between text-[12px] text-fg-muted">
                   <span>Placed {clockTime(order.placedAt)}</span>
-                  {served ? <span className="clock tabular font-semibold text-accent">Served {clockTime(order.servedAt ?? order.placedAt)}</span> : c?.state === "late" ? <span className="clock tone tabular font-semibold text-late">{Math.max(1, Math.floor(c.lateSeconds / 60))} min late</span> : <span className="clock tone tabular font-semibold text-accent">{mmss(c?.remainingSeconds ?? 0)} left</span>}
+                  {cancelled ? <span className="clock tabular font-semibold text-fg-muted">Cancelled {clockTime(order.cancelledAt ?? order.placedAt)}</span> : served ? <span className="clock tabular font-semibold text-accent">Served {clockTime(order.servedAt ?? order.placedAt)}</span> : c?.state === "late" ? <span className="clock tone tabular font-semibold text-late">{Math.max(1, Math.floor(c.lateSeconds / 60))} min late</span> : <span className="clock tone tabular font-semibold text-accent">{mmss(c?.remainingSeconds ?? 0)} left</span>}
                 </div>
                 <div className="mt-[14px]">
                   {order.items.map((line) => (
@@ -308,13 +312,15 @@ export function WaiterOrder({ id }: { id: string }) {
                   ) : null}
                 </section>
               ) : null}
+              {!cancelled ? (
               <div className="field px-[22px] pt-6" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Waiter</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Waiter">
                   {(staff?.waiters ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === waiterId} disabled={served} onClick={(e) => { pick(chooseWaiter, p.id, e.currentTarget); }} className="chip press !px-[15px] !py-[11px] !font-semibold" data-waiter={p.id}>{p.name}</button>)}
                 </div>
               </div>
-              {needsChef ? (
+              ) : null}
+              {needsChef && !cancelled ? (
               <div className="field px-[22px] pt-[22px]" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Chef</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Chef">
@@ -322,7 +328,7 @@ export function WaiterOrder({ id }: { id: string }) {
                 </div>
               </div>
               ) : null}
-              {needsBartender ? (
+              {needsBartender && !cancelled ? (
               <div className="field px-[22px] pt-[22px]" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Bartender</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Bartender">
@@ -330,12 +336,14 @@ export function WaiterOrder({ id }: { id: string }) {
                 </div>
               </div>
               ) : null}
-              {order && !needsChef && !needsBartender ? (
+              {order && !cancelled && !needsChef && !needsBartender ? (
                 <p className="field px-[22px] pt-[22px] text-[13px] leading-[1.5] text-fg-muted" style={{ opacity: 0 }} data-nobody-prepared>Nothing on this order is cooked or mixed, so it records the waiter and nobody else.</p>
               ) : null}
               <div className="action px-[22px] pb-[26px] pt-7" style={{ opacity: 0 }}>
                 {error ? <p role="alert" className="mb-3 text-[13px] font-semibold text-late">{error}</p> : null}
-                {served ? (
+                {cancelled ? (
+                  <p className="rounded-full border py-[17px] text-center text-[15px] font-semibold text-fg-muted" style={{ borderColor: "var(--hairline)" }} data-cancelled-at>Cancelled by the table at {clockTime(order.cancelledAt ?? order.placedAt)}</p>
+                ) : served ? (
                   <p className="rounded-full border py-[17px] text-center text-[15px] font-semibold text-accent" style={{ borderColor: "var(--accent-served-border)" }} data-served-at>Served at {clockTime(order.servedAt ?? order.placedAt)}</p>
                 ) : (
                   <button type="button" data-serve onClick={(e) => serve(e.currentTarget)} disabled={saving || !staff || !waiterId} className="btn-primary" style={{ transition: "none" }}>{saving ? "Marking as served" : waiterId ? "Mark as served" : "Choose who is serving"}</button>
@@ -364,7 +372,7 @@ export function Tables() {
   for (const order of rail.orders) byTable.set(order.tableNo, [...(byTable.get(order.tableNo) ?? []), order]);
   const tables = [...byTable.entries()]
     .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
-    .map(([tableNo, orders]) => ({ tableNo, orders, owing: orders.filter((o) => o.status !== "PAID").reduce((n, o) => n + o.totalKobo, 0) }));
+    .map(([tableNo, orders]) => ({ tableNo, orders, owing: orders.filter((o) => o.status === "PLACED" || o.status === "SERVED").reduce((n, o) => n + o.totalKobo, 0) }));
   const toSettle = tables.filter((t) => t.owing > 0).length;
   const owing = tables.reduce((n, t) => n + t.owing, 0);
   const subtitle = `${WORDS[toSettle] ?? toSettle} ${toSettle === 1 ? "table" : "tables"} to settle · ${formatNaira(owing)} outstanding`;

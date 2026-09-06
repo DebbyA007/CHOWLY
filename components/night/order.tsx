@@ -93,12 +93,24 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   const placedAt = new Date(order.placedAt);
   const served = !!order.servedAt;
   const paid = !!order.paidAt;
+  // DELTA 13: the guest's own window to withdraw the order, counted down live from the
+  // deadline the server computed. Hiding the button when it reaches zero is presentation:
+  // the endpoint checks the same deadline again when a tap arrives.
+  const cancelled = clock.state === "cancelled";
+  const cancelSeconds = Math.max(0, Math.ceil((new Date(order.cancel.until).getTime() - (api.now ?? Date.now())) / 1000));
+  const cancelOpen = order.status === "PLACED" && !sending && cancelSeconds > 0;
+  const [confirming, setConfirming] = useState(false);
   // Three steps the data can vouch for: placed, served, paid. Nothing is invented between.
-  const steps = [
-    { name: "Order placed", time: `${clockTime(placedAt)}, promised in ${order.waitMinutes} minutes`, done: true },
-    { name: "Served", time: served ? clockTime(order.servedAt!) : isLate ? "Any moment" : `About ${clockTime(order.dueAt)}`, done: served },
-    { name: "Paid", time: paid ? clockTime(order.paidAt!) : served ? "When you are ready" : "After it is served", done: paid },
-  ];
+  const steps = cancelled
+    ? [
+        { name: "Order placed", time: `${clockTime(placedAt)}, promised in ${order.waitMinutes} minutes`, done: true },
+        { name: "Cancelled", time: `${clockTime(order.cancelledAt ?? order.placedAt)}, before the kitchen started it`, done: true },
+      ]
+    : [
+        { name: "Order placed", time: `${clockTime(placedAt)}, promised in ${order.waitMinutes} minutes`, done: true },
+        { name: "Served", time: served ? clockTime(order.servedAt!) : isLate ? "Any moment" : `About ${clockTime(order.dueAt)}`, done: served },
+        { name: "Paid", time: paid ? clockTime(order.paidAt!) : served ? "When you are ready" : "After it is served", done: paid },
+      ];
   const doneCount = steps.filter((s) => s.done).length;
   const current = doneCount - 1;
   const lastDone = useRef(doneCount);
@@ -232,16 +244,16 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
     if (el) animate(el, reduce ? { opacity: [0, 1], duration: 150 } : { opacity: [0, 1], y: [28, 0], duration: 240, ease: "outQuad" });
   }, [sheet, reduce]);
 
-  const centreLabel = clock.state === "waiting" ? "Ready in" : clock.state === "late" ? "Elapsed" : clock.state === "served" ? "Served" : "Paid";
+  const centreLabel = clock.state === "waiting" ? "Ready in" : clock.state === "late" ? "Elapsed" : clock.state === "served" ? "Served" : clock.state === "cancelled" ? "Cancelled" : "Paid";
   // The vessel matches the order: a pot for food, a glass for a drinks-only order. It
   // simmers or pours while the order is being made, comes to the boil when it is late,
   // and turns into the plated dish or the full glass once it has been served.
   const vesselState: VesselState = clock.state === "late" ? "late" : clock.state === "waiting" ? "cooking" : "served";
-  const centreValue = clock.state === "waiting" ? mmss(clock.remainingSeconds) : clock.state === "late" ? mmss(clock.elapsedSeconds) : clockTime(clock.state === "served" ? order.servedAt! : order.paidAt!);
+  const centreValue = clock.state === "waiting" ? mmss(clock.remainingSeconds) : clock.state === "late" ? mmss(clock.elapsedSeconds) : clockTime(clock.state === "cancelled" ? order.cancelledAt ?? order.placedAt : clock.state === "served" ? order.servedAt! : order.paidAt!);
   return (
     <Screen>
       <div ref={root}>
-        <Header title={sending ? "Your order" : `Order #${order.reference}`} subtitle={failed ? "Not sent" : sending ? "Sending to the kitchen" : isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate || failed ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
+        <Header title={sending ? "Your order" : `Order #${order.reference}`} subtitle={failed ? "Not sent" : sending ? "Sending to the kitchen" : cancelled ? "Cancelled" : isLate ? `${lateMinutes} ${lateMinutes === 1 ? "minute" : "minutes"} late` : "The Golden Gate"} subtitleTone={isLate || failed ? "late" : "muted"} pill={`Table ${order.tableNo}`} pillTone="ring" />
         <ConnectionBar stale={fresh.stale} since={fresh.since} what="your order" />
         {open.length > 1 ? (
           <div className="flex gap-2 overflow-x-auto px-[22px] pb-3" role="tablist" aria-label="Open orders">
@@ -261,11 +273,11 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           </div>
         ) : null}
         <div className={`flex flex-col items-center px-[22px] pb-[26px] pt-[14px] ${failed ? "hidden" : ""}`} data-state={failed ? "failed" : sending ? "sending" : clock.state} data-clock={`t ${(clock.elapsedSeconds / Math.max(1, clock.promisedSeconds)).toFixed(3)}`}>
-          <div className="pot-wrap mb-[2px]" style={{ opacity: 0 }}><Vessel kind={order.kind} state={vesselState} orderId={order.id} /></div>
+          {cancelled ? null : <div className="pot-wrap mb-[2px]" style={{ opacity: 0 }}><Vessel kind={order.kind} state={vesselState} orderId={order.id} /></div>}
           <div className="ring-wrap relative h-[184px] w-[184px]" style={{ opacity: 0 }}>
             <svg width="184" height="184" viewBox="0 0 184 184" className="block" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle className="ring-track" cx="92" cy="92" r="82" fill="none" stroke={isLate ? "var(--track-late)" : "var(--track)"} strokeWidth="9" />
-              <circle ref={ring} className="ring-progress" cx="92" cy="92" r="82" fill="none" strokeWidth="9" strokeDasharray={CIRCUMFERENCE} style={{ strokeDashoffset: firstOffset }} />
+              {cancelled ? null : <circle ref={ring} className="ring-progress" cx="92" cy="92" r="82" fill="none" strokeWidth="9" strokeDasharray={CIRCUMFERENCE} style={{ strokeDashoffset: firstOffset }} />}
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p className="text-[11.5px]" style={{ color: isLate ? "var(--ring-tone)" : "var(--fg-muted)" }}>{centreLabel}</p>
@@ -274,7 +286,37 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           </div>
           <p className="caption mt-4 text-[12px] text-fg-muted" style={{ opacity: 0 }}>{promiseLabel(order.waitMinutes)} · placed {clockTime(placedAt)}</p>
           {sending ? <p className="mt-3 flex items-center gap-2 text-[12.5px] text-fg-muted" data-sending><span className="spinner" aria-hidden="true" />Sending to the kitchen</p> : null}
-          {sending ? null : isLate ? (
+          {sending || served || paid || cancelled || isLate ? null : (
+            // DELTA 13: the window to withdraw the order, counted down live in the same
+            // tabular treatment as the ring. The block keeps its height when the window
+            // closes, so the button goes away in place and a sentence takes its spot.
+            <div className="late-actions mt-5 flex w-full flex-col items-center gap-[10px]" style={{ minHeight: 74 }} data-cancel-window={cancelOpen ? "open" : "closed"}>
+              {cancelOpen ? (
+                confirming ? (
+                  <>
+                    <p className="pretty text-center text-[13px] leading-[1.5] text-fg-muted">Cancel this order? The kitchen has not started it.</p>
+                    <div className="flex w-full gap-[10px]">
+                      <button type="button" data-cancel-keep onClick={() => setConfirming(false)} className="btn-outline press flex-1 !py-[15px] !text-[14px]">Keep it</button>
+                      <button type="button" data-cancel-confirm disabled={api.busy === "cancel"} onClick={async () => { selectOrder(order.id); const ok = await api.cancel(); if (!ok) setConfirming(false); }} className="btn-outline press flex-1 !py-[15px] !text-[14px] !text-late" style={{ borderColor: "var(--late-border)" }}>{api.busy === "cancel" ? "Cancelling" : "Yes, cancel"}</button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" data-cancel onClick={() => setConfirming(true)} className="btn-outline press w-full !py-[15px] !text-[14px]">Cancel this order</button>
+                    <p className="text-[12px] text-fg-muted">You can cancel for <span className="tabular font-medium text-fg">{mmss(cancelSeconds)}</span> more</p>
+                  </>
+                )
+              ) : (
+                <p className="pretty text-center text-[12.5px] leading-[1.55] text-fg-muted" data-cancel-closed>The kitchen has started your order, so it can no longer be cancelled. Tell your waiter if something is wrong.</p>
+              )}
+            </div>
+          )}
+          {sending ? null : cancelled ? (
+            <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
+              <p className="pretty text-center text-[13.5px] leading-[1.55] text-fg-muted">You cancelled this order at {clockTime(order.cancelledAt ?? order.placedAt)}. There is nothing to pay.</p>
+              <Link href="/menu" data-go-menu className="btn-primary press !py-[17px] !text-[15px]" onMouseEnter={preloadMenu} onFocus={preloadMenu}>Order something else</Link>
+            </div>
+          ) : isLate ? (
             <>
               <p className="late-note pretty mt-5 text-center text-[13.5px] leading-[1.55]">{lateNote(order)}</p>
               <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
