@@ -70,6 +70,15 @@ type Api = ReturnType<typeof useOrder>;
 
 type Fresh = { stale: boolean; since: number | null };
 
+// The late note names what is running late and who has it, which the order itself now
+// says (delta 12). A water only order is with nobody, so it does not claim the chef
+// has it.
+function lateNote(order: SerializedOrder): string {
+  if (order.needs.chef) return "Sorry, your food is taking longer than we said. It is with the chef now.";
+  if (order.needs.bartender) return "Sorry, your drinks are taking longer than we said. They are with the bar now.";
+  return "Sorry, your order is taking longer than we said. Your waiter is bringing it.";
+}
+
 function OrderBody({ order, clock, api, open, others, pending, fresh }: { order: SerializedOrder; clock: Clock; api: Api; open: SerializedOrder[]; others: SerializedOrder[]; pending: Pending | null; fresh: Fresh }) {
   const root = useRef<HTMLDivElement>(null);
   // Still on its way to the kitchen, or refused: the same screen, said plainly.
@@ -267,7 +276,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           {sending ? <p className="mt-3 flex items-center gap-2 text-[12.5px] text-fg-muted" data-sending><span className="spinner" aria-hidden="true" />Sending to the kitchen</p> : null}
           {sending ? null : isLate ? (
             <>
-              <p className="late-note pretty mt-5 text-center text-[13.5px] leading-[1.55]">Sorry, your food is taking longer than we said. It&apos;s with the chef now.</p>
+              <p className="late-note pretty mt-5 text-center text-[13.5px] leading-[1.55]">{lateNote(order)}</p>
               <div className="late-actions mt-5 flex w-full flex-col gap-[10px]">
                 <button type="button" data-report onClick={() => setSheet("report")} className="btn-outline press !py-[15px] !text-[14px]">Report a problem</button>
                 <button type="button" data-rate-open onClick={() => setSheet("rate")} className="btn-outline press !py-[15px] !text-[14px]">{order.rating ? "Change your rating" : "Rate your order"}</button>

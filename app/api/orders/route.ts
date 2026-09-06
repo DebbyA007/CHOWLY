@@ -56,6 +56,19 @@ export function POST(request: Request) {
       const message = names.length > 0 ? `${names.join(" and ")} ${names.length === 1 ? "has" : "have"} just sold out and ${names.length === 1 ? "has" : "have"} been taken off your order.` : "Something on your order is no longer on the menu and has been taken off it.";
       throw new HttpError(409, message, { unavailable: [...soldOut.map((m) => m.id), ...unknown], names });
     }
+
+    // DELTA 14: three bottles are listed "from 75,000" and have no fixed price, so the
+    // number on the card is a floor and not something to charge. The client hides the
+    // add control on those rows, which is presentation; this is the enforcement.
+    const onRequest = requested.filter((m) => m.priceFrom);
+    if (onRequest.length > 0) {
+      const names = onRequest.map((m) => m.name).join(" and ");
+      throw new HttpError(
+        409,
+        `${names} ${onRequest.length === 1 ? "is" : "are"} priced on the night, so ${onRequest.length === 1 ? "it" : "they"} cannot go on an order. Ask your waiter.`,
+        { unavailable: onRequest.map((m) => m.id), names: onRequest.map((m) => m.name) },
+      );
+    }
     const menuItems = requested;
 
     // Lines in the order the guest added them, which is the order they read back in.

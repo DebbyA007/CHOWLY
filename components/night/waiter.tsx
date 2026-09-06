@@ -187,8 +187,13 @@ export function WaiterOrder({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const staff = rail.staff;
-  const chefId = chef ?? order?.staff.chef?.id ?? staff?.chefs[0]?.id ?? null;
-  const bartenderId = bartender ?? order?.staff.bartender?.id ?? staff?.bartenders[0]?.id ?? null;
+  // DELTA 12: only the pickers the order actually needs are shown, and only those are
+  // sent. A water only order records the waiter and nobody else, so the receipt does not
+  // name a chef who never touched it.
+  const needsChef = order?.needs.chef ?? false;
+  const needsBartender = order?.needs.bartender ?? false;
+  const chefId = needsChef ? chef ?? order?.staff.chef?.id ?? staff?.chefs[0]?.id ?? null : null;
+  const bartenderId = needsBartender ? bartender ?? order?.staff.bartender?.id ?? staff?.bartenders[0]?.id ?? null : null;
   const served = !!order && order.status !== "PLACED";
   const c = order ? orderClock(order, rail.now) : null;
   const entered = useRef(false);
@@ -233,7 +238,8 @@ export function WaiterOrder({ id }: { id: string }) {
     if (!reduce) animate(target, { scale: [1, 1.06, 1], duration: 260, ease: "outQuad" });
   }
   async function serve(target: HTMLElement) {
-    if (!order || !staff || !chefId || !bartenderId) return;
+    if (!order || !staff) return;
+    if ((needsChef && !chefId) || (needsBartender && !bartenderId)) return;
     if (!waiterId) {
       setError("Choose who is serving first.");
       return;
@@ -243,7 +249,7 @@ export function WaiterOrder({ id }: { id: string }) {
     // the press is answered before the request returns: the pill settles and its fill dims
     const pressed = reduce ? null : animate(target, { scale: [1, 0.985], backgroundColor: ["rgba(210,162,76,1)", "rgba(210,162,76,0.55)"], duration: 220, ease: "outQuad" });
     try {
-      await rail.serve(order.id, { waiterId, chefId, bartenderId });
+      await rail.serve(order.id, { waiterId, ...(chefId ? { chefId } : {}), ...(bartenderId ? { bartenderId } : {}) });
     } catch (e) {
       pressed?.pause();
       if (!reduce) animate(target, { scale: 1, backgroundColor: "rgba(210,162,76,1)", duration: 220 });
@@ -308,18 +314,25 @@ export function WaiterOrder({ id }: { id: string }) {
                   {(staff?.waiters ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === waiterId} disabled={served} onClick={(e) => { pick(chooseWaiter, p.id, e.currentTarget); }} className="chip press !px-[15px] !py-[11px] !font-semibold" data-waiter={p.id}>{p.name}</button>)}
                 </div>
               </div>
+              {needsChef ? (
               <div className="field px-[22px] pt-[22px]" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Chef</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Chef">
                   {(staff?.chefs ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === chefId} disabled={served} onClick={(e) => pick(setChef, p.id, e.currentTarget)} className="chip press !px-[15px] !py-[11px] !font-semibold" data-chef={p.id}>{p.name}</button>)}
                 </div>
               </div>
+              ) : null}
+              {needsBartender ? (
               <div className="field px-[22px] pt-[22px]" style={{ opacity: 0 }}>
                 <p className="text-[12.5px] text-fg-muted">Bartender</p>
                 <div className="mt-[10px] flex flex-wrap gap-[9px]" role="radiogroup" aria-label="Bartender">
                   {(staff?.bartenders ?? []).map((p) => <button key={p.id} type="button" role="radio" aria-checked={p.id === bartenderId} disabled={served} onClick={(e) => pick(setBartender, p.id, e.currentTarget)} className="chip press !px-[15px] !py-[11px] !font-semibold" data-bartender={p.id}>{p.name}</button>)}
                 </div>
               </div>
+              ) : null}
+              {order && !needsChef && !needsBartender ? (
+                <p className="field px-[22px] pt-[22px] text-[13px] leading-[1.5] text-fg-muted" style={{ opacity: 0 }} data-nobody-prepared>Nothing on this order is cooked or mixed, so it records the waiter and nobody else.</p>
+              ) : null}
               <div className="action px-[22px] pb-[26px] pt-7" style={{ opacity: 0 }}>
                 {error ? <p role="alert" className="mb-3 text-[13px] font-semibold text-late">{error}</p> : null}
                 {served ? (

@@ -18,10 +18,13 @@ export const orderCreateSchema = z.strictObject({
 });
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 
+// DELTA 12: a waiter is always recorded. A chef is recorded only if the order holds
+// something cooked and a bartender only if it holds something mixed, so both are
+// optional here and the route decides which the order actually requires.
 export const assignSchema = z.strictObject({
   waiterId: id,
-  chefId: id,
-  bartenderId: id,
+  chefId: id.optional(),
+  bartenderId: id.optional(),
 });
 export type AssignInput = z.infer<typeof assignSchema>;
 

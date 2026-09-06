@@ -6,7 +6,7 @@ import { dueAt, isOrderDelayed } from "./wait-time";
 // Everything a route returns about an order, in one shape. Delay is derived here at read
 // time from placedAt and waitMinutes (delta 4), never read from a column.
 export const orderInclude = {
-  items: { include: { menuItem: { select: { name: true, menu: { select: { type: true } } } } }, orderBy: { id: "asc" } },
+  items: { include: { menuItem: { select: { name: true, station: true } } }, orderBy: { id: "asc" } },
   waiter: { select: { id: true, name: true } },
   chef: { select: { id: true, name: true } },
   bartender: { select: { id: true, name: true } },
@@ -19,9 +19,15 @@ export type OrderWithRelations = Prisma.OrderGetPayload<{ include: typeof orderI
 
 export function presentOrder(order: OrderWithRelations, now: Date = new Date()) {
   const subtotalKobo = order.items.reduce((sum, line) => sum + line.subtotalKobo, 0);
+  // DELTA 12: an order needs a chef only if something on it is cooked and a bartender
+  // only if something on it is mixed. Still and sparkling water are poured, so a
+  // water-only order records the waiter and nobody else. The original ERD gave every
+  // order all three, which asks the waiter to name a chef who never touched it.
+  const needsChef = order.items.some((line) => line.menuItem.station === "KITCHEN");
+  const needsBartender = order.items.some((line) => line.menuItem.station === "BAR");
   // What the guest is waiting on, which decides the vessel the order screen draws. A
   // mixed order counts as food: the drink is usually down long before the kitchen is.
-  const kind: "food" | "drinks" = order.items.some((line) => line.menuItem.menu.type === "FOOD") ? "food" : "drinks";
+  const kind: "food" | "drinks" = needsChef ? "food" : "drinks";
   return {
     id: order.id,
     reference: order.reference,
@@ -51,6 +57,7 @@ export function presentOrder(order: OrderWithRelations, now: Date = new Date()) 
       subtotal: formatNaira(line.subtotalKobo),
       prepTimeMinutes: line.prepTimeMinutes,
     })),
+    needs: { chef: needsChef, bartender: needsBartender },
     staff: {
       waiter: order.waiter,
       chef: order.chef,

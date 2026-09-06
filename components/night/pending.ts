@@ -14,11 +14,12 @@ import { selectOrder } from "./selection";
 // extra key here is a 400: what the client knows and what the client may send are two
 // different things and this type is the second one.
 export type Payload = { tableNo: string; items: { menuItemId: string; quantity: number }[] };
-// foodIds is kept beside the payload, never inside it, so that when a dish sells out
-// from under a mixed order and comes off it, what is left can be judged again: an order
-// that was food and is now drinks only should show the glass rather than go on holding
-// a pot until the kitchen's order lands.
-export type Pending = { order: SerializedOrder; status: "sending" | "failed"; message: string | null; payload: Payload; foodIds: string[] };
+// The stations are kept beside the payload, never inside it, so that when a dish sells
+// out from under a mixed order and comes off it, what is left can be judged again: an
+// order that was food and is now drinks only should show the glass rather than go on
+// holding a pot, and one that has lost its last cooked dish no longer needs a chef.
+export type Stations = { kitchenIds: string[]; barIds: string[] };
+export type Pending = { order: SerializedOrder; status: "sending" | "failed"; message: string | null; payload: Payload; stations: Stations };
 
 export const PENDING_PREFIX = "pending:";
 export const isPending = (id: string) => id.startsWith(PENDING_PREFIX);
@@ -53,8 +54,8 @@ function editCart(edit: (cart: Record<string, number>) => Record<string, number>
   window.dispatchEvent(new Event(CART_EVENT));
 }
 
-export function startPlacement(order: SerializedOrder, payload: Payload, foodIds: string[]) {
-  pending = { order, status: "sending", message: null, payload, foodIds };
+export function startPlacement(order: SerializedOrder, payload: Payload, stations: Stations) {
+  pending = { order, status: "sending", message: null, payload, stations };
   emit();
   selectOrder(order.id);
   void send();
@@ -99,9 +100,11 @@ function fail(message: string, unavailable: string[]) {
   const gone = new Set(unavailable);
   if (gone.size > 0) editCart((cart) => Object.fromEntries(Object.entries(cart).filter(([id]) => !gone.has(id))));
   const items = pending.payload.items.filter((l) => !gone.has(l.menuItemId));
-  const food = new Set(pending.foodIds);
+  const kitchen = new Set(pending.stations.kitchenIds);
+  const bar = new Set(pending.stations.barIds);
   const lines = pending.order.items.filter((l) => !gone.has(l.menuItemId));
-  const order = { ...pending.order, items: lines, kind: lines.some((l) => food.has(l.menuItemId)) ? ("food" as const) : ("drinks" as const) };
+  const chef = lines.some((l) => kitchen.has(l.menuItemId));
+  const order = { ...pending.order, items: lines, kind: chef ? ("food" as const) : ("drinks" as const), needs: { chef, bartender: lines.some((l) => bar.has(l.menuItemId)) } };
   pending = { ...pending, status: "failed", message, payload: { ...pending.payload, items }, order };
   emit();
 }

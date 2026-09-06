@@ -99,13 +99,15 @@ export function useCart(menu: MenuView | null) {
     const now = new Date();
     const waitMinutes = calculateWaitMinutes(lines.map((l) => ({ prepTimeMinutes: l.item.prepTimeMinutes, quantity: l.quantity })));
     // the same rule the server uses, so the vessel does not change when the order lands
-    const foodIds = new Set(menu?.menus.filter((m) => m.type === "FOOD").flatMap((m) => m.items.map((i) => i.id)) ?? []);
+    const needsChef = lines.some((l) => l.item.station === "KITCHEN");
+    const needsBartender = lines.some((l) => l.item.station === "BAR");
     const provisional: SerializedOrder = {
       id: `${PENDING_PREFIX}${now.getTime()}`,
       reference: "",
       status: "PLACED",
       tableNo: tableNo.trim(),
-      kind: lines.some((l) => foodIds.has(l.item.id)) ? "food" : "drinks",
+      kind: needsChef ? "food" : "drinks",
+      needs: { chef: needsChef, bartender: needsBartender },
       placedAt: now.toISOString(),
       waitMinutes,
       dueAt: new Date(now.getTime() + waitMinutes * 60_000).toISOString(),
@@ -134,7 +136,10 @@ export function useCart(menu: MenuView | null) {
       rating: null,
       complaints: [],
     };
-    startPlacement(provisional, { tableNo: tableNo.trim(), items: lines.map((l) => ({ menuItemId: l.item.id, quantity: l.quantity })) }, [...foodIds]);
+    startPlacement(provisional, { tableNo: tableNo.trim(), items: lines.map((l) => ({ menuItemId: l.item.id, quantity: l.quantity })) }, {
+      kitchenIds: lines.filter((l) => l.item.station === "KITCHEN").map((l) => l.item.id),
+      barIds: lines.filter((l) => l.item.station === "BAR").map((l) => l.item.id),
+    });
     return provisional;
   }
 
