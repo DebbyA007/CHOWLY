@@ -447,7 +447,7 @@ export function WaiterMenu() {
                 {section.items.map((item) => (
                   <li key={item.id} className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" style={{ opacity: 0 }} data-dish={item.id} data-available={item.available}>
                     <div className={`flex min-w-0 flex-1 items-center gap-[17px] ${item.available ? "" : "opacity-55"}`} style={{ transition: "opacity 300ms" }}>
-                      <DishPhoto src={item.photo} alt="" size={56} />
+                      <DishPhoto src={item.photo} alt="" name={item.name} size={56} />
                       <div className="min-w-0 flex-1">
                         <h3 className={`serif text-[20px] leading-[1.2] ${item.available ? "" : "line-through"}`}>{item.name}</h3>
                         <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>

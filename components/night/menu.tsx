@@ -195,7 +195,7 @@ function DishRow({ item, quantity, onAdd, onRemove, reduce }: { item: MenuItemVi
   return (
     <li className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" data-dish={item.id} data-available={item.available}>
       <div className={`flex min-w-0 flex-1 items-center gap-[17px] ${off ? "opacity-45" : ""}`} style={{ transition: "opacity 300ms" }}>
-        <DishPhoto src={item.photo} alt="" size={76} />
+        <DishPhoto src={item.photo} alt="" name={item.name} size={76} />
         <div className="min-w-0 flex-1">
           <h3 className="serif text-[20px] leading-[1.2]">{item.name}</h3>
           <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
