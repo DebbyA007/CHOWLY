@@ -35,24 +35,30 @@ in [`docs/screens`](docs/screens/README.md).
    from the real load and the dot parks in the gap once the app is ready; then the dining
    room, the name and address, "I'm a guest", "I'm a waiter", and the table: the one the
    link carried, or the door asks for it.
-2. **Menu.** Mains, Soups and Drinks as chips; each dish a 76px round photograph with its
-   name, description, price and the kitchen's minutes; an add circle that morphs into a
-   quantity stepper; a cart bar that never disappears.
+2. **Menu.** The card's seven headings as chips, with a lighter second row of
+   sub-headings under the ones that have them; ninety two dishes, each with a 76px round
+   photograph or a struck monogram, its name, description, price and the kitchen's
+   minutes; an add circle that morphs into a quantity stepper; a cart bar that never
+   disappears. Three bottles are priced from a floor and say to ask your waiter instead
+   of offering a total nobody can compute yet.
 3. **Order placed.** The ring, driven from real elapsed time against the promise, the
    steps from placed to served to paid, the items. The tab opens the moment the order is
    placed and the kitchen's number lands on it; every order of the session stays
-   reachable from here.
+   reachable from here. For the first quarter of the promise the guest can withdraw the
+   order, with the time left counting down beside the button; when it runs out the button
+   goes away in place and a sentence says why.
 4. **Running late.** The same screen once the promise is spent: everything ochre has
    crossed slowly to red, the ring is closed, the time counts up, and two actions appear.
 5. **Live orders.** Every open order as a card with its status, its clock and the count
    of reports from the table, filtered by All, Cooking, Late and Served; the pill asks
    who is serving and keeps the answer for the session.
-6. **Order open.** The lines with their minutes, the reports from the table in full,
-   waiter, chef and bartender as chips, "Mark as served", which becomes the record of
-   when at once.
+6. **Order open.** The lines with their minutes, the reports from the table in full, and
+   the staff the order actually needs as chips: a chef only if something on it is cooked,
+   a bartender only if something is mixed, so an order of still water records the waiter
+   and nobody else. Then "Mark as served", which becomes the record of when at once.
 7. **Pay.** The summary with VAT, three ways to pay, one button.
 8. **Receipt.** Printed: perforation, ruled lines, the stamp, the torn foot, the rating,
-   and who served, cooked and mixed.
+   and the staff who actually prepared it.
 
 The waiter's other two tabs are the **table board**, the floor by table with what each
 still has to pay, and the **86 board**, every dish with a switch that takes it off the
@@ -154,13 +160,18 @@ erDiagram
   }
 ```
 
-The schema carries eleven deliberate departures from the coursework ERD, each annotated
+The schema carries fifteen deliberate departures from the coursework ERD, each annotated
 `DELTA` in [`prisma/schema.prisma`](prisma/schema.prisma) and explained in the
 [submission document](docs/SUBMISSION.md). The ones a reader meets first: money is
 integer kobo everywhere, the wait is a computed integer, delay is derived at read time
 and never stored, prices and prep times are snapshotted onto each order line, and one
 payment and one rating per order are enforced by unique constraints, with the rating's
-range enforced by a hand-written check constraint.
+range enforced by a hand-written check constraint. The four newest: a menu item carries
+the station that prepares it, so the staff an order needs is derived from what is on it
+rather than assumed; an order can be cancelled by the guest who placed it, inside a
+window computed from the promise; a bottle can be priced from a floor and refused by the
+order endpoint; and the card has two levels and an order of its own, because a printed
+menu is not alphabetical.
 
 ## The wait time and the money
 
@@ -226,8 +237,8 @@ No secret is ever prefixed `NEXT_PUBLIC_`.
 | `npm run build` | `prisma generate && next build` |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
-| `npm test` | Node's built-in test runner over `lib`, 30 tests |
-| `node prisma/seed.mts` | Seeds the restaurant, the three menus, the eleven dishes and the staff |
+| `npm test` | Node's built-in test runner over `lib`, 32 tests |
+| `node prisma/seed.mts` | Seeds the restaurant, the fourteen menu sections, the ninety two dishes and the staff |
 
 Every commit passed typecheck, lint and build first, and every screen was clicked
 through in headless Chromium and rendered again in WebKit.
@@ -276,5 +287,9 @@ one shoot. The source, author and licence of every image are in
   an order of bottled water, the one minute promise running out, the complaint and a low
   rating, the switch to the waiter who records the chef and the bartender and marks it
   served, then back to the table to pay and take the receipt.
-  <a href="docs/media/walkthrough.mp4">docs/media/walkthrough.mp4</a></em>
+  <a href="docs/media/walkthrough.mp4">docs/media/walkthrough.mp4</a>
+  <br><strong>Recorded before the menu was replaced.</strong> Every flow it shows still
+  behaves the way it shows them, but the card is the old eleven dishes and the waiter
+  records a chef and a bartender for an order that would now need neither. It is left in
+  place rather than described as something it is not, and it wants re-recording.</em>
 </p>

@@ -42,7 +42,9 @@ export function POST(request: Request, context: Context) {
       throw new HttpError(409, `This order is already ${order.status.toLowerCase()}, so it cannot be cancelled. Ask your waiter.`);
     }
     if (!canCancel(order)) {
-      throw new HttpError(409, "The time to cancel this order has passed. The kitchen has started it, so ask your waiter.");
+      // The screen names the kitchen, the bar or the waiter, because it knows what is on
+      // the order. This does not read the lines, so it names nobody rather than guessing.
+      throw new HttpError(409, "The time to cancel this order has passed. Ask your waiter if something is wrong.");
     }
 
     // The status and the timestamp move together, and only from PLACED, so two taps a

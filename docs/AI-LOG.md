@@ -2381,3 +2381,185 @@ reads zero on every frame. Those measurements stand on their own.
 - Worth recording plainly: the strict schema is the only reason this was a clean 400
   naming the field rather than a silently mangled order. The rule that felt fussy when
   it was written is what made the fault findable in one line.
+
+---
+
+## The menu is replaced: The Lagos Table, and four more deltas
+
+The brief's own menu document, `docs/assignment/The_Lagos_Table_Fine_Dining_Menu.docx`,
+was handed over late with an instruction: take its items and its section structure, ignore
+its restaurant entirely. The Golden Gate stays. Ninety two rows replaced eleven.
+
+### What I proposed and what was decided
+
+I reported three things before writing code, because each would have been expensive to
+undo.
+
+- **Photography for ninety two dishes.** I proposed sourcing forty or so under CC0, public
+  domain or CC BY and giving everything else a struck monogram on the same 76px circle.
+  Accepted, with a condition added: **a quality floor.** Reject any candidate that does not
+  clearly beat the tile, and report the final split rather than aiming for a number.
+  "Sixty good monograms and thirty good photographs beats fifty photographs where twenty
+  are murky."
+- **Thirteen chips in one scroller.** Rejected as a design, by me, before it was built: the
+  card has seven printed headings and thirteen sub-headings, and a horizontal scroller of
+  thirteen pills is a list of tabs rather than a menu. Two levels instead. Accepted.
+- **Three bottles with no price.** The menu lists "from ₦75,000". I gave three options and
+  recommended a `priceFrom` flag: the row shows the floor, says it is a floor, and cannot
+  be ordered. Accepted as delta 14.
+
+### The tile was right and the pairing was wrong
+
+I built the monogram tile first and showed it beside a photograph. The verdict was that the
+tile was correct as built and the pairing was the problem, and that the gap was tonal, not
+structural: lift the tile and calm the photographs so they read as the same family of
+object, and drop the paper fibre from the tile, which was decorative code with no visible
+effect.
+
+That was closed by measurement rather than by eye. Mean luminance inside the circle, and
+mean saturation, before and after a three value sweep:
+
+| | Photographs | Tiles |
+|---|---|---|
+| Luminance before | 0.296 | 0.144 |
+| Luminance after | 0.239 | 0.200 |
+| Saturation after | 0.059 | 0.071 |
+
+The treatment over every photograph went from `sepia(0.18) saturate(1.05) contrast(1.05)
+brightness(0.9)` to `sepia(0.24) saturate(0.58) contrast(0.98) brightness(0.5)`, and the
+tile gained its own three tokens. The fibre came off.
+
+### Sourcing: a hundred and sixty five candidates, forty kept
+
+The first pass queried Wikimedia Commons and took the first result that passed a licence
+and a size check. Sixty one downloads. Rendered at 76px, under the real treatment, on the
+real ground, **eighteen survived.** What the rest were is the useful part of this entry:
+an engraving of a lobster for "lobster pepper soup", a nineteenth century illustration for
+"mini chicken pies", a black and white portrait for "chef's tasting menu", branded bottles
+with readable labels for three of the waters, two sports water bottles for "premium still
+water", a porcelain vase for "premium white wine", and, for "mango passion spritz", a nude
+torso holding a wine glass. Searching an encyclopedia by dish name returns what an
+encyclopedia has.
+
+The second pass queried Openverse, which indexes Flickr, kept three candidates per dish
+rather than one, and filtered titles reading as illustrations. A hundred and four
+downloads, **twenty two accepted.** With two photographs carried over from the first
+eleven dish card, forty two of ninety two dishes carry a photograph and fifty carry a
+monogram.
+
+The floor did most of the work at the second stage rather than the first. Twenty six
+candidates looked acceptable on a contact sheet at three times size and only eighteen
+survived being looked at again at 76px. **The contact sheet was the wrong instrument and
+the real size was the right one**, which is worth saying plainly because the first sheet
+was the one that felt like diligence.
+
+Retiring goat pepper soup, whose only good photograph was CC BY-SA, settled the one
+share-alike licence question that had been open in `docs/PHOTOGRAPHY.md` since the first
+card. No screen a guest can reach serves it now.
+
+### Delta 12: the staff an order needs is derived, not assumed
+
+Asked for directly, and it is the sharpest of the four. The coursework model gives every
+order a waiter, a chef and a bartender. A glass of still water is poured, so an order of
+water has no chef and no bartender, and asking a waiter to name one puts a name on a
+receipt for work nobody did.
+
+`MenuItem.station` is `KITCHEN`, `BAR` or `NONE`. Fifty one, thirty eight and three. The
+waiter's screen shows only the pickers that apply, the endpoint derives the same answer
+from the order's own lines, and it refuses in both directions: a missing chef for a cooked
+order, and a chef sent for an order with nothing from the kitchen. Proven by request, not
+by reading the code:
+
+```
+chef sent for a water order: Nothing on this order came from the kitchen, so it has no chef.
+served, staff: {"waiter":{"id":"waiter_kemi","name":"Ada Okafor"},"chef":null,"bartender":null}
+```
+
+Two things followed from it that I had not planned. The vessel on the order screen was
+choosing a pot or a glass from the menu's `FOOD`/`DRINKS` type; it now uses the station, so
+the client and the server cannot disagree. And the late note always said "It's with the
+chef now", which is wrong for a drink and absurd for water. Three sentences on that screen
+now name the kitchen, the bar or the waiter, from what is actually on the order.
+
+### Delta 13: the guest may cancel, and the waiter may not
+
+Also asked for directly, including the part that makes it a security decision rather than a
+feature: **no waiter cancel**, for the reason I had given. On a surface where the waiter
+side opens with one tap, a waiter cancel is authorised by nothing. It would be the only
+destructive action a stranger with the link could take against someone else's table, and
+unlike marking an order served it could not be undone by the table: marking served is wrong
+information, cancelling is a lost order.
+
+The window is a quarter of the promise, computed on the server from `placedAt` and
+`waitMinutes` on every request. The button and its countdown are presentation. Both ends
+were walked rather than reasoned about:
+
+| Order | Promise | Window | Measured |
+|---|---|---|---|
+| Premium Still Water | 1 minute | 15 seconds | "You can cancel for 00:13 more", then 00:04, then closed |
+| Chef's tasting menu | 90 minutes | 22 min 30 s | "You can cancel for 22:27 more", ring reading 89:57 |
+
+And the refusals, by request rather than by screen:
+
+```
+one second late: The time to cancel this order has passed. Ask your waiter if something is wrong.
+someone else's order: No order with that id for this table.
+a second cancel: This order is already cancelled.
+```
+
+The ownership check is inside the query, the id is in the path and the customer comes from
+the signed cookie. The endpoint reads no body at all, which is the honest shape for a
+decision that takes nothing from the client.
+
+### Two risks in replacing the seed, both real
+
+**Retire, do not delete.** Four of the eleven old dishes are named by orders already in the
+database. Deleting them would have taken the lines off five paid orders. The seed retires
+them instead: `available: false` and `sortOrder: -1`, which is how "off the printed card"
+is told apart from "sold out and still on it". Nine dishes that no order named were
+removed. Verified by reading every order back afterwards:
+
+```
+orders: 5   orders with a missing dish: 0
+#1003 PAID 17,738 :: 1x Grilled steak (retired), 1x Goat pepper soup (retired), 1x Mojito (retired)
+```
+
+**The wait at the top of the range.** The old card topped out at 22 minutes and the new one
+at 90. The ring holds five numerals at 89:57 without reflow and nothing in the countdown
+assumes a two digit minute count. Checked on screen, not asserted.
+
+### What had to be corrected by hand, this time
+
+- **The seed would not run.** I assembled it with a Python regex that lifted the staff
+  arrays out of the old file, and the non-greedy match over-ran, so `waiters` was declared
+  twice. `SyntaxError: Identifier 'waiters' has already been declared`. Generating code by
+  regex over code is the kind of shortcut that looks efficient until it silently duplicates
+  a block.
+- **Then it would not run for a second reason.** `prisma generate` had last run before
+  `sortOrder` was added, so the client rejected the field it had never been told about. The
+  error named the field and the fix was one command, but it is worth recording that a
+  stale generated client fails at the write, not at typecheck.
+- **"Promised in 1 minutes".** Every dish on the old card took longer than a minute, so a
+  hand-written plural had never been wrong before. Premium Still Water is one minute. The
+  helper that has always known the singular is now used in both places.
+- **A price that wrapped mid figure.** "from ₦75,000" and "4 min" would not fit beside a
+  tag wider than "Sold out", so the price broke across two lines. The minutes come off
+  those three rows instead, which is honest as well as narrower: a bottle nobody can add
+  has no wait to promise.
+- **A step that never appeared.** Cancelling replaces two steps with one, and the new step
+  mounted at the opacity the entrance animation had left the others at, so the cancelled
+  order showed "Order placed" and nothing under it. Found in a screenshot, not in a test.
+- **The heading chips were never tabs.** They have always sat inside a `role="tablist"` as
+  `aria-pressed` buttons, announced as a row of toggles rather than one choice among
+  several. Fixed while the strip was being rebuilt anyway.
+- **I broke my own dev server.** Running `npm run build` while `next dev` was serving wiped
+  `.next` under it, and the next walk failed with a timeout that looked like a UI bug. Two
+  screens were re-shot for nothing before I read the server log.
+
+### The walkthrough video is now out of date, and says so
+
+`docs/media/walkthrough.mp4` was recorded on the deployed app before the menu was replaced.
+Every flow it shows still behaves the way it shows them, but the card is the old eleven
+dishes and the waiter records a chef and a bartender for an order that would now need
+neither. Re-recording it was not part of this task. The README says all of that where the
+video sits, rather than keeping a caption that describes an app that no longer exists.

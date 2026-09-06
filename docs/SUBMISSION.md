@@ -42,6 +42,16 @@ The assignment forbids logins and requires the live link to be usable by anyone.
   version of this seam was the other way round, on unless the variable was exactly
   `false`, and it locked the waiter side of the production deployment, where the
   variable had never been set. Its unit tests cover every shape of the flag.
+- **Cancelling an order is something only the guest who placed it can do, and there is
+  deliberately no waiter cancel.** This is the one place where the missing login changed
+  a feature rather than being noted around it. A waiter cancel is the obvious companion
+  to a guest cancel and a real restaurant would have one, but on a surface where the
+  waiter side opens with one tap it would be authorised by nothing: it would be the only
+  destructive action a stranger with the link could take against someone else's table,
+  and unlike marking an order served it could not be undone by the table. Marking served
+  is wrong information; cancelling is a lost order. So the guest's cancel is bounded by
+  ownership and by time, and the waiter's side has no cancel at all. If logins were
+  allowed, the waiter cancel is the first thing to add behind one.
 
 ---
 
@@ -51,11 +61,16 @@ The assignment forbids logins and requires the live link to be usable by anyone.
   anywhere and nothing to install.
 - **The eight requirements** can all be seen in one pass of about two minutes. The
   walkthrough immediately below is that pass, written out step by step.
-- **To see a complaint, order a Bottled water and nothing else.** The kitchen's promise
-  is the longest preparation time in the order, water takes one minute, so the order runs
-  late in one minute and the complaint appears then. It is offered once an order is late
-  and not before, which is what the brief describes. Any other dish means a longer wait:
-  Zobo is four minutes, Jollof rice twelve.
+- **To see a complaint, order a Premium Still Water and nothing else.** It is under
+  Drinks, then Soft. The kitchen's promise is the longest preparation time in the order,
+  water takes one minute, so the order runs late in one minute and the complaint appears
+  then. It is offered once an order is late and not before, which is what the brief
+  describes. Any other dish means a longer wait: Chapman is four minutes, Jollof rice and
+  grilled chicken twenty two, the chef's tasting menu ninety.
+- **The same order is also the fastest way to see the cancel window close.** A guest may
+  withdraw their own order for the first quarter of the promise, so water gives fifteen
+  seconds and the tasting menu gives twenty two and a half minutes. The time left counts
+  down beside the button.
 - **To switch roles**, tap the CHOWLY lockup at the top of any screen to return to the
   door, then "I'm a guest" or "I'm a waiter". Both sides are open to anyone with the link.
 - **A recording**, if you would rather watch than tap: [`media/walkthrough.mp4`](media/walkthrough.mp4),
@@ -76,22 +91,35 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
 1. **Open https://chowly-theta.vercel.app/?table=12.** The dining room, the name, and
    "You're at table 12": the link is what the card on a table would carry. Open it
    without `?table=` and the door asks for the number instead.
-2. **Tap "I'm a guest".** The menu opens on Mains. Tap **Drinks** and add a **Bottled
-   water**, and nothing else, with the ochre circle; it becomes a stepper. This is the
-   one thing to get right if you are short of time: the kitchen's promise is the longest
-   prep time in the order, water takes one minute, so an order of water alone runs late
-   in one minute and is fully red two minutes after that. **That is the only way to see
-   the complaint**, which the app offers once an order is late and not before, so an
-   order carrying a Jollof rice would keep you waiting twelve minutes for it. The order
-   screen says as much while you wait. Add a **Zobo** for four minutes or a **Jollof
-   rice** for twelve if you would rather watch a longer wait.
+2. **Tap "I'm a guest".** The menu opens on Breakfast. The chips along the top are the
+   card's seven printed headings; under a heading with sub-headings of its own, a lighter
+   second row carries them. Tap **Drinks**, then **Soft**, and add a **Premium Still
+   Water**, and nothing else, with the ochre circle; it becomes a stepper. This is the one
+   thing to get right if you are short of time: the kitchen's promise is the longest prep
+   time in the order, water takes one minute, so an order of water alone runs late in one
+   minute and is fully red two minutes after that. **That is the only way to see the
+   complaint**, which the app offers once an order is late and not before, so an order
+   carrying a jollof rice would keep you waiting twenty two minutes for it. The order
+   screen says as much while you wait. Add a **Chapman** for four minutes or a **Jollof
+   Rice & Grilled Chicken** for twenty two if you would rather watch a longer wait.
+   While you are here, tap **Wines**: the three bottles priced "from ₦75,000" have no add
+   control, because there is no price yet to put on a bill. They say to ask your waiter.
 3. **View the order.** The cart bar has risen with the count and total. Tap "View order",
    check the table, and tap "Place order". The Order tab opens at once, with "Sending to
    the kitchen" under the ring until the kitchen has it and the number appears.
-4. **Watch the pot and the ring.** The pot simmers above the ring; the ring empties as
-   the minutes are used, and the numerals count down.
+4. **Watch the glass and the ring.** For an order of water the vessel is a glass being
+   poured, and for anything cooked it is a pot simmering; the ring empties as the minutes
+   are used, and the numerals count down.
    Reload the page: the clock is exactly where it was, because it is computed from when
    you placed the order, not from when the page loaded.
+   **Under the ring is "Cancel this order", with the time you have left beside it.** A
+   guest may withdraw their own order for the first quarter of the promise, so water gives
+   you fifteen seconds and the chef's tasting menu would give you twenty two and a half
+   minutes. Watch it reach zero: the button goes away where it stands, nothing below it
+   moves, and a sentence takes its place. If you would rather use it than watch it expire,
+   place a second order and tap it inside the window; it asks once, then the screen becomes
+   the cancelled order and it leaves the waiter's list. There is no waiter cancel, and the
+   reasoning for that is in this document under "There is no authentication, by design".
 5. **Running late, and the complaint.** After a minute the promise is spent: the ring
    closes, everything ochre crosses to red slowly, the glass reddens with it, and the
    note reads "Sorry, your food is taking longer than we said." **Report a problem**
@@ -105,19 +133,22 @@ to. Keep two tabs: one is the guest at the table, the other is the waiter.
    minutes over, and a count of your report.
 7. **Serve it.** Tap the pill, "Who's serving?", and pick yourself from the roster; it
    is kept for the session. Tap the card: your report is there under "From the table".
-   Choose a chef and a bartender and tap **"Mark as served"**. The button becomes the time
-   it happened before the server has even answered.
+   **Notice what it asks you for.** For an order of water it asks for a waiter and nobody
+   else, and says why: nothing on it is cooked or mixed. Order a dish and a cocktail and
+   it asks for all three; a round of cocktails asks for two. Then tap **"Mark as
+   served"**. The button becomes the time it happened before the server has even answered,
+   and the receipt at the end names only the people who actually made it.
 8. **The other two tabs.** **Tables** is the floor by table with what each still has to
-   pay. **Menu** is the 86 board: switch **Zobo** to "Sold out". To see what that does to
-   a guest, tap the CHOWLY lockup at the top to go home, then "I'm a guest", and Zobo is
-   greyed on the menu with a "Sold out" tag. Switch it back on from the waiter side
-   afterwards.
+   pay. **Menu** is the 86 board: every dish on the card, named by both levels, with a
+   switch. Switch **Zobo** to "Sold out". To see what that does to a guest, tap the CHOWLY
+   lockup at the top to go home, then "I'm a guest", Drinks, Soft, and Zobo is greyed on
+   the menu with a "Sold out" tag. Switch it back on from the waiter side afterwards.
 9. **Back at the table.** Within three seconds and with no reload, the guest tab reads
    "Served" with the time and the stepper is complete. Rate it here if you like, late or
    not. Tap **Pay**.
 10. **Pay.** The summary shows the subtotal, VAT and total. Pick a method and tap
    **"Pay ₦… (pretend)"**. The receipt prints: the perforation, the lines, the stamp, the
-   torn foot, and who served, cooked and mixed. Tap it twice if you like; the record is
+   torn foot, and the staff who made it. Tap it twice if you like; the record is
    one payment. "Save the receipt" draws it again on a canvas, at the phone's own pixel
    ratio, and hands it to the share sheet so it can be kept in Photos, with a plain
    download where there is no share sheet. Nothing was added to the dependencies for
@@ -219,7 +250,7 @@ repository at [`assignment/chowly-engineered-model.pdf`](assignment/chowly-engin
 and the brief this is marked against is beside it at
 [`assignment/assignment-brief.pdf`](assignment/assignment-brief.pdf). All twelve entities
 of that model are implemented, and every foreign key it lists is present, including the
-customer key on Complaint, Rating and Payment. The schema departs from it in eleven
+customer key on Complaint, Rating and Payment. The schema departs from it in fifteen
 deliberate ways, each annotated `DELTA`:
 
 1. `MenuItem.prepTimeMinutes` exists; the assignment requires it, and the promise is
@@ -229,7 +260,8 @@ deliberate ways, each annotated `DELTA`:
 3. `Order.waiterId`, `chefId` and `bartenderId` are nullable. The guest submits with no
    staff attached; the waiter records all three afterwards. `NOT NULL` would make
    requirement 3 impossible.
-4. `OrderStatus` is exactly `PLACED`, `SERVED`, `PAID`. Late is not a status. It is
+4. `OrderStatus` is exactly `PLACED`, `SERVED`, `PAID` and `CANCELLED`. Late is not a
+   status. It is
    derived at read time from `placedAt` and `waitMinutes` and never stored, so there is
    no row to hand-set to make the report flow work.
 5. `placedAt`, `servedAt` and `paidAt` are timestamps. The original split date and time
@@ -246,6 +278,71 @@ deliberate ways, each annotated `DELTA`:
     database is the last line.
 11. `Customer.sessionToken` is unique, since there are no logins and the token is the
     identity.
+12. `MenuItem.station` is `KITCHEN`, `BAR` or `NONE`, and the staff an order needs is
+    derived from it rather than assumed. The model gives every order a waiter, a chef and
+    a bartender, which is not true of a restaurant: still and sparkling water are poured,
+    not prepared. An order needs a chef only if something on it is cooked and a bartender
+    only if something on it is mixed, the waiter's screen shows only the pickers that
+    apply, the endpoint derives the same answer from the order's own lines and refuses a
+    chef sent for an order with nothing from the kitchen, and the receipt names only the
+    people who actually made it. Fifty one dishes are kitchen, thirty eight are bar, and
+    three are neither.
+13. `CANCELLED` and `Order.cancelledAt`. The model's statuses only ran forward, so a
+    guest who ordered by mistake had nothing to do but wait for it. A guest may now
+    withdraw their own order while it is `PLACED` and no more than a quarter of the
+    promise has passed. The window is a fraction rather than a fixed number of minutes so
+    it stays proportionate: a glass of water gives fifteen seconds, the tasting menu
+    twenty two and a half minutes. It is computed on the server from `placedAt` and
+    `waitMinutes` on every request, so the button and its countdown are presentation and
+    the endpoint is the enforcement. **There is deliberately no waiter cancel**, which is
+    a security decision and is set out in full below.
+14. `MenuItem.priceFrom`. Three bottles on the card are listed "from ₦75,000" and have no
+    fixed price. Storing the floor and charging it would produce a quietly wrong bill and
+    a receipt for a number nobody agreed to, so the row shows the floor, says it is a
+    starting price, carries "Ask your waiter" where the add control sits, and is refused
+    by the order endpoint if one is ever posted.
+15. `Menu.section` and `Menu.sortOrder`, plus `MenuItem.sortOrder`. A printed card has
+    two levels, a heading such as Lunch and sub-headings such as Starters and Main
+    courses, and an order that is not alphabetical. One flat name could carry neither. A
+    `sortOrder` of -1 means retired: off the card, still in the database, so an order
+    placed months ago still reads back in full.
+
+### The preparation times are mine, and the menu has none
+
+The assignment requires a preparation time on every menu item and the promise is computed
+from it, so every dish needs one. **The Lagos Table menu does not carry preparation times.
+It has three columns: dish, description with ingredients and preparation, and price.** So
+the ninety two numbers in the database are mine, not the restaurant's, and this document
+says so rather than letting a reader assume the menu supplied them.
+
+They were set one dish at a time from what the description says is done to it, not by a
+rule per section, and they land in bands that a kitchen would recognise. Thirty two
+distinct values across ninety two dishes, from one minute to ninety:
+
+| Section | Minutes | Dishes |
+|---|---|---|
+| Breakfast, food | 12 to 22 | 8 |
+| Breakfast, drinks | 3 to 5 | 7 |
+| Lunch, starters | 11 to 16 | 5 |
+| Lunch, mains | 22 to 30 | 8 |
+| Lunch, drinks | 1 to 5 | 6 |
+| Dinner, starters | 10 to 22 | 5 |
+| Dinner, mains | 26 to 45 | 8 |
+| Finger foods | 9 to 16 | 10 |
+| Desserts | 8 to 15 | 6 |
+| Drinks, cocktails | 5 to 6 | 5 |
+| Drinks, wines | 3 to 4 | 6 |
+| Drinks, soft | 1 to 5 | 9 |
+| Drinks, hot | 3 to 5 | 7 |
+| Tasting menu | 5 and 90 | 2 |
+
+The two ends are deliberate and they are what the flows are tested at. Premium Still
+Water is one minute, because a grader has to be able to watch an order run late without
+waiting for a kitchen, and its cancel window is fifteen seconds. The chef's tasting menu
+is ninety, which is also the cap in `lib/wait-time.ts`, and its cancel window is twenty
+two and a half minutes. Both were walked at 390 rather than reasoned about: the ring
+holds five numerals at ninety minutes without reflow, and the countdown makes no
+assumption that a minute count has two digits.
 
 The ERD is drawn in the README. Two things the handoff asked for that the schema
 already carried: three menus by name (Mains, Soups, Drinks, over the two-value type
@@ -489,14 +586,23 @@ onto a screen that is already there.
 
 ### The menu
 
-1. `/menu` reads the menu from the client cache, warmed on the landing, and shows Mains,
-   Soups and Drinks as chips. Tapping a chip filters in place with no animation. Each
-   dish is a 76px round photograph with its name, description, price in naira and the
-   kitchen's minutes. A dish that has sold out stays on the card, greyed, with a "Sold
-   out" tag where the add circle was, and the menu refreshes every thirty seconds and
-   on focus, so a dish the kitchen takes off greys without a reload. Bottled water,
-   ₦1,000 at one minute, is the fastest way to watch an order run late. The rows stagger in on every visit. While the menu loads the screen shows its
-   own shape, the chips and four rows, never a line of text.
+1. `/menu` reads the menu from the client cache, warmed on the landing, and shows the
+   card's seven printed headings as chips: Breakfast, Lunch, Dinner, Finger foods,
+   Desserts, Drinks and Tasting menu. Under a heading that has sub-headings of its own, a
+   lighter second row carries them, so Lunch offers Starters, Mains and Drinks. Tapping
+   either filters in place with no animation. Each of the ninety two dishes is a 76px
+   round photograph, or a struck monogram where no photograph passed the quality floor,
+   with its name, description, price in naira and the kitchen's minutes. A description
+   longer than three lines is clipped with "Show all of it" under it, because the card's
+   descriptions are ingredients and preparation in one column and the tasting menu lists
+   eight courses. A dish that has sold out stays on the card, greyed, with a "Sold out"
+   tag where the add circle was, and the menu refreshes every thirty seconds and on
+   focus, so a dish the kitchen takes off greys without a reload. Three bottles are
+   listed from a floor price: they read "from ₦75,000" and carry "Ask your waiter" in the
+   same place, because there is no price to add up yet. Premium Still Water, ₦4,500 at
+   one minute, is the fastest way to watch an order run late. The rows stagger in on
+   every visit. While the menu loads the screen shows its own shape, the chips and four
+   rows, never a line of text.
 2. Tapping the ochre circle adds the dish; the circle morphs into a stepper pill with
    minus, the count and plus. Decrementing to zero morphs it back.
 3. The cart bar never disappears. Empty, it says "Your order is empty" in the same
@@ -578,7 +684,23 @@ replaced. The customer id is never read from a request.
    whenever you are ready" and a filled "Pay ₦5,375" carrying the amount, with rating
    under it. Once paid it offers See the receipt and
    Order something else, and the receipt does the same, so nothing dead-ends.
-6. When the browser is offline, or a poll fails after the order had arrived, a bar under
+6. **Cancelling, and the window that closes.** Under the promise, while the order is
+   still placed and inside the first quarter of the promised wait, there is "Cancel this
+   order" and under it "You can cancel for 00:11 more", counting down in the same tabular
+   figures as the ring. Tapping it asks once, naming who has not started yet: the
+   kitchen, the bar, or the waiter, from what is actually on the order. "Keep it" and
+   "Yes, cancel" sit side by side, and the second turns red. On success the screen becomes
+   the cancelled order: no vessel, the ring reduced to its track, "Cancelled" and the time
+   in the middle, a stepper of two steps, "You cancelled this order at 8:44 am. There is
+   nothing to pay", and the way back to the menu. It leaves the waiter's live list at
+   their next poll.
+   The block holding the button reserves its height, so when the window closes the button
+   goes away in place, nothing below it jumps, and a sentence takes the space: "Your order
+   is on its way, so it can no longer be cancelled. Tell your waiter if something is
+   wrong." A tap that left the screen inside the window and lands outside it is refused by
+   the endpoint, which recomputes the deadline from `placedAt`, and the refusal prints on
+   the same screen.
+7. When the browser is offline, or a poll fails after the order had arrived, a bar under
    the header says "Offline since 9:31. Showing your order as of then." The ring keeps
    its own time. When the connection returns everything revalidates and the bar says
    "Back online. Refreshed." once, then leaves. The same bar is on every screen.
@@ -615,13 +737,23 @@ replaced. The customer id is never read from a request.
    status change recolours in place; nothing pulses.
 3. Tapping a card opens `/waiter/{id}`: placed at, the clock, the lines with their
    minutes, the subtotal, the reports and rating from the table if there are any, then
-   Waiter, Chef and Bartender as chips. The waiter chip follows the session's choice,
-   and until someone is chosen the button reads "Choose who is serving". "Mark as
-   served" flips the order to served on screen at once and sends
-   `PATCH /api/orders/{id}/assign` with the three ids; if the server refuses, the order
-   is put back the way it was and the reason is printed. Only a placed order can be
-   served; serving twice is a 409. The button becomes "Served at 9:26 pm" and stays that
-   way; there is no revert.
+   the staff the order needs as chips. **Which pickers appear is derived from the order.**
+   Chef appears only if something on it is cooked and Bartender only if something is
+   mixed, so a dish and a cocktail show all three, a round of cocktails shows two, and an
+   order of still water shows Waiter alone under a line that says "Nothing on this order
+   is cooked or mixed, so it records the waiter and nobody else". The waiter chip follows
+   the session's choice, and until someone is chosen the button reads "Choose who is
+   serving". "Mark as served" flips the order to served on screen at once and sends
+   `PATCH /api/orders/{id}/assign` with only the ids that apply; if the server refuses,
+   the order is put back the way it was and the reason is printed. The endpoint derives
+   the same answer from the order's own lines, so it refuses a missing chef for a cooked
+   order and equally refuses a chef sent for an order with nothing from the kitchen.
+   Only a placed order can be served; serving twice is a 409. The button becomes "Served
+   at 9:26 pm" and stays that way; there is no revert.
+   If the table cancels the order while the waiter has it open, the screen says
+   "Cancelled by the table at 8:42 am", the pickers go, and the order leaves the live
+   list. The rail keeps cancelled orders reachable for twelve hours for exactly this,
+   because "that order is not on the floor any more" is not an explanation.
 4. **The table board.** The Tables tab is the floor by table: one card per table with
    every order of the last twelve hours, oldest first, each with its number, count, total
    and state, and what the table still has to pay, with the night's outstanding total in
