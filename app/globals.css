@@ -36,6 +36,12 @@
   --perforation: rgba(240, 235, 225, 0.2);
   --spinner-track: rgba(240, 235, 225, 0.3);
 
+  /* The monogrammed plate a dish without a photograph carries. A step above the card it
+     sits on, so it holds its own weight beside a photograph instead of reading as a gap. */
+  --tile: #3a3228;
+  --tile-rim: rgba(240, 235, 225, 0.22);
+  --tile-ink: rgba(240, 235, 225, 0.82);
+
   --font-serif: var(--font-newsreader), Newsreader, Georgia, serif;
   --font-sans: var(--font-grotesk), "Space Grotesk", system-ui, sans-serif;
 }

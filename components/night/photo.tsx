@@ -4,28 +4,33 @@
 // A dish photograph in a circle, and the dining room across the top of the landing.
 // Every photograph is served from this origin, and one treatment sits over all of
 // them so ten sources read as one shoot: a touch warmer, a touch darker.
-const TREATMENT = "sepia(0.18) saturate(1.05) contrast(1.05) brightness(0.9)";
+// The photographs are pulled well down and desaturated so that a photograph and a
+// monogrammed plate read as the same family of object on this ground. Left brighter,
+// a photograph shouts and the tile beside it reads as an empty slot.
+const TREATMENT = "sepia(0.24) saturate(0.58) contrast(0.98) brightness(0.5)";
 
 // A dish with no photograph of its own is not a hole in the list. It gets the plate it
-// would have been served on: the raised surface, the same fibre the cards carry, a
-// hairline rim at the weight of a card divider, and its own initial struck into the
-// paper in the display face. Same circle, same size, so the rhythm of the list does not
-// break, and no icon, which the design does not use anywhere.
+// would have been served on: a raised surface, a rim, and its own initial struck into it
+// in the display face. Same circle, same size, so the rhythm of the list does not break,
+// and no icon, which the design does not use anywhere. It is deliberately heavier than
+// the card behind it, because a tile that recedes reads as a missing image rather than
+// as the alternative to one. The fibre was dropped: at 76px a texture tile of that
+// density catches one or two flecks and often none, so it was decoration with no effect.
 export function MonogramTile({ name, size = 76, className = "" }: { name: string; size?: number; className?: string }) {
   const initial = (name.trim().match(/\p{L}/u)?.[0] ?? "?").toUpperCase();
   return (
     <span
       aria-hidden="true"
       data-monogram={initial}
-      className={`fibre serif shrink-0 select-none rounded-full ${className}`}
+      className={`serif shrink-0 select-none rounded-full ${className}`}
       style={{
         width: size,
         height: size,
         display: "grid",
         placeItems: "center",
-        background: "var(--surface)",
-        boxShadow: "inset 0 0 0 1px var(--divider)",
-        color: "var(--fg-muted)",
+        background: "var(--tile)",
+        boxShadow: "inset 0 0 0 1px var(--tile-rim)",
+        color: "var(--tile-ink)",
         fontSize: Math.round(size * 0.395),
         lineHeight: 1,
         // the cap sits a touch high in the circle at its natural baseline
