@@ -2791,3 +2791,81 @@ next to the video.
 for the same reason the misspelled author on the older commits is not rewritten: a
 hundred and twenty commits days before submission is not worth the risk over a tidiness
 problem. Recorded here instead, which is what this log is for.
+
+---
+
+## Order placement failed permanently on production, and I caused it
+
+Reported by the user, who placed one Premium Sparkling Water at table 40 and got the
+failure card. Reproduced against the live URL before changing anything:
+
+```
+POST https://chowly-theta.vercel.app/api/orders  ->  HTTP 503
+{"error":"The kitchen is busy right now. Try placing the order again."}
+```
+
+**Cause.** The order reference was `String(1001 + await prisma.order.count())`. That is
+correct only while no order has ever been deleted. Earlier the same day I deleted five
+test orders and kept one, `#1009`, on purpose so the walkthrough video could be checked
+against the live data. The database then held eight orders with 1009 among them, so
+`1001 + 8` is 1009, which is taken.
+
+The retry is what turned a collision into an outage. A failed insert does not change the
+count, so all five attempts recomputed the same number:
+
+```
+attempt 0: reference 1009 -> P2002 {"modelName":"Order","target":["reference"]}
+attempt 1: reference 1009 -> P2002 ...
+attempt 4: reference 1009 -> P2002 ...     then 503
+```
+
+The loop written to survive a race guaranteed a failure instead. Every order placed after
+the count reached that point failed, and would have kept failing.
+
+**Three things ruled out before the fix, because the user asked and because guessing is
+how the last one took forty minutes.**
+
+- *The production database guard.* Not involved. `lib/db-target.ts` is imported by
+  `prisma/seed.mts`, `scripts/db-where.mts` and its own test. Nothing under `app/` imports
+  it; it runs in a CLI process before a Prisma client exists and is not in the request
+  path.
+- *The deployed code.* Production was on `82fe6ed`, byte for byte the merged `main`.
+- *The schema.* All four migrations applied, no drift, `Order_reference_key` present,
+  `OrderStatus` carrying `CANCELLED`.
+
+**The `#1007` in the user's own order list was real, and it is the same bug seen from the
+other side.** It was not a stale list and not a different database. `#1007` had been
+deleted, which freed the number, and because the reference comes from a count rather than
+a sequence the app handed it straight back out to a new order. Two more orders, `#1007`
+and `#1008`, were genuinely created this evening at tables 10 and 11. The third one hit
+1009 and died.
+
+**The fix** derives the reference from the highest number in use and increments on each
+attempt, so a genuine race clears on the next try and a gap below the highest is never
+filled: a number a receipt or the video already refers to cannot be handed to a second
+order. The rule is `lib/order-reference.ts` with `lib/order-reference.test.mts` beside it,
+including a test built from the exact eight references that broke it. Verified against the
+live database before deploying, and against the live URL after: the failing order returns
+201 as `#1010`, and four placed at once take 1011 to 1014 with no duplicate.
+
+**Why nothing caught it.** The same reason as the two before it, and this is now a
+pattern worth naming rather than a coincidence:
+
+| Failure | What the checks could not see |
+|---|---|
+| The `foodIds` 400 | Nothing compared the body the client sends with the schema the server accepts |
+| The stale ERD | Nothing reads a diagram |
+| This | Nothing exercises the code against data that has holes in it |
+
+Every test of the order route used a fresh or append-only database. The defect only exists
+against real data with a deletion in it, and the seed never produces that. A test now
+does, because the regression test is built from the actual broken state rather than an
+imagined one.
+
+**And the copy was invented.** "The kitchen is busy right now" claims a cause nothing in
+the system knows: the kitchen has no part in a failed write. It is the same fault as the
+"In the kitchen" tracking step removed in an earlier phase, and it survived because it
+reads plausibly. The server now says "The order could not be saved.", the card says "This
+order did not reach the restaurant.", and the line under it adds that nothing has been
+charged and the order is kept on the menu. All true whatever the failure was, and naming
+no cause. Try again and Back to the menu are unchanged.
