@@ -13,7 +13,8 @@ export function cartLines(cart: Cart, menu: MenuView): CartLine[] {
   const byId = new Map(menu.menus.flatMap((section) => section.items).map((item) => [item.id, item]));
   return Object.entries(cart).flatMap(([id, quantity]) => {
     const item = byId.get(id);
-    return item && quantity > 0 ? [{ item, quantity }] : [];
+    // A bottle priced from a floor has no price to add up, so it never becomes a line.
+    return item && !item.priceFrom && quantity > 0 ? [{ item, quantity }] : [];
   });
 }
 

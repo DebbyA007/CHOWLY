@@ -436,14 +436,19 @@ export function WaiterMenu() {
   const entrance = useArrival();
   useLayoutEffect(() => {
     if (!menu || entered.current || !root.current) return;
-    const rows = root.current.querySelectorAll(".row");
+    const rows = [...root.current.querySelectorAll<HTMLElement>(".row")];
     if (rows.length === 0) return;
     entered.current = true;
     if (!entrance) {
       utils.set(rows, { opacity: 1 });
       return;
     }
-    animate(rows, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(40, { start: 60 }) });
+    // The board is ninety two rows long. Only the screenful a person can see is
+    // staggered in; the rest are simply there, because a forty millisecond step across
+    // the whole board would leave the bottom of it blank for most of four seconds.
+    const seen = rows.slice(0, 8);
+    utils.set(rows.slice(8), { opacity: 1 });
+    animate(seen, reduce ? { opacity: [0, 1], duration: 200 } : { opacity: [0, 1], y: [8, 0], duration: 380, ease: "outQuad", delay: stagger(40, { start: 60 }) });
   }, [menu, reduce, entrance]);
   const off = menu?.menus.flatMap((m) => m.items).filter((i) => !i.available).length ?? 0;
   async function toggle(item: { id: string; available: boolean }, target: HTMLElement) {
@@ -463,7 +468,7 @@ export function WaiterMenu() {
           {!menu && !error ? <DishRowsSkeleton label="Loading the menu" /> : null}
           {menu?.menus.map((section) => (
             <section key={section.id} aria-labelledby={`w-${section.id}`}>
-              <h2 id={`w-${section.id}`} className="px-[22px] pb-2 pt-4 text-[12.5px] text-fg-muted">{section.name}</h2>
+              <h2 id={`w-${section.id}`} className="px-[22px] pb-2 pt-4 text-[12.5px] text-fg-muted">{section.section === section.name ? section.name : `${section.section} · ${section.name}`}</h2>
               <ul>
                 {section.items.map((item) => (
                   <li key={item.id} className="row flex items-center gap-[17px] border-b border-[color:var(--hairline)] px-[22px] py-5" style={{ opacity: 0 }} data-dish={item.id} data-available={item.available}>
@@ -472,7 +477,7 @@ export function WaiterMenu() {
                       <div className="min-w-0 flex-1">
                         <h3 className={`serif text-[20px] leading-[1.2] ${item.available ? "" : "line-through"}`}>{item.name}</h3>
                         <p className="pretty mt-[5px] text-[12px] leading-[1.5] text-fg-muted">{item.description}</p>
-                        <div className="mt-[10px] flex items-baseline gap-[10px]"><span className="text-[14px] font-semibold text-accent">{item.price}</span><span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span></div>
+                        <div className="mt-[10px] flex items-baseline gap-[10px]"><span className="text-[14px] font-semibold text-accent">{item.priceFrom ? `from ${item.price}` : item.price}</span><span className="text-[11.5px] text-fg-muted">{item.prepTimeMinutes} min</span></div>
                       </div>
                     </div>
                     <button type="button" role="switch" aria-checked={item.available} aria-label={`${item.name} on the menu`} data-toggle={item.id} onClick={(e) => toggle(item, e.currentTarget)} className="chip press shrink-0 !px-[14px] !py-2 !text-[12.5px]">{item.available ? "On" : "Sold out"}</button>
