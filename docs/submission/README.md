@@ -21,13 +21,19 @@ to be read cold, by someone with no other document open.
 
 ## How they are generated
 
-Both come from one content file and two renderers, run in a throwaway virtualenv so
-nothing is added to this project's dependencies. The PDF is built with reportlab and the
-Word file with python-docx: real document objects with real heading styles, not a printed
-web page. The ERD is rendered by Mermaid in a headless browser and saved as a PNG.
+Both come from one content file and two renderers, committed at `build/`, run in a
+throwaway virtualenv so nothing is added to this project's dependencies. The PDF is built
+with reportlab and the Word file with python-docx: real document objects with real heading
+styles, not a printed web page. The ERD is rendered by Mermaid in a headless browser and
+saved as a PNG. `build/README.md` has the commands.
 
 If the document changes, both are regenerated together. Editing one of them by hand would
 make the two disagree.
+
+The diagram they carry is kept honest by a test rather than by attention:
+`lib/schema-diagram.test.mts` fails if an entity, an enum value or a field introduced by
+one of the fifteen deltas is missing from the Mermaid source in the root README. It exists
+because the diagram had already gone three schema changes stale once.
 
 ## What was verified, and how
 

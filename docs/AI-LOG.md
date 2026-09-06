@@ -2732,3 +2732,35 @@ or the test run compares a picture of the model to the model.
   the image, the table of contents field and the footer page-number field, and every block
   of the source content present. The PDF, by contrast, was rendered to images page by page
   and read, all thirteen of them.
+
+### The stale diagram now has a test, and the photograph search does not
+
+Two of the corrections above were found by eye rather than by a check, and they are the
+same shape: the gate measured everything except the thing that was wrong.
+
+**The diagram is now checked.** `lib/schema-diagram.test.mts` reads the schema and the
+mermaid block in the README and fails if a model is missing as an entity, if an enum value
+in the schema is absent from the picture, or if a field introduced by one of the fifteen
+`DELTA` comments does not appear in it. Relation fields are skipped, because the diagram
+carries `waiterId` rather than `waiter`. It is deliberately not "every field must be
+drawn": a diagram is allowed to omit a restaurant's phone number, and a test that forbids
+that would be deleted the first time it got in the way.
+
+It was proved rather than asserted. Checked out against the README exactly as it stood
+before the staleness was noticed, three of its four assertions fail:
+
+```
+✖ every model in the schema is an entity in the diagram
+    entities missing from the diagram: Restaurant, Waiter, Chef, Bartender, Complaint
+✖ every enum value in the schema appears in the diagram
+✖ every field a DELTA comment introduces appears in the diagram
+```
+
+**The photograph search stays a manual check, and that is the honest answer.** No test can
+tell whether a picture is of the dish it is filed under. The thing that caught the
+engraving, the portrait, the nude torso and the six photographs of a concert was rendering
+every candidate at 76 pixels, under the real treatment, on the real ground, and looking at
+it. Four hundred and thirty eight candidates were looked at that way across five passes.
+A test could assert that every dish on the card has a file and that every file loads,
+which is worth having and is already covered by the evidence run, but it cannot assert
+that the file shows food.
