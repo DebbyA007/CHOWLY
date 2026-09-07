@@ -2384,11 +2384,17 @@ reads zero on every frame. Those measurements stand on their own.
 
 ---
 
-## The menu is replaced: The Lagos Table, and four more deltas
+## The menu is replaced: the full card, and four more deltas
 
-The brief's own menu document, `docs/assignment/The_Lagos_Table_Fine_Dining_Menu.docx`,
-was handed over late with an instruction: take its items and its section structure, ignore
-its restaurant entirely. The Golden Gate stays. Ninety two rows replaced eleven.
+The user's own menu document, `docs/menu/golden-gate-menu.docx`, was handed over late
+with an instruction: take its items and its section structure, and keep its working title
+out of the app entirely. The Golden Gate stays. Ninety two rows replaced eleven.
+
+(Corrected on 7 September 2026. This entry originally called that file the brief's own
+menu document and put it under `docs/assignment/`. Both were wrong: the user wrote the
+menu, the dishes, the descriptions and the prices, and the file was only ever stored in
+that folder by me. The file has moved to `docs/menu/` and the wording is fixed here rather
+than left standing.)
 
 ### What I proposed and what was decided
 

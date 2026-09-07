@@ -310,7 +310,7 @@ deliberate ways, each annotated `DELTA`:
 ### The preparation times are mine, and the menu has none
 
 The assignment requires a preparation time on every menu item and the promise is computed
-from it, so every dish needs one. **The Lagos Table menu does not carry preparation times.
+from it, so every dish needs one. **The menu does not carry preparation times.
 It has three columns: dish, description with ingredients and preparation, and price.** So
 the ninety two numbers in the database are mine, not the restaurant's, and this document
 says so rather than letting a reader assume the menu supplied them.
