@@ -15,6 +15,7 @@ import { abandonPlacement, isPending, retryPlacement, type Pending } from "./pen
 import { OrderSkeleton } from "./skeleton";
 import { Vessel, type VesselState } from "./vessel";
 import { useArrival } from "./arrival";
+import { GameOverlay, type OrderState } from "./game";
 
 const CIRCUMFERENCE = 2 * Math.PI * 82;
 // Once the promise is spent, the arc closes again and ochre crosses to red over this long.
@@ -99,6 +100,15 @@ function notStartedYet(order: SerializedOrder): string {
   return "Your waiter has not brought it yet.";
 }
 
+// What the game needs to know about the order underneath it: enough to interrupt with,
+// and nothing else.
+function gameState(order: SerializedOrder, isLate: boolean): OrderState {
+  if (order.status === "CANCELLED") return "cancelled";
+  if (order.status === "PAID") return "paid";
+  if (order.status === "SERVED") return "served";
+  return isLate ? "late" : "waiting";
+}
+
 function OrderBody({ order, clock, api, open, others, pending, fresh }: { order: SerializedOrder; clock: Clock; api: Api; open: SerializedOrder[]; others: SerializedOrder[]; pending: Pending | null; fresh: Fresh }) {
   const root = useRef<HTMLDivElement>(null);
   // Still on its way to the kitchen, or refused: the same screen, said plainly.
@@ -120,6 +130,9 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
   const cancelSeconds = Math.max(0, Math.ceil((new Date(order.cancel.until).getTime() - (api.now ?? Date.now())) / 1000));
   const cancelOpen = order.status === "PLACED" && !sending && cancelSeconds > 0;
   const [confirming, setConfirming] = useState(false);
+  // Something to do while the kitchen works. An offer, not a demand: one quiet control
+  // that is easy to ignore, and it only appears while there is actually a wait on.
+  const [playing, setPlaying] = useState(false);
   // Three steps the data can vouch for: placed, served, paid. Nothing is invented between.
   const steps = cancelled
     ? [
@@ -378,6 +391,11 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
             <p className="late-actions mt-5 text-center text-[12.5px] leading-[1.55] text-fg-muted" data-when-late>If it goes past {promiseLabel(order.waitMinutes).replace(/^Promised in /, "")}, you can report a problem and rate it from here.</p>
           )}
         </div>
+        {order.status === "PLACED" && !sending && !failed ? (
+          <div className="px-[22px] pb-1">
+            <button type="button" data-play onClick={() => setPlaying(true)} className="btn-outline press w-full !py-[13px] !text-[13px] !text-fg-muted">Play while you wait</button>
+          </div>
+        ) : null}
         <ol className={`px-[22px] ${isLate ? "pt-1" : ""} ${failed ? "hidden" : ""}`} aria-label="Progress">
           {steps.map((step, i) => {
             const pending = !step.done;
@@ -437,6 +455,7 @@ function OrderBody({ order, clock, api, open, others, pending, fresh }: { order:
           </section>
         ) : null}
         {sheet ? <ActionSheet kind={sheet} api={api} order={order} onClose={() => setSheet(null)} /> : null}
+        {playing ? <GameOverlay state={gameState(order, isLate)} onClose={() => setPlaying(false)} /> : null}
       </div>
     </Screen>
   );
