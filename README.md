@@ -38,7 +38,9 @@ in [`docs/screens`](docs/screens/README.md).
 2. **Menu.** The card's seven headings as chips, with a lighter second row of
    sub-headings under the ones that have them; ninety two dishes, each with a 76px round
    photograph or a struck monogram, its name, description, price and the kitchen's
-   minutes; an add circle that morphs into a quantity stepper; a cart bar that never
+   minutes. The card is original: the dishes, the descriptions and the prices were written
+   for this restaurant, and the source document is at
+   [`docs/menu`](docs/menu/README.md); an add circle that morphs into a quantity stepper; a cart bar that never
    disappears. Three bottles are priced from a floor and say to ask your waiter instead
    of offering a total nobody can compute yet.
 3. **Order placed.** The ring, driven from real elapsed time against the promise, the
