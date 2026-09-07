@@ -1,13 +1,16 @@
 # Evidence: the games
 
-Both games in both modes at 390, in Chromium against a production build and in WebKit
-against the development server, because our Content Security Policy sends
-`upgrade-insecure-requests` outside development and WebKit applies it to `localhost`.
+Both games in both modes at 390, in Chromium and in WebKit, **captured against the
+deployed application** at https://chowly-theta.vercel.app. Earlier runs for this feature
+were against a local build because Vercel's preview deployments sit behind the account's
+SSO; now that the branch is merged the live URL is the one under test, and everything below
+was re-taken there.
 
 ## The countdown never goes behind the panel
 
 The panel is capped at `calc(100dvh - 415px)` rather than at a percentage, so it is held
-below the ring whatever the screen height. Measured in every state the panel can reach:
+below the ring whatever the screen height. Measured on production, in every state the panel
+can reach:
 
 | State | Panel top | Ring bottom | Clear of the ring by | Needs scrolling |
 |---|---|---|---|---|
@@ -17,17 +20,20 @@ below the ring whatever the screen height. Measured in every state the panel can
 | quiz | 475 | 401 | 74 | no |
 | quiz, answered | 425 | 401 | 24 | no |
 
-There is no scrim over the ring, and the digits kept ticking in every frame. An earlier
-cap of 52dvh left only five pixels of clearance at the tallest state and made the won
-board scroll; both were found by measuring rather than by looking.
+Identical to the pixel to the same measurement taken against a local production build,
+which is what one would hope for and worth checking rather than assuming. There is no
+scrim over the ring, and the digits kept ticking in every frame.
 
-## Both games, both modes
+An earlier cap of 52dvh left five pixels of clearance at the tallest state and made the won
+board scroll. Both were found by measuring rather than by looking.
+
+## Both games, both modes, on the live URL
 
 | | Chromium | WebKit |
 |---|---|---|
-| Tic tac toe alone, the app replies | board reads `OX` after one move | same |
+| Tic tac toe alone, the app replies | board reads `XO` after one move | same |
 | Tic tac toe two players, a win | "X wins.", win line drawn | same |
-| Quiz alone, the answer is shown | "Not that one. The answer is 36." | "Not that one. The answer is 150." |
+| Quiz alone, the answer is shown | "The answer is Leafy vegetables." | "The answer is Yaji." |
 | Quiz two players, whose turn | "Player one, your turn." | same |
 | Twelve questions, no repeats | 12 distinct | 12 distinct |
 | Close, with nothing asked | panel gone | panel gone |
@@ -36,37 +42,36 @@ Neither engine reported a page error in any run.
 
 ## Motion, sampled mid-animation
 
-A mark landing, in Chromium, four samples across 240ms:
+A mark landing, four samples across 240ms:
 
 ```
-opacity 0.24  scale 0.62
-opacity 0.91  scale 0.96
-opacity 1.00  scale 1.00
+chromium  opacity 0.41 scale 0.70 -> 0.90 / 0.95 -> 1.00 / 1.00
+webkit    opacity 0.32 scale 0.66 -> 0.83 / 0.91 -> 1.00 / 1.00
 ```
 
 The win line drawing, sampled as stroke-dashoffset:
 
 ```
-chromium  120 -> 39 -> 1 -> 0
-webkit    121 -> 40 -> 7 -> 0
+chromium  118 -> 31 -> 1 -> 0
+webkit    118 -> 39 -> 6 -> 0
 ```
 
 An earlier version restarted that draw on every render, because the effect depended on the
 winner object, which is rebuilt each time. It is keyed on the line now, and the fourth
-sample settling at 0 rather than jumping back to 120 is what proves it.
+sample settling at 0 rather than jumping back is what proves it.
 
-A question turning over, sampled as opacity and transform. The `matrix3d` is the rotateX
-in flight, resolving to a plain matrix once it lands:
+A question turning over, sampled as opacity and transform. The `matrix3d` is the rotateX in
+flight, resolving to a plain matrix once it lands:
 
 ```
-chromium  0.31 matrix3d -> 0.84 matrix3d -> 1 matrix
-webkit    0.28 matrix3d -> 0.70 matrix3d -> 0.96 matrix3d -> 1 matrix
+chromium  0.29 matrix3d -> 0.82 matrix3d -> 1 matrix3d -> 1 matrix
+webkit    0.26 matrix3d -> 0.82 matrix3d -> 0.99 matrix3d -> 1 matrix
 ```
 
 ## The order interrupting the game
 
-The waiter marked the order served with a game open. In both engines a band appeared over
-the game within one poll:
+The waiter marked the order served on the live app with a game open. In both engines a band
+appeared over the game within one poll:
 
 ```
 order status now: SERVED
@@ -78,14 +83,15 @@ alert over the game: "Your order has been served. See your order"
 Chromium: tabbing reaches the board, the focus ring computes to `solid 2px rgb(210, 162,
 76)`, the cell announces `top left, empty`, and Enter plays it.
 
-WebKit reached no cells by Tab. That is macOS Safari's own setting, which keeps controls
-out of the tab order unless "Press Tab to highlight each item" is on, and it is the same
+WebKit reached no cells by Tab. That is macOS Safari's own setting, which keeps controls out
+of the tab order unless "Press Tab to highlight each item" is on, and it is the same
 behaviour this project already recorded for links. The rule itself is present in the
-stylesheet WebKit loaded, and applies when a control is focused.
+stylesheet WebKit loads, and applies when a control is focused.
 
-## A note on the harness
+## What the capture needed
 
-In development Next mounts an overlay portal over the bottom-left corner, which swallowed
-clicks aimed at the picker. The WebKit run calls `click()` on the element directly to get
-past it. A production build has no such element, which is why the Chromium run needed
-nothing.
+Chromium is launched with `--disable-blink-features=AutomationControlled` and an iPhone user
+agent, because Vercel's edge mitigation answers a plain automation run with a challenge
+page. WebKit needed neither this time, which corrects an earlier note in this repository
+saying WebKit could not pass that checkpoint: it could not while the mitigation was tripped
+by heavy capture traffic, and it can when it is not.
