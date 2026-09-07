@@ -172,6 +172,12 @@ DOC = [
 ("p", "Then the receipt prints, with the perforation, the lines, the total, a stamp that lands once, a torn foot, and one credit line naming the people who actually made the order. For an order of still water it reads \"Served by Ada O.\" and names nobody else, which is the whole point of the station."),
 ("p", "\"Save the receipt\" draws it again as a picture and hands it to the phone. Where the phone will carry a picture in its share sheet, that is how it reaches the photo library; where it will not, the same button downloads it instead. The line under the button says which is about to happen."),
 
+("h3", "Something to do while you wait, which is beyond the requirements"),
+("p", "The wait is the thing this app is about, so I gave a guest something to do inside it. Once an order is placed there is one quiet control on the order screen, \"Play while you wait\", and it opens a small panel over that screen with two games in it. Tic tac toe, alone against the app or two people passing the phone across the table, and a quiz of forty eight questions on Lagos and Nigeria, food and cooking, and general knowledge, again alone or two people taking turns. Nothing repeats within a sitting, and the right answer is shown after every question."),
+("p", "It is offered rather than pushed. One control, easy to ignore, gone the moment there is nothing left to wait for, and it closes on a single tap with nothing asked."),
+("p", "Two rules shaped the rest of it. **The countdown never goes behind the game.** The panel is capped against the ring rather than at a share of the screen, so it can never rise above it on any phone, and there is no dimming over it. If the order is served, runs late or is cancelled while someone is playing, a band appears over the game saying so with a way straight back. The wait is the subject; a game is not allowed to hide it."),
+("p", "**And nothing is stored.** A refresh closes the game and the next one starts clean. That is a decision rather than something I did not get to: a half-finished board restored beside an order that has since been served is worse than a lost game of tic tac toe, and the countdown underneath survives a refresh exactly as it always did, which is the state that actually matters. The games touch no table, no route and no request; they are entirely in the browser."),
+
 ("h3", "Cancelling an order, which is beyond the requirements"),
 ("p", "I added this because the model I was given only ran forward, and a guest who ordered by mistake had nothing to do but wait for food they did not want."),
 ("p", "A guest can withdraw their own order while it is still placed and no more than a quarter of the promised wait has passed. I made the window a fraction of the promise rather than a fixed number of minutes so that it stays proportionate: a glass of water gives fifteen seconds, my tasting menu gives twenty two and a half minutes. After that the kitchen has started and cancelling would throw away food."),
@@ -217,5 +223,5 @@ DOC = [
   ["7. Real storage that survives a refresh", "Real storage. PostgreSQL on Neon; the clock comes from the stored timestamp"],
   ["8. A live link anybody can use", LIVE],
 ])),
-("p", "Beyond them I built the cancel window, the 86 board, the table board, the receipt as a saveable picture, the staff derived from the stations, the role switch, and the design, which is one art direction I chose over three I built and rejected."),
+("p", "Beyond them I built the cancel window, the two games to play while an order is on its way, the 86 board, the table board, the receipt as a saveable picture, the staff derived from the stations, the role switch, and the design, which is one art direction I chose over three I built and rejected."),
 ]
